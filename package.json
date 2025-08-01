@@ -1,0 +1,30 @@
+{
+  "name": "minerva",
+  "version": "1.0.0",
+  "description": "Personal book library management system",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && rav server",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "start": "npm run start:frontend",
+    "start:frontend": "cd frontend && npm run start",
+    "lint": "cd frontend && npm run lint",
+    "install:all": "npm install && cd frontend && npm install",
+    "backend:migrate": "cd backend && rav migrate",
+    "backend:makemigrations": "cd backend && rav makemigrations",
+    "backend:shell": "cd backend && rav shell",
+    "backend:server": "cd backend && rav server"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
