@@ -1,15 +1,20 @@
-# Minerva Frontend Project Plan
+# Minerva Project Plan - Updated to Match Documentation Reality
 
 ## Current Architecture Overview
 
 ### Technology Stack
+
 - **Next.js 14.1.0** - React framework with App Router
 - **React 18** - UI library with TypeScript
 - **Chakra UI** - Component library and design system
 - **Framer Motion** - Animation library
 - **next-themes** - Theme switching functionality
+- **Django 4.2.21** - Backend API with Django Ninja
+- **PostgreSQL** - Production database with UUID primary keys
+- **Redis** - Caching and session storage
 
 ### Current Features
+
 - Responsive book library interface with sortable table
 - Real-time search across books and authors
 - Comprehensive book management (add, edit, delete, view details)
@@ -18,272 +23,304 @@
 - Newsletter signup modal with cookie tracking
 - Google Analytics integration
 - Mobile-responsive design
+- Google Books API integration for metadata enrichment
 
-## Development Phases
+## Development Phases - Updated Based on Documentation Reality
 
-### Phase 1: Foundation & Testing (Weeks 1-2)
-**Priority: Critical**
+### Phase 1: Docker Containerization & Infrastructure (Weeks 1-2)
 
-#### Testing Infrastructure
-- [ ] Set up Jest and React Testing Library
-- [ ] Create component unit tests for all major components
-- [ ] Add Cypress for end-to-end testing
-- [ ] Implement visual regression testing with Chromatic
-- [ ] Set up test coverage reporting
+**Priority: CRITICAL - Fully Documented and Ready to Implement**
 
-#### Code Quality & Performance
-- [ ] Add ESLint rules and Prettier configuration
-- [ ] Implement pre-commit hooks for code quality
-- [ ] Set up Lighthouse CI for performance monitoring
-- [ ] Add bundle analyzer for optimization
-- [ ] Implement error boundary components
+#### Docker Implementation
+
+- [x] **COMPLETED**: Comprehensive Docker strategy documented
+- [x] **COMPLETED**: Multi-stage Dockerfiles for backend and frontend
+- [x] **COMPLETED**: Docker Compose configurations for dev/prod/test
+- [ ] **TODO**: Implement Docker containerization across all services
+- [ ] **TODO**: Set up unified development workflow with `npm run docker:dev`
+- [ ] **TODO**: Configure production deployment containers
+- [ ] **TODO**: Implement health checks and monitoring
+
+#### Infrastructure Setup
+
+- [ ] **TODO**: Set up PostgreSQL container with proper volumes
+- [ ] **TODO**: Configure Redis container for caching and sessions
+- [ ] **TODO**: Implement Nginx reverse proxy for production
+- [ ] **TODO**: Set up environment variable management
+- [ ] **TODO**: Create development vs production configurations
+
+**Why This Phase is Critical**: Docker implementation is fully documented and ready to implement, providing the foundation for consistent development environments and production deployment.
+
+### Phase 2: AI Agent Integration with LangChain & LangGraph (Weeks 3-5)
+
+**Priority: HIGH - Fully Specified and Ready to Implement**
+
+#### AI Foundation Setup
+
+- [x] **COMPLETED**: Comprehensive AI integration specification (29KB documentation)
+- [x] **COMPLETED**: LangChain and LangGraph architecture design
+- [x] **COMPLETED**: Agent workflow specifications and state management
+- [x] **COMPLETED**: Database schema extensions for AI features
+- [ ] **TODO**: Install LangChain, LangGraph, and Anthropic dependencies
+- [ ] **TODO**: Set up Anthropic Claude API integration
+- [ ] **TODO**: Create AI services Django app structure
+
+#### Core Agent Implementation
+
+- [ ] **TODO**: Implement Book Management Agent (metadata enhancement, genre classification)
+- [ ] **TODO**: Implement Recommendation Agent (personalized suggestions)
+- [ ] **TODO**: Implement Library Curator Agent (collection analysis)
+- [ ] **TODO**: Implement Conversational Agent (natural language interface)
+- [ ] **TODO**: Implement Analytics Agent (reading insights)
+
+#### AI API Endpoints
+
+- [ ] **TODO**: Create RESTful API endpoints for all agents
+- [ ] **TODO**: Implement agent orchestration service
+- [ ] **TODO**: Add authentication and rate limiting for AI features
+- [ ] **TODO**: Create agent monitoring and health checks
+
+**Why This Phase is High Priority**: AI integration is completely specified with detailed implementation plans, code examples, and database schemas. This represents a major competitive advantage and user experience enhancement.
+
+### Phase 3: Testing Infrastructure & Code Quality (Weeks 6-7)
+
+**Priority: HIGH - Needs Implementation and Documentation**
+
+#### Testing Framework Setup
+
+- [ ] **TODO**: Set up Jest and React Testing Library for frontend
+- [ ] **TODO**: Add Cypress for end-to-end testing
+- [ ] **TODO**: Implement visual regression testing with Chromatic
+- [ ] **TODO**: Set up test coverage reporting
+- [ ] **TODO**: Create Django testing framework for backend
+- [ ] **TODO**: Implement integration tests for AI agents
+
+#### Code Quality Tools
+
+- [ ] **TODO**: Add ESLint rules and Prettier configuration
+- [ ] **TODO**: Implement pre-commit hooks for code quality
+- [ ] **TODO**: Set up TypeScript strict mode configuration
+- [ ] **TODO**: Add Python linting with Black, isort, and flake8
+- [ ] **TODO**: Implement proper error handling patterns
 
 #### Development Infrastructure
-- [ ] Create component Storybook for design system
-- [ ] Set up GitHub Actions for CI/CD
-- [ ] Add TypeScript strict mode configuration
-- [ ] Implement proper error handling patterns
-- [ ] Create development environment documentation
 
-### Phase 2: Mobile-First Redesign (Weeks 3-5)
-**Priority: High**
+- [ ] **TODO**: Create component Storybook for design system
+- [ ] **TODO**: Set up GitHub Actions for CI/CD
+- [ ] **TODO**: Add Lighthouse CI for performance monitoring
+- [ ] **TODO**: Create development environment documentation
+
+**Why This Phase is High Priority**: Testing infrastructure is mentioned in the original plan but not documented, making it a critical gap that needs immediate attention for code quality and reliability.
+
+### Phase 4: Mobile-First Redesign & PWA (Weeks 8-10)
+
+**Priority: MEDIUM - Needs Planning and Implementation**
 
 #### Responsive Design Overhaul
-- [ ] Redesign BookTable component for mobile screens
-- [ ] Create collapsible card layout for small screens
-- [ ] Implement touch-friendly interaction patterns
-- [ ] Add swipe gestures for mobile book management
-- [ ] Optimize image loading and rendering for mobile
+
+- [ ] **TODO**: Redesign BookTable component for mobile screens
+- [ ] **TODO**: Create collapsible card layout for small screens
+- [ ] **TODO**: Implement touch-friendly interaction patterns
+- [ ] **TODO**: Add swipe gestures for mobile book management
+- [ ] **TODO**: Optimize image loading and rendering for mobile
 
 #### Progressive Web App (PWA)
-- [ ] Add service worker for offline functionality
-- [ ] Implement app manifest for installability
-- [ ] Create offline state management
-- [ ] Add push notification support
-- [ ] Implement background sync for data updates
+
+- [ ] **TODO**: Add service worker for offline functionality
+- [ ] **TODO**: Implement app manifest for installability
+- [ ] **TODO**: Create offline state management
+- [ ] **TODO**: Add push notification support
+- [ ] **TODO**: Implement background sync for data updates
 
 #### Navigation & UX Improvements
-- [ ] Create bottom navigation for mobile
-- [ ] Add pull-to-refresh functionality
-- [ ] Implement infinite scroll as pagination alternative
-- [ ] Create floating action button for quick add
-- [ ] Add breadcrumb navigation for deep pages
 
-### Phase 3: Enhanced User Interface (Weeks 6-8)
-**Priority: High**
+- [ ] **TODO**: Create bottom navigation for mobile
+- [ ] **TODO**: Add pull-to-refresh functionality
+- [ ] **TODO**: Implement infinite scroll as pagination alternative
+- [ ] **TODO**: Create floating action button for quick add
+- [ ] **TODO**: Add breadcrumb navigation for deep pages
+
+**Why This Phase is Medium Priority**: Mobile optimization is important for user experience but not as critical as the infrastructure and AI features that are already planned.
+
+### Phase 5: Enhanced User Interface & Features (Weeks 11-13)
+
+**Priority: MEDIUM - Feature Enhancement Phase**
 
 #### Advanced Filtering & Search
-- [ ] Create multi-facet filter sidebar
-- [ ] Add date range picker for publication dates
-- [ ] Implement tag-based filtering with autocomplete
-- [ ] Create saved searches functionality
-- [ ] Add advanced search modal with multiple criteria
+
+- [ ] **TODO**: Create multi-facet filter sidebar
+- [ ] **TODO**: Add date range picker for publication dates
+- [ ] **TODO**: Implement tag-based filtering with autocomplete
+- [ ] **TODO**: Create saved searches functionality
+- [ ] **TODO**: Add advanced search modal with multiple criteria
 
 #### Interactive Features
-- [ ] Implement drag-and-drop book organization
-- [ ] Add bulk selection and operations
-- [ ] Create book comparison feature
-- [ ] Add reading progress visualization
-- [ ] Implement keyboard shortcuts for power users
+
+- [ ] **TODO**: Implement drag-and-drop book organization
+- [ ] **TODO**: Add bulk selection and operations
+- [ ] **TODO**: Create book comparison feature
+- [ ] **TODO**: Add reading progress visualization
+- [ ] **TODO**: Implement keyboard shortcuts for power users
 
 #### Enhanced Book Details
-- [ ] Create immersive book detail pages
-- [ ] Add book cover zoom and gallery
-- [ ] Implement in-line editing for book details
-- [ ] Create reading notes and highlights section
-- [ ] Add book timeline and reading history
 
-### Phase 4: Data Visualization & Analytics (Weeks 9-11)
-**Priority: Medium**
+- [ ] **TODO**: Create immersive book detail pages
+- [ ] **TODO**: Add book cover zoom and gallery
+- [ ] **TODO**: Implement in-line editing for book details
+- [ ] **TODO**: Create reading notes and highlights section
+- [ ] **TODO**: Add book timeline and reading history
+
+**Why This Phase is Medium Priority**: These are user experience enhancements that build upon the core functionality and AI features.
+
+### Phase 6: Data Visualization & Analytics (Weeks 14-16)
+
+**Priority: LOW - Future Enhancement Phase**
 
 #### Reading Statistics Dashboard
-- [ ] Create reading analytics overview page
-- [ ] Implement charts for reading progress over time
-- [ ] Add genre distribution visualizations
-- [ ] Create reading goals tracking interface
-- [ ] Build yearly reading summary reports
+
+- [ ] **TODO**: Create reading analytics overview page
+- [ ] **TODO**: Implement charts for reading progress over time
+- [ ] **TODO**: Add genre distribution visualizations
+- [ ] **TODO**: Create reading goals tracking interface
+- [ ] **TODO**: Build yearly reading summary reports
 
 #### Interactive Charts & Graphs
-- [ ] Integrate Chart.js or D3.js for data visualization
-- [ ] Create interactive reading heatmap calendar
-- [ ] Add book rating distribution charts
-- [ ] Implement reading streak visualizations
-- [ ] Build comparative reading statistics
 
-#### Performance Metrics
-- [ ] Create reading speed analytics
-- [ ] Add page count vs. time analysis
-- [ ] Implement book completion rate tracking
-- [ ] Build genre preference analysis
-- [ ] Add reading pattern insights
+- [ ] **TODO**: Integrate Chart.js or D3.js for data visualization
+- [ ] **TODO**: Create interactive reading heatmap calendar
+- [ ] **TODO**: Add book rating distribution charts
+- [ ] **TODO**: Implement reading streak visualizations
+- [ ] **TODO**: Build comparative reading statistics
 
-### Phase 5: Social & Collaboration Features (Weeks 12-14)
-**Priority: Medium**
+**Why This Phase is Low Priority**: Analytics features are valuable but not critical for core functionality and can be implemented after the AI features are stable.
 
-#### User Profiles & Social
-- [ ] Create user profile pages
-- [ ] Add reading activity feeds
-- [ ] Implement book recommendations sharing
-- [ ] Create public reading lists feature
-- [ ] Add friend system and following
+## Technical Implementation Status
 
-#### Book Lending Interface
-- [ ] Create lending management dashboard
-- [ ] Add borrower contact interface
-- [ ] Implement due date notifications
-- [ ] Create lending history visualization
-- [ ] Add book availability status indicators
+### ✅ Completed & Documented
 
-#### Community Features
-- [ ] Implement book clubs interface
-- [ ] Add discussion forums for books
-- [ ] Create reading challenges system
-- [ ] Add book review and rating sharing
-- [ ] Implement collaborative reading lists
+- **Unified Repository Structure**: Successfully merged frontend/backend
+- **Docker Strategy**: Complete containerization plan with multi-stage builds
+- **AI Integration Specification**: Comprehensive LangChain/LangGraph implementation plan
+- **Development Environment**: Local setup guides and npm workspace configuration
+- **Architecture Documentation**: System overview and component specifications
 
-### Phase 6: Advanced Features & Optimization (Weeks 15-18)
-**Priority: Low**
+### 🔄 In Progress / Ready to Implement
 
-#### State Management & Architecture
-- [ ] Implement Zustand or Redux Toolkit for global state
-- [ ] Add React Query for server state management
-- [ ] Create proper data caching strategies
-- [ ] Implement optimistic updates for better UX
-- [ ] Add offline-first data synchronization
+- **Docker Containerization**: Fully documented, ready for implementation
+- **AI Agent Infrastructure**: Complete specifications, ready for development
+- **Database Schema**: Extended models for AI features documented
 
-#### Advanced UI Components
-- [ ] Create virtual scrolling for large book lists
-- [ ] Implement advanced table with column customization
-- [ ] Add data export functionality (CSV, PDF)
-- [ ] Create print-friendly book catalog views
-- [ ] Implement advanced text search with highlighting
+### ❌ Needs Documentation & Planning
 
-#### Accessibility & Internationalization
-- [ ] Add comprehensive ARIA labels and roles
-- [ ] Implement keyboard navigation throughout app
-- [ ] Add screen reader support for all components
-- [ ] Create high contrast theme for accessibility
-- [ ] Add internationalization support (i18n)
+- **Testing Infrastructure**: Framework setup and testing strategies
+- **Mobile Optimization**: Responsive design and PWA implementation
+- **Performance Monitoring**: Metrics collection and optimization
+- **CI/CD Pipeline**: Automated testing and deployment
 
-## Technical Improvements
+## Immediate Next Steps (Next 2 Weeks)
 
-### Performance Optimization
-- [ ] Implement React.memo for expensive components
-- [ ] Add lazy loading for route-based code splitting
-- [ ] Optimize images with Next.js Image component
-- [ ] Implement virtual scrolling for large datasets
-- [ ] Add service worker for asset caching
+### Week 1: Docker Implementation
 
-### SEO & Discovery
-- [ ] Add proper meta tags and Open Graph data
-- [ ] Implement structured data for book content
-- [ ] Create XML sitemap generation
-- [ ] Add canonical URLs for all pages
-- [ ] Implement proper heading hierarchy
+1. **Monday-Tuesday**: Implement backend Dockerfile and container
+2. **Wednesday-Thursday**: Implement frontend Dockerfile and container
+3. **Friday**: Set up Docker Compose and test unified development workflow
 
-### Security & Privacy
-- [ ] Add Content Security Policy headers
-- [ ] Implement proper CORS handling
-- [ ] Add rate limiting for API calls
-- [ ] Create privacy policy and cookie consent
-- [ ] Implement secure authentication flow
+### Week 2: AI Foundation
 
-## Component Architecture Refactoring
-
-### Current Component Issues
-- Monolithic components with multiple responsibilities
-- Direct API calls mixed with UI logic
-- Inconsistent prop interfaces
-- Limited reusability across different contexts
-
-### Proposed Architecture
-```
-src/
-├── components/
-│   ├── ui/              # Base UI components
-│   ├── forms/           # Form components
-│   ├── data/            # Data display components
-│   ├── layout/          # Layout components
-│   └── features/        # Feature-specific components
-├── hooks/               # Custom React hooks
-├── services/            # API and external services
-├── utils/               # Utility functions
-├── stores/              # State management
-└── types/               # TypeScript definitions
-```
-
-### Key Refactoring Tasks
-- [ ] Extract custom hooks for data fetching
-- [ ] Create reusable form components
-- [ ] Implement compound component patterns
-- [ ] Add proper TypeScript generics for reusability
-- [ ] Create consistent component APIs
-
-## Design System Evolution
-
-### Current Chakra UI Enhancements
-- [ ] Create custom theme tokens for brand consistency
-- [ ] Build component variants for different contexts
-- [ ] Add animation tokens and presets
-- [ ] Create responsive breakpoint system
-- [ ] Implement dark mode color palette refinements
-
-### Component Library
-- [ ] Document all components in Storybook
-- [ ] Create usage guidelines and best practices
-- [ ] Add interactive component playground
-- [ ] Implement design tokens documentation
-- [ ] Create component API reference
+1. **Monday**: Install LangChain/LangGraph dependencies
+2. **Tuesday-Wednesday**: Set up Anthropic Claude API integration
+3. **Thursday-Friday**: Create AI services Django app structure
 
 ## Success Metrics
 
-### Performance Targets
-- First Contentful Paint < 1.5s
-- Largest Contentful Paint < 2.5s
-- Cumulative Layout Shift < 0.1
-- Time to Interactive < 3s
-- 90+ Lighthouse performance score
+### Phase 1 Success Criteria (Docker)
 
-### User Experience Goals
-- Mobile-first responsive design across all devices
-- Offline functionality for core features
-- Accessibility compliance (WCAG 2.1 AA)
-- Intuitive navigation and user flows
-- Fast and efficient book management workflows
+- [ ] `npm run docker:dev` starts entire stack successfully
+- [ ] Hot reloading works for both frontend and backend
+- [ ] Database migrations run successfully in containers
+- [ ] Production build process completes without errors
+
+### Phase 2 Success Criteria (AI Integration)
+
+- [ ] Book Management Agent successfully enhances metadata
+- [ ] Recommendation Agent provides personalized suggestions
+- [ ] Conversational Agent responds to natural language queries
+- [ ] AI API endpoints are accessible and functional
+
+### Phase 3 Success Criteria (Testing)
+
+- [ ] Frontend component tests pass consistently
+- [ ] Backend API tests cover all endpoints
+- [ ] AI agent integration tests validate workflows
+- [ ] Code coverage exceeds 80% for critical paths
 
 ## Risk Assessment
 
 ### High Risk
-- Mobile redesign complexity and user adoption
-- Performance degradation with large book collections
-- State management complexity as features grow
-- Accessibility compliance across all components
+
+- **Docker Implementation Complexity**: Multi-service orchestration and environment parity
+- **AI Agent Performance**: Response times and Claude API costs
+- **Testing Infrastructure Gap**: Lack of documented testing strategies
 
 ### Medium Risk
-- Third-party library dependencies and updates
-- Browser compatibility across different devices
-- Caching strategy complexity
-- SEO impact during major architectural changes
+
+- **Mobile Redesign**: User experience changes and adoption
+- **Performance Impact**: AI features and containerization overhead
+- **Integration Complexity**: Coordinating multiple new systems
 
 ### Mitigation Strategies
-- Gradual rollout with feature flags
-- Comprehensive testing at each phase
-- Performance budgets and monitoring
-- Regular accessibility audits
-- Backward compatibility maintenance
+
+- **Gradual Rollout**: Implement Docker and AI features incrementally
+- **Performance Monitoring**: Track response times and resource usage
+- **Comprehensive Testing**: Build testing infrastructure alongside features
+- **User Feedback**: Gather input on mobile experience changes
 
 ## Future Considerations
 
 ### Emerging Technologies
-- Server Components adoption for better performance
-- AI-powered book recommendations
-- Voice search and accessibility features
-- Augmented reality for book discovery
-- Machine learning for reading pattern analysis
+
+- **Server Components**: Next.js 15+ adoption for better performance
+- **AI Model Evolution**: Integration with newer Claude models
+- **Edge Computing**: AI agent deployment at the edge
+- **Voice Interfaces**: AI-powered voice search and commands
 
 ### Platform Expansion
-- Native mobile app development
-- Desktop electron app
-- Browser extension for book discovery
-- API for third-party integrations
-- Widget system for embedding
+
+- **Native Mobile Apps**: React Native or Flutter applications
+- **Desktop Applications**: Electron app for cross-platform desktop use
+- **Browser Extensions**: Book discovery and library integration
+- **API Marketplace**: Third-party integrations and plugins
+
+## Documentation Status
+
+### ✅ Well Documented
+
+- Docker containerization strategy and implementation
+- AI agent integration with LangChain/LangGraph
+- Development environment setup and configuration
+- System architecture and component design
+
+### 🔄 Partially Documented
+
+- Project planning and roadmap (this document)
+- Development workflow and best practices
+- Deployment procedures and production configuration
+
+### ❌ Needs Documentation
+
+- Testing strategies and framework setup
+- Mobile optimization and PWA implementation
+- Performance monitoring and optimization
+- CI/CD pipeline configuration
+
+---
+
+## Summary
+
+This updated project plan reflects the actual current state of the Minerva project based on comprehensive documentation analysis. The immediate priorities are:
+
+1. **Docker Containerization** (Weeks 1-2) - Fully documented and ready to implement
+2. **AI Agent Integration** (Weeks 3-5) - Complete specifications and ready for development
+3. **Testing Infrastructure** (Weeks 6-7) - Critical gap that needs immediate attention
+
+The project is significantly more advanced in Docker and AI planning than the original plan indicated, but behind on testing infrastructure documentation. This updated roadmap provides a realistic path forward based on what's actually documented and ready to implement.
