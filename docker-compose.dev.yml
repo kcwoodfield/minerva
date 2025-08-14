@@ -10,7 +10,7 @@ services:
       - DJANGO_SETTINGS_MODULE=minervahome.settings
       - DATABASE_URL=postgresql://minerva_user:minerva_password@db:5432/minerva
       - REDIS_URL=redis://redis:6379/0
-      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,*
       - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
     volumes:
       - ./backend:/app
@@ -34,7 +34,7 @@ services:
   # Development database with more verbose logging
   db:
     environment:
-      - POSTGRES_DB=minerva_dev
+      - POSTGRES_DB=minerva
       - POSTGRES_USER=minerva_user
       - POSTGRES_PASSWORD=minerva_password
     command: postgres -c log_statement=all -c log_min_duration_statement=0

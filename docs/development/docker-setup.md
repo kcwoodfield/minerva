@@ -184,6 +184,17 @@ NODE_ENV=development
 
 ## Troubleshooting
 
+### Quick Reference
+
+| Issue                 | Solution                               | Section                                            |
+| --------------------- | -------------------------------------- | -------------------------------------------------- |
+| Port conflicts        | Check with `lsof -i :PORT`             | [Port Conflicts](#1-port-conflicts)                |
+| Package lock mismatch | `cd frontend && npm install`           | [Package Lock Issues](#5-package-lock-file-issues) |
+| Host header errors    | Update `ALLOWED_HOSTS` in `.env`       | [Host Header Issues](#6-django-host-header-issues) |
+| 404 API errors        | Check URL patterns (no trailing slash) | [URL Pattern Issues](#7-django-url-pattern-issues) |
+| Database connection   | Check service status and logs          | [Database Issues](#3-database-connection-issues)   |
+| Migration warnings    | Run `python manage.py migrate`         | [Migration Issues](#8-database-migration-issues)   |
+
 ### Common Issues
 
 #### 1. Port Conflicts
@@ -230,6 +241,61 @@ npm run docker:build
 
 # Or force rebuild
 docker-compose build --no-cache
+```
+
+#### 5. Package Lock File Issues
+
+```bash
+# If you get "npm ci" errors about package-lock.json mismatch
+cd frontend
+npm install  # Syncs package.json with package-lock.json
+cd ..
+
+# Or force clean install
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+cd ..
+```
+
+#### 6. Django Host Header Issues
+
+```bash
+# If you see "Invalid HTTP_HOST header" errors
+# Check that ALLOWED_HOSTS includes the right values in your .env file:
+ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,*
+
+# Restart Docker environment after changing environment variables
+npm run docker:clean
+npm run docker:dev
+```
+
+#### 7. Django URL Pattern Issues
+
+```bash
+# If you get 404 errors for API endpoints
+# Check the correct URL patterns (Django is strict about trailing slashes):
+
+# ✅ Correct URLs:
+http://localhost:8000/api/library      # Main endpoint
+http://localhost:8000/api/docs         # API documentation
+http://localhost:8000/api/openapi.json # OpenAPI schema
+
+# ❌ Common mistakes:
+http://localhost:8000/api/library/     # Trailing slash may cause issues
+```
+
+#### 8. Database Migration Issues
+
+```bash
+# If Django shows "unapplied migration(s)" warnings
+docker-compose exec backend python manage.py migrate
+
+# Check migration status
+docker-compose exec backend python manage.py showmigrations
+
+# Create new migrations if needed
+docker-compose exec backend python manage.py makemigrations
 ```
 
 ### Debugging
