@@ -124,32 +124,6 @@ minerva/
 - **CI/CD**: GitHub Actions with automated testing
 - **Monitoring**: Health checks and performance monitoring
 
-## 🚀 Deployment Options
-
-### Quick Start (Digital Ocean)
-
-- **Cost**: ~$7.50/month
-- **Complexity**: ⭐⭐⭐⭐⭐ (Easiest)
-- **Guide**: [Production Deployment Guide](docs/deployment/production-deployment.md)
-
-### Enterprise Scale (AWS)
-
-- **Cost**: ~$46/month
-- **Complexity**: ⭐⭐ (Advanced)
-- **Guide**: [AWS Deployment Guide](docs/deployment/aws/README.md)
-
-### Microsoft Ecosystem (Azure)
-
-- **Cost**: ~$109/month
-- **Complexity**: ⭐⭐ (Advanced)
-- **Guide**: [Azure Deployment Guide](docs/deployment/azure/README.md)
-
-### Modern PaaS (Railway)
-
-- **Cost**: ~$45/month
-- **Complexity**: ⭐⭐⭐⭐⭐ (Easiest)
-- **Guide**: [Production Deployment Guide](docs/deployment/production-deployment.md) with Railway adaptations
-
 ## 📚 Documentation
 
 ### Getting Started
