@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # Override backend for production
+  backend:
+    build:
+      target: production
+    environment:
+      - DEBUG=False
+      - DJANGO_SETTINGS_MODULE=minervahome.settings_prod
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+    volumes:
+      - backend_static:/app/static
+      - backend_media:/app/media
+    command: gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 minervahome.wsgi:application
+    restart: always
+
+  # Override frontend for production
+  frontend:
+    build:
+      target: production
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    volumes:
+      - frontend_static:/app/.next
+    command: npm start
+    restart: always
+
+  # Production database with optimized settings
+  db:
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    command: postgres -c shared_buffers=256MB -c effective_cache_size=1GB -c maintenance_work_mem=64MB
+    restart: always
+
+  # Production Redis with persistence enabled
+  redis:
+    command: redis-server --appendonly yes --save 900 1 --save 300 10 --save 60 10000
+    restart: always
+
+  # Enable Nginx for production
+  nginx:
+    profiles: []
+    restart: always

@@ -5,6 +5,7 @@ Welcome to the Minerva documentation! This directory contains comprehensive docu
 ## 📋 Quick Navigation
 
 ### 🚀 Getting Started
+
 - **[Development Setup](development/setup.md)** - Get up and running locally
 - **[Project Overview](../README.md)** - High-level project description
 - **[Architecture Overview](architecture/overview.md)** - System design and components
@@ -12,17 +13,21 @@ Welcome to the Minerva documentation! This directory contains comprehensive docu
 ### 🏗️ Technical Documentation
 
 #### Architecture & Design
+
 - **[`architecture/`](architecture/)** - System design and technical architecture
   - [System Overview](architecture/overview.md) - High-level architecture and data flow
   - Templates for database design, API specifications, and security architecture
 
-#### Development Guides  
+#### Development Guides
+
 - **[`development/`](development/)** - Setup guides and development practices
   - [Development Setup](development/setup.md) - Local environment configuration
+  - [Docker Setup](development/docker-setup.md) - Docker development environment
   - [Deployment Guide](development/DEPLOYMENT.md) - Production deployment procedures
   - Templates for testing, coding standards, and CI/CD
 
 #### Architecture Decisions
+
 - **[`decisions/`](decisions/)** - Architecture Decision Records (ADRs)
   - [ADR-001: Unified Repository Structure](decisions/001-unified-repository-structure.md) - Repository consolidation decision
   - Templates and guidelines for documenting technical decisions
@@ -30,21 +35,25 @@ Welcome to the Minerva documentation! This directory contains comprehensive docu
 ### 📝 Development Workflow Documentation
 
 #### Feature Planning
+
 - **[`features/`](features/)** - Feature specifications and planning docs
   - [Docker Containerization](features/docker-containerization.md) - Complete Docker implementation plan
   - Templates for feature documentation and implementation planning
 
 #### Issue Resolution
+
 - **[`bugfixes/`](bugfixes/)** - Bug fix documentation and analysis
   - Templates for root cause analysis and resolution documentation
 
 #### Project Updates
+
 - **[`updates/`](updates/)** - Project updates and architectural changes
   - [Docker Unified Implementation](updates/docker-unified-implementation.md) - Repository unification update
   - [Docker Setup](updates/docker-setup.md) - Original containerization planning
   - [LangGraph Integration](updates/langgraph-agents-integration.md) - AI features planning
 
 ### 👥 User Documentation
+
 - **[`user-guides/`](user-guides/)** - End-user documentation (future)
   - Templates for API reference, getting started guides, and feature documentation
 
@@ -81,13 +90,17 @@ docs/
 ## 🎯 Documentation Philosophy
 
 ### Workflow-Aligned Structure
+
 The `features/`, `bugfixes/`, and `updates/` directories mirror our Git branching strategy:
+
 - **Features**: Documentation for `feature/*` branches and new functionality
-- **Bugfixes**: Documentation for `bugfix/*` branches and issue resolutions  
+- **Bugfixes**: Documentation for `bugfix/*` branches and issue resolutions
 - **Updates**: Documentation for project-wide changes and architectural updates
 
 ### Standard Documentation Categories
+
 The `architecture/`, `development/`, `decisions/`, and `user-guides/` directories follow industry-standard patterns:
+
 - **Architecture**: Technical design and system documentation
 - **Development**: Setup guides and developer workflows
 - **Decisions**: Architecture Decision Records (ADRs) for major technical choices
@@ -96,15 +109,19 @@ The `architecture/`, `development/`, `decisions/`, and `user-guides/` directorie
 ## 📖 Documentation Types
 
 ### Architecture Decision Records (ADRs)
+
 Document significant technical decisions with context, alternatives considered, and consequences. See [`decisions/`](decisions/) for templates and examples.
 
 ### Feature Specifications
+
 Comprehensive planning documents for new features, including requirements, implementation plans, and testing strategies. See [`features/`](features/) for templates.
 
 ### Development Guides
+
 Step-by-step guides for developers, from initial setup to advanced workflows. See [`development/`](development/) for current guides.
 
 ### Update Documentation
+
 Records of major project changes, migrations, and architectural evolution. See [`updates/`](updates/) for examples.
 
 ## 🔄 Keeping Documentation Current
@@ -122,6 +139,7 @@ Records of major project changes, migrations, and architectural evolution. See [
 **Development Workflow**: Update `development/` guides when processes change
 
 ### Documentation Maintenance
+
 - **Review quarterly** for outdated information
 - **Update after major releases** to reflect current state
 - **Link related documents** to improve discoverability

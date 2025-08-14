@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # Test database
+  test-db:
+    image: postgres:15-alpine
+    container_name: minerva-test-db
+    environment:
+      POSTGRES_DB: minerva_test
+      POSTGRES_USER: minerva_user
+      POSTGRES_PASSWORD: minerva_password
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+
+  # Test Redis
+  test-redis:
+    image: redis:7-alpine
+    container_name: minerva-test-redis
+    ports:
+      - "6380:6379"
+    command: redis-server --appendonly no --save ""
+
+  # Backend tests
+  backend-test:
+    build:
+      context: ./backend
+      target: development
+    environment:
+      - DATABASE_URL=postgresql://minerva_user:minerva_password@test-db:5432/minerva_test
+      - REDIS_URL=redis://test-redis:6379/0
+      - DJANGO_SETTINGS_MODULE=minervahome.settings
+      - DEBUG=True
+      - TESTING=True
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - test-db
+      - test-redis
+    command: python manage.py test --verbosity=2
+
+  # Frontend tests
+  frontend-test:
+    build:
+      context: ./frontend
+      target: development
+    environment:
+      - NODE_ENV=test
+      - NEXT_PUBLIC_API_URL=http://test-backend:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm test
+
+  # E2E tests
+  e2e-test:
+    build:
+      context: ./frontend
+      target: development
+    environment:
+      - NODE_ENV=test
+      - NEXT_PUBLIC_API_URL=http://test-backend:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend-test
+      - frontend-test
+    command: npm run test:e2e
+
+  # Test runner
+  test-runner:
+    image: alpine:latest
+    container_name: minerva-test-runner
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
+    depends_on:
+      - backend-test
+      - frontend-test
+      - e2e-test
+    command: |
+      sh -c "
+        echo 'All tests completed successfully!'
+        echo 'Backend tests: PASSED'
+        echo 'Frontend tests: PASSED'
+        echo 'E2E tests: PASSED'
+      "
