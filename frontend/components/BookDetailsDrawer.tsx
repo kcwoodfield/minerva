@@ -94,16 +94,15 @@ export default function BookDetailsDrawer({ book, isOpen, onClose, onEdit, onDel
           <DrawerCloseButton />
           <DrawerBody>
             <Grid templateColumns="repeat(2, 1fr)" gap={4}>
+              {/* Basic Information */}
               <GridItem>
                 <Text fontWeight="bold" fontFamily="Lora">Author</Text>
                 <Text fontFamily="Lora">{book.author}</Text>
               </GridItem>
-              {book.pages && (
-                <GridItem>
-                  <Text fontWeight="bold" fontFamily="Lora">Pages</Text>
-                  <Text fontFamily="Lora">{book.pages}</Text>
-                </GridItem>
-              )}
+              <GridItem>
+                <Text fontWeight="bold" fontFamily="Lora">Pages</Text>
+                <Text fontFamily="Lora">{book.pages}</Text>
+              </GridItem>
               <GridItem>
                 <Text fontWeight="bold" fontFamily="Lora">Progress</Text>
                 <Text fontFamily="Lora">
@@ -112,70 +111,96 @@ export default function BookDetailsDrawer({ book, isOpen, onClose, onEdit, onDel
                    `In Progress (${book.completed}%)`}
                 </Text>
               </GridItem>
-              {book.publisher && (
-                <GridItem>
-                  <Text fontWeight="bold" fontFamily="Lora">Publisher</Text>
-                  <Text fontFamily="Lora">{book.publisher}</Text>
-                </GridItem>
-              )}
-              {book.publication_date && (
-                <GridItem>
-                  <Text fontWeight="bold" fontFamily="Lora">Publication Date</Text>
-                  <Text fontFamily="Lora">{book.publication_date}</Text>
-                </GridItem>
-              )}
-              {book.genre && (
-                <GridItem>
-                  <Text fontWeight="bold" fontFamily="Lora">Genre</Text>
-                  <Text fontFamily="Lora">{book.genre}</Text>
-                </GridItem>
-              )}
-              {book.sub_genre && (
-                <GridItem>
-                  <Text fontWeight="bold" fontFamily="Lora">Sub-Genre</Text>
-                  <Text fontFamily="Lora">{book.sub_genre}</Text>
-                </GridItem>
-              )}
-              {book.language && (
-                <GridItem>
-                  <Text fontWeight="bold" fontFamily="Lora">Language</Text>
-                  <Text fontFamily="Lora">{book.language}</Text>
-                </GridItem>
-              )}
-              {book.format && (
-                <GridItem>
-                  <Text fontWeight="bold" fontFamily="Lora">Format</Text>
-                  <Text fontFamily="Lora">{book.format}</Text>
-                </GridItem>
-              )}
-              {book.edition && (
-                <GridItem>
-                  <Text fontWeight="bold" fontFamily="Lora">Edition</Text>
-                  <Text fontFamily="Lora">{book.edition}</Text>
-                </GridItem>
-              )}
-              {book.series_info && (
-                <GridItem>
-                  <Text fontWeight="bold" fontFamily="Lora">Series</Text>
-                  <Text fontFamily="Lora">{book.series_info}</Text>
-                </GridItem>
-              )}
+              <GridItem>
+                <Text fontWeight="bold" fontFamily="Lora">Rating</Text>
+                <Text fontFamily="Lora">{book.rating ? `${book.rating}/5` : '-'}</Text>
+              </GridItem>
+
+              {/* Publication Information */}
+              <GridItem>
+                <Text fontWeight="bold" fontFamily="Lora">Publisher</Text>
+                <Text fontFamily="Lora">{book.publisher || '-'}</Text>
+              </GridItem>
+              <GridItem>
+                <Text fontWeight="bold" fontFamily="Lora">Publication Date</Text>
+                <Text fontFamily="Lora">{book.publication_date || '-'}</Text>
+              </GridItem>
+              <GridItem>
+                <Text fontWeight="bold" fontFamily="Lora">Format</Text>
+                <Text fontFamily="Lora">{book.format || '-'}</Text>
+              </GridItem>
+              <GridItem>
+                <Text fontWeight="bold" fontFamily="Lora">Edition</Text>
+                <Text fontFamily="Lora">{book.edition || '-'}</Text>
+              </GridItem>
+
+              {/* Classification */}
+              <GridItem>
+                <Text fontWeight="bold" fontFamily="Lora">Genre</Text>
+                <Text fontFamily="Lora">{book.genre || '-'}</Text>
+              </GridItem>
+              <GridItem>
+                <Text fontWeight="bold" fontFamily="Lora">Sub-Genre</Text>
+                <Text fontFamily="Lora">{book.sub_genre || '-'}</Text>
+              </GridItem>
+              <GridItem>
+                <Text fontWeight="bold" fontFamily="Lora">Language</Text>
+                <Text fontFamily="Lora">{book.language || '-'}</Text>
+              </GridItem>
+              <GridItem>
+                <Text fontWeight="bold" fontFamily="Lora">Series</Text>
+                <Text fontFamily="Lora">{book.series_info || '-'}</Text>
+              </GridItem>
+
+              {/* Identifiers */}
+              <GridItem>
+                <Text fontWeight="bold" fontFamily="Lora">ISBN-13</Text>
+                <Text fontFamily="Lora">{book.isbn_13 || '-'}</Text>
+              </GridItem>
+              <GridItem>
+                <Text fontWeight="bold" fontFamily="Lora">ISBN-10</Text>
+                <Text fontFamily="Lora">{book.isbn_10 || '-'}</Text>
+              </GridItem>
+
+              {/* Metadata */}
               <GridItem>
                 <Text fontWeight="bold" fontFamily="Lora">Date Added</Text>
                 <Text fontFamily="Lora">{new Date(book.date_added).toLocaleDateString()}</Text>
               </GridItem>
+              <GridItem>
+                <Text fontWeight="bold" fontFamily="Lora">Tags</Text>
+                <Text fontFamily="Lora">
+                  {book.tags && book.tags.length > 0 ? book.tags.join(', ') : '-'}
+                </Text>
+              </GridItem>
+
+              {/* Cover Image */}
+              {book.cover_image_url && (
+                <GridItem colSpan={2}>
+                  <Text fontWeight="bold" fontFamily="Lora" mb={2}>Cover Image</Text>
+                  <Box borderRadius="md" overflow="hidden" maxW="200px">
+                    <Image
+                      src={book.cover_image_url}
+                      alt={`Cover of ${book.title}`}
+                      width={200}
+                      height={300}
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </Box>
+                </GridItem>
+              )}
+
+              {/* Long Text Fields */}
               {book.review && (
                 <GridItem colSpan={2}>
                   <Text fontWeight="bold" fontFamily="Lora">Review</Text>
                   <Text fontFamily="Lora" whiteSpace="pre-wrap">{book.review}</Text>
                 </GridItem>
               )}
-              {book.summary && (
-                <GridItem colSpan={2}>
-                  <Text fontWeight="bold" fontFamily="Lora">Summary</Text>
-                  <Text fontFamily="Lora" whiteSpace="pre-wrap">{book.summary}</Text>
-                </GridItem>
-              )}
+              <GridItem colSpan={2}>
+                <Text fontWeight="bold" fontFamily="Lora">Summary</Text>
+                <Text fontFamily="Lora" whiteSpace="pre-wrap">{book.summary || '-'}</Text>
+              </GridItem>
             </Grid>
           </DrawerBody>
           <DrawerFooter borderTopWidth="1px">

@@ -24,12 +24,15 @@ interface BookTableProps {
 
 export default function BookTable({ books, onBookClick, onSort, sortConfig, hasFilters, onClearFilters }: BookTableProps) {
   const columns: { key: keyof Book; label: string; width: string }[] = [
-    { key: 'title', label: 'Title', width: '300px' },
-    { key: 'author', label: 'Author', width: '200px' },
-    { key: 'pages', label: 'Pages', width: '120px' },
-    { key: 'rating', label: 'Rating', width: '100px' },
-    { key: 'completed', label: 'Completed', width: '100px' },
-    { key: 'date_added', label: 'Date Added', width: '120px' },
+    { key: 'title', label: 'Title', width: '250px' },
+    { key: 'author', label: 'Author', width: '150px' },
+    { key: 'genre', label: 'Genre', width: '120px' },
+    { key: 'pages', label: 'Pages', width: '80px' },
+    { key: 'rating', label: 'Rating', width: '80px' },
+    { key: 'completed', label: 'Progress', width: '100px' },
+    { key: 'publisher', label: 'Publisher', width: '120px' },
+    { key: 'format', label: 'Format', width: '100px' },
+    { key: 'date_added', label: 'Added', width: '100px' },
   ];
 
   const hoverBg = useColorModeValue('gray.50', 'gray.700');
@@ -90,7 +93,7 @@ export default function BookTable({ books, onBookClick, onSort, sortConfig, hasF
               <Td
                 fontWeight="medium"
                 borderBottom="none"
-                maxWidth="300px"
+                maxWidth="250px"
                 whiteSpace="nowrap"
                 overflow="hidden"
                 textOverflow="ellipsis"
@@ -100,15 +103,30 @@ export default function BookTable({ books, onBookClick, onSort, sortConfig, hasF
               >
                 {book.title}
               </Td>
-              <Td borderBottom="none" fontSize="1rem" py={3} px={4}>{book.author}</Td>
-              <Td display={{ base: 'none', md: 'table-cell' }} borderBottom="none" fontSize="1rem" py={3} px={4}>{book.pages}</Td>
-              <Td display={{ base: 'none', md: 'table-cell' }} borderBottom="none" fontSize="1rem" py={3} px={4}>{book.rating}</Td>
+              <Td borderBottom="none" fontSize="1rem" py={3} px={4} maxWidth="150px" whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
+                {book.author}
+              </Td>
+              <Td display={{ base: 'none', lg: 'table-cell' }} borderBottom="none" fontSize="1rem" py={3} px={4} maxWidth="120px" whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
+                {book.genre || '-'}
+              </Td>
+              <Td display={{ base: 'none', md: 'table-cell' }} borderBottom="none" fontSize="1rem" py={3} px={4}>
+                {book.pages}
+              </Td>
+              <Td display={{ base: 'none', md: 'table-cell' }} borderBottom="none" fontSize="1rem" py={3} px={4}>
+                {book.rating ? `${book.rating}/5` : '-'}
+              </Td>
               <Td display={{ base: 'none', md: 'table-cell' }} borderBottom="none" fontSize="1rem" py={3} px={4}>
                 {book.completed === 0 ? 'Not Started' :
                  book.completed === 100 ? 'Completed' :
                  `In Progress (${book.completed}%)`}
               </Td>
-              <Td display={{ base: 'none', md: 'table-cell' }} borderBottom="none" fontSize="1rem" py={3} px={4}>
+              <Td display={{ base: 'none', xl: 'table-cell' }} borderBottom="none" fontSize="1rem" py={3} px={4} maxWidth="120px" whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
+                {book.publisher || '-'}
+              </Td>
+              <Td display={{ base: 'none', xl: 'table-cell' }} borderBottom="none" fontSize="1rem" py={3} px={4} maxWidth="100px" whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
+                {book.format || '-'}
+              </Td>
+              <Td display={{ base: 'none', lg: 'table-cell' }} borderBottom="none" fontSize="1rem" py={3} px={4}>
                 {new Date(book.date_added).toLocaleDateString()}
               </Td>
             </Tr>

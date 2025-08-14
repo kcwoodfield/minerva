@@ -49,6 +49,10 @@ const AddBookDrawer: React.FC<AddBookDrawerProps> = ({ isOpen, onClose, onSave }
     const [review, setReview] = React.useState('');
     const [pages, setPages] = React.useState(0);
     const [completion, setCompletion] = React.useState(0);
+    const [language, setLanguage] = React.useState('');
+    const [format, setFormat] = React.useState('');
+    const [edition, setEdition] = React.useState('');
+    const [coverImageUrl, setCoverImageUrl] = React.useState('');
     const toast = useToast();
 
     const buttonHoverBg = useColorModeValue('blue.600', 'blue.300');
@@ -71,10 +75,10 @@ const AddBookDrawer: React.FC<AddBookDrawerProps> = ({ isOpen, onClose, onSave }
                 pages,
                 completed: completion,
                 rating: 0,
-                language: undefined,
-                format: undefined,
-                edition: undefined,
-                cover_image_url: undefined
+                language: language || undefined,
+                format: format || undefined,
+                edition: edition || undefined,
+                cover_image_url: coverImageUrl || undefined
             };
 
             await onSave(bookData);
@@ -93,6 +97,10 @@ const AddBookDrawer: React.FC<AddBookDrawerProps> = ({ isOpen, onClose, onSave }
             setReview('');
             setPages(0);
             setCompletion(0);
+            setLanguage('');
+            setFormat('');
+            setEdition('');
+            setCoverImageUrl('');
 
             // Close drawer
             onClose();
@@ -229,6 +237,39 @@ const AddBookDrawer: React.FC<AddBookDrawerProps> = ({ isOpen, onClose, onSave }
                         </GridItem>
 
                         <GridItem>
+                            <FormControl>
+                                <FormLabel>Language</FormLabel>
+                                <Input
+                                    placeholder="e.g., English, Spanish, French"
+                                    value={language}
+                                    onChange={(e) => setLanguage(e.target.value)}
+                                />
+                            </FormControl>
+                        </GridItem>
+
+                        <GridItem>
+                            <FormControl>
+                                <FormLabel>Format</FormLabel>
+                                <Input
+                                    placeholder="e.g., Hardcover, Paperback, E-book"
+                                    value={format}
+                                    onChange={(e) => setFormat(e.target.value)}
+                                />
+                            </FormControl>
+                        </GridItem>
+
+                        <GridItem>
+                            <FormControl>
+                                <FormLabel>Edition</FormLabel>
+                                <Input
+                                    placeholder="e.g., 1st Edition, 2nd Edition"
+                                    value={edition}
+                                    onChange={(e) => setEdition(e.target.value)}
+                                />
+                            </FormControl>
+                        </GridItem>
+
+                        <GridItem>
                             <FormControl isRequired>
                                 <FormLabel>Pages</FormLabel>
                                 <NumberInput
@@ -255,6 +296,17 @@ const AddBookDrawer: React.FC<AddBookDrawerProps> = ({ isOpen, onClose, onSave }
                                     placeholder="Enter book summary"
                                     value={summary}
                                     onChange={(e) => setSummary(e.target.value)}
+                                />
+                            </FormControl>
+                        </GridItem>
+
+                        <GridItem colSpan={3}>
+                            <FormControl>
+                                <FormLabel>Cover Image URL</FormLabel>
+                                <Input
+                                    placeholder="Enter cover image URL"
+                                    value={coverImageUrl}
+                                    onChange={(e) => setCoverImageUrl(e.target.value)}
                                 />
                             </FormControl>
                         </GridItem>

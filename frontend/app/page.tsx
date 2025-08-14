@@ -55,7 +55,7 @@ export default function Home() {
         setSelectedBook(book);
       } else {
         // If book not found in current list, fetch it individually
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/library'}/${bookId}`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/${bookId}`)
           .then(response => {
             if (!response.ok) {
               throw new Error('Failed to fetch book');
@@ -86,7 +86,7 @@ export default function Home() {
 
   const fetchBooks = async () => {
     try {
-      const apiUrl = new URL(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/library'}`);
+      const apiUrl = new URL(process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000');
 
       // Add pagination parameters
       apiUrl.searchParams.append('page', currentPage.toString());
@@ -133,7 +133,7 @@ export default function Home() {
 
   const handleAddBook = async (book: Omit<Book, 'id' | 'date_added'>) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/library'}`, {
+      const response = await fetch(process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -194,7 +194,7 @@ export default function Home() {
 
       console.log('Sending update data:', updateData);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/library'}/${book.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/${book.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -230,7 +230,7 @@ export default function Home() {
 
   const handleDeleteBook = async (bookId: string) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/library'}/${bookId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/${bookId}`, {
         method: 'DELETE',
       });
 

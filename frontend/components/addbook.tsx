@@ -29,7 +29,7 @@ const AddBook: React.FC = () => {
                 onClose={onClose}
                 onSave={async (bookData) => {
                     try {
-                        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/library'}`, {
+                        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
