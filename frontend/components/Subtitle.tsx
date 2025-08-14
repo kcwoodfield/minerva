@@ -5,9 +5,9 @@ import { useEffect, useState } from 'react';
 
 const subtitles = [
   'A Library Worth the Gods',
-  'Read Like a God',
-  'The Moonlit Library of Thought',
-  'A Labyrinth of Pages'
+  'Read Like a God'
+  // 'The Moonlit Library of Thought',
+  // 'A Labyrinth of Pages'
 ];
 
 export default function Subtitle() {
