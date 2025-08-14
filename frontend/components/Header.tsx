@@ -13,7 +13,7 @@ import {
 import ThemeToggle from './ThemeToggle';
 import Subtitle from './Subtitle';
 
-const MenuBar: React.FC = () => {
+const Header: React.FC = () => {
     const [isOpen, setIsOpen] = React.useState(false);
     const { colorMode } = useColorMode();
     const [subtitleKey, setSubtitleKey] = React.useState(0);
@@ -37,7 +37,7 @@ const MenuBar: React.FC = () => {
                 mx="auto"
             >
                 <Box>
-                    <AddBook />
+                    {/* <AddBook /> */}
                 </Box>
                 <Flex
                     direction="column"
@@ -62,11 +62,11 @@ const MenuBar: React.FC = () => {
                     <Subtitle key={subtitleKey} />
                 </Flex>
                 <Box>
-                    <ThemeToggle />
+                    {/* <ThemeToggle /> */}
                 </Box>
             </Flex>
         </Box>
     );
 };
 
-export default MenuBar;
+export default Header;
