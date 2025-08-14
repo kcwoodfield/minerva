@@ -75,7 +75,7 @@ services:
     container_name: minerva-frontend
     restart: unless-stopped
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/library
       - NODE_ENV=development
     volumes:
       - ./frontend:/app
