@@ -31,44 +31,7 @@ export function BooksDataTable({ data, onSearch }: BooksDataTableProps) {
         </div>
       </div>
       
-      {/* Mobile view - Cards */}
-      <div className="block md:hidden">
-        {data.length > 0 ? (
-          <div className="space-y-4">
-            {data.map((book) => (
-              <div key={book.id} className="bg-white p-4 rounded-md border">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={book.completed >= 100}
-                      disabled
-                      className="h-4 w-4"
-                    />
-                    {book.completed > 0 && book.completed < 100 && (
-                      <span className="text-sm text-muted-foreground">
-                        {book.completed}%
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-sm font-mono text-muted-foreground">
-                    {book.pages} pages
-                  </span>
-                </div>
-                <h3 className="font-medium text-lg mb-1">{book.title}</h3>
-                <p className="text-muted-foreground">{book.author}</p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="bg-white p-8 rounded-md border text-center text-muted-foreground">
-            No books found.
-          </div>
-        )}
-      </div>
-
-      {/* Desktop view - Table */}
-      <div className="hidden md:block rounded-md border bg-white overflow-x-auto">
+      <div className="rounded-md border bg-white overflow-x-auto">
         <table className="w-full table-auto bg-white">
           <thead className="bg-white">
             <tr className="border-b bg-white">

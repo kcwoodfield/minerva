@@ -2,13 +2,11 @@
 
 import React from 'react';
 import Image from 'next/image';
-import AddBook from "@/components/addbook";
 import { useTheme } from 'next-themes';
 import ThemeToggle from './ThemeToggle';
 import Subtitle from './Subtitle';
 
 const Header: React.FC = () => {
-    const [isOpen, setIsOpen] = React.useState(false);
     const { theme } = useTheme();
     const [subtitleKey, setSubtitleKey] = React.useState(0);
 
