@@ -2,11 +2,11 @@
 
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
-import { IconButton, Tooltip, Container, Text, useColorMode } from '@chakra-ui/react';
-import { SunIcon, MoonIcon } from '@chakra-ui/icons';
+import { Button } from '@/components/ui/button';
+import { Sun, Moon } from 'lucide-react';
 
 function ThemeToggleContent() {
-  const { colorMode, toggleColorMode } = useColorMode();
+  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   // Avoid hydration mismatch
@@ -18,23 +18,28 @@ function ThemeToggleContent() {
     return null;
   }
 
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
   return (
-    <Tooltip label={colorMode === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}>
-      <IconButton
-        aria-label="Toggle theme"
-        icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-        onClick={toggleColorMode}
-        variant="ghost"
-        size="lg"
-      />
-    </Tooltip>
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={toggleTheme}
+      aria-label="Toggle theme"
+      title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+      className="h-10 w-10"
+    >
+      {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+    </Button>
   );
 }
 
 export default function ThemeToggle() {
   return (
-    <Container maxW="container.xl" py={4}>
+    <div className="max-w-7xl mx-auto py-4">
       <ThemeToggleContent />
-    </Container>
+    </div>
   );
 }

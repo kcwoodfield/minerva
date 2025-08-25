@@ -3,19 +3,13 @@
 import React from 'react';
 import Image from 'next/image';
 import AddBook from "@/components/addbook";
-import {
-  Box,
-  Flex,
-  Text,
-  useColorModeValue,
-  useColorMode,
-} from '@chakra-ui/react';
+import { useTheme } from 'next-themes';
 import ThemeToggle from './ThemeToggle';
 import Subtitle from './Subtitle';
 
 const Header: React.FC = () => {
     const [isOpen, setIsOpen] = React.useState(false);
-    const { colorMode } = useColorMode();
+    const { theme } = useTheme();
     const [subtitleKey, setSubtitleKey] = React.useState(0);
 
     const handleLogoClick = () => {
@@ -23,49 +17,31 @@ const Header: React.FC = () => {
     };
 
     return (
-        <Box
-            as="header"
-            position="static"
-            width="100%"
-        >
-            <Flex
-                as="nav"
-                align="center"
-                justify="space-between"
-                wrap="wrap"
-                padding="0.75rem 1.5rem"
-                mx="auto"
-            >
-                <Box>
+        <header className="static w-full">
+            <nav className="flex items-center justify-between flex-wrap px-6 py-3 mx-auto">
+                <div>
                     {/* <AddBook /> */}
-                </Box>
-                <Flex
-                    direction="column"
-                    align="center"
-                    gap={2}
-                    cursor="pointer"
+                </div>
+                <div 
+                    className="flex flex-col items-center gap-2 cursor-pointer"
                     onClick={handleLogoClick}
                 >
                     <Image
-                        src={colorMode === 'dark' ? '/logo/minerva-logo-dark.png' : '/logo/minerva-logo.png'}
+                        src={theme === 'dark' ? '/logo/minerva-logo-dark.png' : '/logo/minerva-logo.png'}
                         alt="Minerva Logo"
                         width={90}
                         height={90}
                     />
-                    <Text
-                        fontSize="1.75rem"
-                        fontWeight="bold"
-                        mb={0}
-                    >
+                    <h1 className="text-3xl font-bold mb-0">
                         Minerva
-                    </Text>
+                    </h1>
                     <Subtitle key={subtitleKey} />
-                </Flex>
-                <Box>
+                </div>
+                <div>
                     {/* <ThemeToggle /> */}
-                </Box>
-            </Flex>
-        </Box>
+                </div>
+            </nav>
+        </header>
     );
 };
 
