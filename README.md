@@ -1,6 +1,6 @@
 # Minerva - Personal Book Library Management System
 
-A full-stack book library management application built with Django and Next.js, featuring AI-powered book recommendations and intelligent library curation.
+A modern full-stack book library management application built with Django and Next.js, featuring a clean Shadcn/UI interface, Docker containerization, and planned AI-powered recommendations.
 
 ## 🚀 Quick Start
 
@@ -13,13 +13,30 @@ A full-stack book library management application built with Django and Next.js, 
 
 ### Development Setup
 
-#### Option 1: Unified Development (Recommended)
+#### Option 1: Docker Development (Recommended) ✅ READY
 
 ```bash
 # Clone repository
 git clone https://github.com/kcwoodfield/minerva.git
 cd minerva
 
+# Start entire stack with Docker
+npm run docker:dev
+
+# View logs (in separate terminal)
+docker logs minerva-frontend -f
+docker logs minerva-backend -f
+```
+
+**All services available:**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000/api/library  
+- PostgreSQL: localhost:5432
+- Redis: localhost:6379
+
+#### Option 2: Local Development
+
+```bash
 # Install all dependencies
 npm run install:all
 
@@ -27,28 +44,14 @@ npm run install:all
 npm run dev
 ```
 
-#### Option 2: Individual Services
+#### Option 3: Individual Services
 
 ```bash
 # Frontend only
 cd frontend && npm run dev
 
-# Backend only
-cd backend
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-python manage.py runserver
-```
-
-#### Option 3: Docker Development
-
-```bash
-# Start with Docker Compose
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
+# Backend only  
+cd backend && python manage.py runserver
 ```
 
 ## 🏗️ Project Structure
@@ -75,25 +78,24 @@ minerva/
 
 ### ✅ Implemented
 
-- **Book Management**: Add, edit, delete, and view book details
-- **Library Interface**: Responsive table with sorting and pagination
-- **Real-time Search**: Search across books and authors
+- **Modern Data Table**: Built with Shadcn/UI and TanStack React Table
+- **Real-time Search**: Instant filtering across book titles and authors
+- **Book Management**: View, sort, and search through library collection
 - **Google Books Integration**: Automatic metadata enrichment
-- **Theme Switching**: Dark/light mode support
-- **Responsive Design**: Mobile-friendly interface
-- **Newsletter Signup**: Email collection with cookie tracking
+- **Theme Switching**: Seamless dark/light mode with next-themes
+- **Docker Development**: Full containerization with hot reload
+- **Clean Architecture**: Streamlined codebase with modern patterns
 
-### 🚧 In Development
+### 🚧 Ready to Implement
 
+- **Testing Infrastructure**: Jest + React Testing Library setup
 - **AI Integration**: LangChain/LangGraph agents for intelligent recommendations
-- **Docker Containerization**: Production-ready containerization
-- **Testing Infrastructure**: Comprehensive testing framework
-- **CI/CD Pipeline**: Automated testing and deployment
+- **Enhanced Features**: Advanced filtering, bulk operations, drag-and-drop
 
 ### 📋 Planned
 
-- **Mobile App**: Progressive Web App (PWA) features
-- **Advanced Analytics**: Reading statistics and insights
+- **Mobile Optimization**: Enhanced responsive design and PWA features
+- **Advanced Analytics**: Reading statistics and insights dashboard
 - **Social Features**: Book sharing and recommendations
 - **API Marketplace**: Third-party integrations
 
@@ -102,27 +104,30 @@ minerva/
 ### Backend
 
 - **Framework**: Django 4.2.21 with Django Ninja
-- **Database**: PostgreSQL with UUID primary keys
+- **Database**: PostgreSQL with UUID primary keys  
 - **Caching**: Redis for session storage and caching
-- **Authentication**: JWT-based authentication
-- **API**: RESTful API with automatic documentation
+- **API**: Clean RESTful API with automatic documentation
 - **External APIs**: Google Books API integration
+- **Architecture**: Streamlined, authentication-ready design
 
 ### Frontend
 
 - **Framework**: Next.js 14.1.0 with App Router
 - **UI Library**: React 18 with TypeScript
-- **Styling**: Chakra UI with Framer Motion animations
-- **State Management**: React hooks and context
-- **Theming**: next-themes for dark/light mode
-- **Analytics**: Google Analytics integration
+- **Components**: Shadcn/UI with Radix UI primitives
+- **Data Tables**: TanStack React Table for advanced functionality
+- **Styling**: Tailwind CSS with utility-first approach
+- **Icons**: Lucide React icon library
+- **Theming**: next-themes for seamless dark/light mode
+- **State Management**: React hooks and URL-based state
 
 ### Infrastructure
 
-- **Containerization**: Docker with multi-stage builds
-- **Deployment**: Support for AWS, Azure, and Digital Ocean
-- **CI/CD**: GitHub Actions with automated testing
-- **Monitoring**: Health checks and performance monitoring
+- **Containerization**: Docker with multi-stage builds ✅ OPERATIONAL
+- **Development**: Docker Compose with hot reload and health checks
+- **Database**: PostgreSQL container with persistent volumes
+- **Caching**: Redis container for session management
+- **Deployment**: Ready for AWS, Azure, and Digital Ocean
 
 ## 📚 Documentation
 
@@ -148,13 +153,23 @@ minerva/
 ### NPM Scripts
 
 ```bash
-npm run dev              # Start both frontend and backend
+npm run docker:dev       # Start entire stack with Docker (RECOMMENDED)
+npm run dev              # Start both frontend and backend locally
 npm run install:all      # Install all dependencies
 npm run build            # Build frontend for production
-npm run test             # Run all tests
 npm run lint             # Lint code
-npm run docker:dev       # Start with Docker (when implemented)
-npm run docker:build     # Build Docker images (when implemented)
+npm run test             # Run all tests (when implemented)
+```
+
+### Docker Commands
+
+```bash
+# Development workflow
+npm run docker:dev       # Start all services with hot reload
+docker ps                # View running containers
+docker logs minerva-backend -f    # Follow backend logs
+docker logs minerva-frontend -f   # Follow frontend logs
+docker restart minerva-backend    # Restart backend container
 ```
 
 ### Backend Commands
@@ -197,30 +212,34 @@ npm run lint             # Lint code
 
 ### Current Priorities
 
-1. **Docker Implementation** - Containerization for consistent environments
-2. **AI Integration** - LangChain/LangGraph agents for intelligent features
-3. **Testing Infrastructure** - Comprehensive testing framework
+1. **Testing Infrastructure** - Jest + React Testing Library setup
+2. **AI Integration** - LangChain/LangGraph agents for intelligent features  
+3. **Enhanced Features** - Advanced filtering, bulk operations, mobile optimization
 4. **CI/CD Pipeline** - Automated testing and deployment
 
 ## 📊 Project Status
 
-### Phase 1: Docker Containerization (Weeks 1-2) - 🔴 CRITICAL
+### Phase 1: Docker Containerization ✅ COMPLETED
 
-- [x] **COMPLETED**: Comprehensive Docker strategy documented
-- [ ] **TODO**: Implement Docker containerization across all services
-- [ ] **TODO**: Set up unified development workflow
+- [x] **COMPLETED**: Docker containerization across all services
+- [x] **COMPLETED**: Unified development workflow with `npm run docker:dev`
+- [x] **COMPLETED**: Health checks and hot reload functionality
+- [x] **COMPLETED**: PostgreSQL and Redis containers operational
 
-### Phase 2: AI Agent Integration (Weeks 3-5) - 🟡 HIGH
+### Phase 1B: UI Migration & Cleanup ✅ COMPLETED  
 
-- [x] **COMPLETED**: Complete AI integration specification
+- [x] **COMPLETED**: Migration from Chakra UI to Shadcn/UI
+- [x] **COMPLETED**: Modern data table with TanStack React Table
+- [x] **COMPLETED**: Comprehensive codebase cleanup (329+ lines removed)
+- [x] **COMPLETED**: Streamlined architecture with reduced technical debt
+
+### Phase 2: Testing & AI Foundation - 🟡 NEXT
+
+- [x] **READY**: Complete AI integration specification documented
+- [ ] **TODO**: Set up Jest and React Testing Library for frontend
+- [ ] **TODO**: Implement Django testing framework for backend
 - [ ] **TODO**: Install LangChain/LangGraph dependencies
-- [ ] **TODO**: Implement core AI agents
-
-### Phase 3: Testing Infrastructure (Weeks 6-7) - 🟡 HIGH
-
-- [ ] **TODO**: Set up Jest and React Testing Library
-- [ ] **TODO**: Implement Django testing framework
-- [ ] **TODO**: Add CI/CD with GitHub Actions
+- [ ] **TODO**: Create AI services Django app structure
 
 ## 🆘 Getting Help
 
@@ -240,9 +259,10 @@ npm run lint             # Lint code
 
 - **Django** - Web framework for Python
 - **Next.js** - React framework for production
-- **Chakra UI** - Accessible component library
+- **Shadcn/UI** - Modern component library with Radix UI
+- **TanStack React Table** - Advanced data table functionality
 - **Google Books API** - Book metadata and covers
-- **LangChain/LangGraph** - AI agent framework
+- **LangChain/LangGraph** - AI agent framework (planned)
 
 ---
 
