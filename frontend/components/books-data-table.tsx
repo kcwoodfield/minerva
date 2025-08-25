@@ -1,16 +1,19 @@
 "use client"
 
 import * as React from "react"
-import { Search } from "lucide-react"
+import { Search, Edit, Trash2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { Book } from "@/types/book"
 
 interface BooksDataTableProps {
   data: Book[]
   onSearch?: (query: string) => void
+  onEdit?: (book: Book) => void
+  onDelete?: (bookId: string) => void
 }
 
-export function BooksDataTable({ data, onSearch }: BooksDataTableProps) {
+export function BooksDataTable({ data, onSearch, onEdit, onDelete }: BooksDataTableProps) {
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value
     if (onSearch) {
@@ -39,6 +42,7 @@ export function BooksDataTable({ data, onSearch }: BooksDataTableProps) {
               <th className="text-left p-4 bg-white">Book Title</th>
               <th className="text-left p-4 bg-white">Author</th>
               <th className="text-left p-4 bg-white">Pages</th>
+              <th className="text-left p-4 bg-white">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white">
@@ -63,11 +67,35 @@ export function BooksDataTable({ data, onSearch }: BooksDataTableProps) {
                   <td className="p-4 font-medium">{book.title}</td>
                   <td className="p-4">{book.author}</td>
                   <td className="p-4 text-right font-mono">{book.pages}</td>
+                  <td className="p-4">
+                    <div className="flex space-x-2">
+                      {onEdit && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onEdit(book)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {onDelete && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onDelete(book.id)}
+                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr className="bg-white">
-                <td colSpan={4} className="p-8 text-center text-muted-foreground bg-white">
+                <td colSpan={5} className="p-8 text-center text-muted-foreground bg-white">
                   No books found.
                 </td>
               </tr>
