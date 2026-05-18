@@ -278,20 +278,29 @@ export function BookForm({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Genre">
-              <Input {...register('genre')} />
+            <Field label="Publisher">
+              <Input {...register('publisher')} />
             </Field>
-            <Field label="Format">
-              <Input placeholder="Hardcover, Paperback…" {...register('format')} />
+            <Field label="Publication Date">
+              <Input type="date" {...register('publicationDate')} />
             </Field>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Publisher">
-              <Input {...register('publisher')} />
+            <Field label="Genre">
+              <Input {...register('genre')} />
             </Field>
             <Field label="Language">
               <Input {...register('language')} />
+            </Field>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Format">
+              <Input placeholder="Hardcover, Paperback…" {...register('format')} />
+            </Field>
+            <Field label="Edition">
+              <Input placeholder="1st, 2nd…" {...register('edition')} />
             </Field>
           </div>
 
