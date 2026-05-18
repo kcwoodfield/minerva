@@ -123,6 +123,7 @@ function ISBNLookupCard({
       {/* Input row */}
       <div className="flex gap-2">
         <Input
+          autoFocus
           placeholder="9780000000000"
           value={isbnInput}
           onChange={(e) => setIsbnInput(e.target.value)}

@@ -1,19 +1,30 @@
 using MediatR;
 using Minerva.Api.Infrastructure;
 using Minerva.Api.Infrastructure.Data;
+using Minerva.Api.Infrastructure.Storage;
 
 namespace Minerva.Api.Features.Books.Create;
 
 public record CreateBookCommand(CreateBookRequest Request) : IRequest<BookDto>;
 
-public class CreateBookHandler(MinervaDbContext db) : IRequestHandler<CreateBookCommand, BookDto>
+public class CreateBookHandler(MinervaDbContext db, BookImageStorage storage, IHttpClientFactory httpClientFactory)
+    : IRequestHandler<CreateBookCommand, BookDto>
 {
     public async Task<BookDto> Handle(CreateBookCommand command, CancellationToken ct)
     {
         var req = command.Request;
+        var bookId = Guid.NewGuid();
+
+        string? coverImageUrl = req.CoverImageUrl;
+        if (!string.IsNullOrWhiteSpace(coverImageUrl) && !storage.IsManagedUrl(coverImageUrl))
+        {
+            var client = httpClientFactory.CreateClient("CoverProxy");
+            coverImageUrl = await storage.DownloadAndSaveAsync(bookId, coverImageUrl, client, ct);
+        }
+
         var book = new Book
         {
-            Id = Guid.NewGuid(),
+            Id = bookId,
             Title = req.Title,
             Author = req.Author,
             Isbn13 = req.Isbn13,
@@ -32,7 +43,7 @@ public class CreateBookHandler(MinervaDbContext db) : IRequestHandler<CreateBook
             Translator = req.Translator,
             Summary = req.Summary,
             Tags = req.Tags ?? [],
-            CoverImageUrl = req.CoverImageUrl,
+            CoverImageUrl = coverImageUrl,
             CoverSourceUrl = req.CoverImageUrl,
             DateAdded = DateTime.UtcNow,
             Timestamp = DateTime.UtcNow,

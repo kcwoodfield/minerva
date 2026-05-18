@@ -2,12 +2,14 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Minerva.Api.Infrastructure;
 using Minerva.Api.Infrastructure.Data;
+using Minerva.Api.Infrastructure.Storage;
 
 namespace Minerva.Api.Features.Books.Update;
 
 public record UpdateBookCommand(Guid Id, UpdateBookRequest Request) : IRequest<BookDto?>;
 
-public class UpdateBookHandler(MinervaDbContext db) : IRequestHandler<UpdateBookCommand, BookDto?>
+public class UpdateBookHandler(MinervaDbContext db, BookImageStorage storage, IHttpClientFactory httpClientFactory)
+    : IRequestHandler<UpdateBookCommand, BookDto?>
 {
     public async Task<BookDto?> Handle(UpdateBookCommand command, CancellationToken ct)
     {
@@ -33,7 +35,24 @@ public class UpdateBookHandler(MinervaDbContext db) : IRequestHandler<UpdateBook
         if (req.Translator is not null) book.Translator = req.Translator;
         if (req.Summary is not null) book.Summary = req.Summary;
         if (req.Tags is not null) book.Tags = req.Tags;
-        if (req.CoverImageUrl is not null) book.CoverImageUrl = req.CoverImageUrl;
+        if (req.CoverImageUrl is not null)
+        {
+            if (storage.IsManagedUrl(req.CoverImageUrl))
+            {
+                book.CoverImageUrl = req.CoverImageUrl;
+            }
+            else if (!string.IsNullOrWhiteSpace(req.CoverImageUrl))
+            {
+                var client = httpClientFactory.CreateClient("CoverProxy");
+                var localPath = await storage.DownloadAndSaveAsync(command.Id, req.CoverImageUrl, client, ct);
+                if (localPath is not null)
+                {
+                    storage.DeleteIfManaged(book.CoverImageUrl);
+                    book.CoverImageUrl = localPath;
+                    book.CoverSourceUrl = req.CoverImageUrl;
+                }
+            }
+        }
         book.Timestamp = DateTime.UtcNow;
 
         await db.SaveChangesAsync(ct);

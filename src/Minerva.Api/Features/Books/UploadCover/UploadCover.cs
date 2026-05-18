@@ -65,7 +65,7 @@ public class UploadCoverHandler(MinervaDbContext db, BookImageStorage storage)
     }
 }
 
-public class DeleteCoverHandler(MinervaDbContext db, BookImageStorage storage)
+public class DeleteCoverHandler(MinervaDbContext db, BookImageStorage storage, IHttpClientFactory httpClientFactory)
     : IRequestHandler<DeleteCoverCommand, BookDto?>
 {
     public async Task<BookDto?> Handle(DeleteCoverCommand command, CancellationToken ct)
@@ -74,7 +74,15 @@ public class DeleteCoverHandler(MinervaDbContext db, BookImageStorage storage)
         if (book is null) return null;
 
         storage.DeleteIfManaged(book.CoverImageUrl);
-        book.CoverImageUrl = book.CoverSourceUrl;
+
+        string? newCoverImageUrl = null;
+        if (!string.IsNullOrWhiteSpace(book.CoverSourceUrl))
+        {
+            var client = httpClientFactory.CreateClient("CoverProxy");
+            newCoverImageUrl = await storage.DownloadAndSaveAsync(command.BookId, book.CoverSourceUrl, client, ct);
+        }
+
+        book.CoverImageUrl = newCoverImageUrl;
         book.Timestamp = DateTime.UtcNow;
 
         await db.SaveChangesAsync(ct);
