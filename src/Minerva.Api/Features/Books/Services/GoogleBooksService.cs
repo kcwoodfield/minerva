@@ -1,11 +1,16 @@
+using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Minerva.Api.Features.Books.Services;
 
-public class GoogleBooksService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+public class GoogleBooksService(
+    IHttpClientFactory httpClientFactory,
+    IConfiguration configuration,
+    ILogger<GoogleBooksService> logger)
 {
-    public async Task<BookMetadata?> LookupByISBN(string isbn)
+    public async Task<BookMetadata?> LookupByISBN(string isbn, CancellationToken cancellationToken = default)
     {
         var normalized = IsbnHelper.Normalize(isbn);
         if (normalized is null) return null;
@@ -19,11 +24,18 @@ public class GoogleBooksService(IHttpClientFactory httpClientFactory, IConfigura
                 ? $"https://www.googleapis.com/books/v1/volumes?q=isbn:{normalized}"
                 : $"https://www.googleapis.com/books/v1/volumes?q=isbn:{normalized}&key={apiKey}";
 
-            var response = await client.GetAsync(url);
-            // Quota / auth errors — let composite fall back to Open Library
+            var response = await client.GetAsync(url, cancellationToken);
+            if (response.StatusCode == HttpStatusCode.TooManyRequests)
+            {
+                logger.LogWarning(
+                    "Google Books quota exceeded for ISBN {Isbn}. Configure GoogleBooks:ApiKey or retry later.",
+                    normalized);
+                return null;
+            }
+
             if (!response.IsSuccessStatusCode) return null;
 
-            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             var root = doc.RootElement;
 
             if (!root.TryGetProperty("items", out var items) || items.GetArrayLength() == 0)
@@ -59,8 +71,13 @@ public class GoogleBooksService(IHttpClientFactory httpClientFactory, IConfigura
 
             return new BookMetadata(title, author, publisher, pubDate, pageCount, description, genre, language, coverUrl);
         }
-        catch
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogDebug(ex, "Google Books lookup failed for ISBN {Isbn}", isbn);
             return null;
         }
     }

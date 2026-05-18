@@ -25,11 +25,16 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddDbContext<MinervaDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.Configure<BookLookupOptions>(
+    builder.Configuration.GetSection(BookLookupOptions.SectionName));
+var bookLookupOptions = builder.Configuration
+    .GetSection(BookLookupOptions.SectionName)
+    .Get<BookLookupOptions>() ?? new BookLookupOptions();
 builder.Services.AddHttpClient(BookMetadataHttpClient.Name, client =>
 {
     client.DefaultRequestHeaders.UserAgent.ParseAdd("Minerva/1.0 (personal library app; book-isbn-lookup)");
     client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
-    client.Timeout = TimeSpan.FromSeconds(15);
+    client.Timeout = TimeSpan.FromSeconds(bookLookupOptions.RequestTimeoutSeconds);
 });
 builder.Services.AddHttpClient("CoverProxy", client =>
 {

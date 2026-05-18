@@ -48,6 +48,15 @@ On success, the add-book form expands with prefilled fields.
 
 Optional `GoogleBooks:ApiKey` in API configuration improves quota. Without a key, Open Library still supplies most fields; summaries may be sparser.
 
+## Timeouts
+
+| Setting | Default | Purpose |
+|---------|---------|---------|
+| `BookLookup:RequestTimeoutSeconds` | 8 | Per HTTP call to Google Books or Open Library |
+| `BookLookup:OverallTimeoutSeconds` | 25 | Entire lookup (parallel providers + Open Library fallbacks) |
+
+Open Library strategies (search, books API, `isbn.json`) run **in parallel** per ISBN variant; the first hit wins. If the overall budget is exceeded, the API returns **504** with a retry message instead of waiting ~70s and returning 404.
+
 ## Implementation files
 
 ```

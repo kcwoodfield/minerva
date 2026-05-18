@@ -7,7 +7,9 @@ public class OpenLibraryBooksService(
     IHttpClientFactory httpClientFactory,
     ILogger<OpenLibraryBooksService> logger) : IBookLookupService
 {
-    public async Task<BookMetadata?> LookupByISBN(string isbn)
+    private const int MaxAuthorFetches = 3;
+
+    public async Task<BookMetadata?> LookupByISBN(string isbn, CancellationToken cancellationToken = default)
     {
         var normalized = IsbnHelper.Normalize(isbn);
         if (normalized is null) return null;
@@ -16,36 +18,81 @@ public class OpenLibraryBooksService(
 
         foreach (var variant in IsbnHelper.LookupVariants(normalized))
         {
-            var fromBooksApi = await TryBooksApiAsync(client, variant);
-            if (fromBooksApi is not null) return fromBooksApi;
+            cancellationToken.ThrowIfCancellationRequested();
 
-            var fromIsbnJson = await TryIsbnJsonAsync(client, variant);
-            if (fromIsbnJson is not null) return fromIsbnJson;
-
-            var fromSearch = await TrySearchAsync(client, variant);
-            if (fromSearch is not null) return fromSearch;
+            var result = await LookupVariantAsync(client, variant, cancellationToken);
+            if (result is not null) return result;
         }
 
         logger.LogWarning("Open Library returned no data for ISBN {Isbn}", normalized);
         return null;
     }
 
-    private async Task<BookMetadata?> TryBooksApiAsync(HttpClient client, string isbn)
+    /// <summary>Runs search, books API, and isbn.json in parallel; returns the first hit.</summary>
+    private async Task<BookMetadata?> LookupVariantAsync(
+        HttpClient client,
+        string isbn,
+        CancellationToken cancellationToken)
+    {
+        using var raceCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var raceToken = raceCts.Token;
+
+        var strategies = new[]
+        {
+            TrySearchAsync(client, isbn, raceToken),
+            TryBooksApiAsync(client, isbn, raceToken),
+            TryIsbnJsonAsync(client, isbn, raceToken),
+        };
+
+        var pending = strategies.ToList();
+
+        while (pending.Count > 0)
+        {
+            var completed = await Task.WhenAny(pending);
+            pending.Remove(completed);
+
+            BookMetadata? result;
+            try
+            {
+                result = await completed;
+            }
+            catch (OperationCanceledException) when (raceToken.IsCancellationRequested)
+            {
+                return null;
+            }
+
+            if (result is null) continue;
+
+            await raceCts.CancelAsync();
+            return result;
+        }
+
+        return null;
+    }
+
+    private async Task<BookMetadata?> TryBooksApiAsync(
+        HttpClient client,
+        string isbn,
+        CancellationToken cancellationToken)
     {
         try
         {
             var url = $"https://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&format=json&jscmd=data";
-            var response = await client.GetAsync(url);
+            var response = await client.GetAsync(url, cancellationToken);
             if (!response.IsSuccessStatusCode) return null;
 
-            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             var key = $"ISBN:{isbn}";
             if (!doc.RootElement.TryGetProperty(key, out var book))
                 return null;
 
             var workKey = ExtractWorkKey(book);
             var mapped = MapFromBooksApi(book);
-            return mapped is null ? null : await EnrichDescriptionAsync(client, mapped, workKey);
+            return mapped is null ? null : await EnrichDescriptionAsync(client, mapped, workKey, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -54,15 +101,18 @@ public class OpenLibraryBooksService(
         }
     }
 
-    private async Task<BookMetadata?> TryIsbnJsonAsync(HttpClient client, string isbn)
+    private async Task<BookMetadata?> TryIsbnJsonAsync(
+        HttpClient client,
+        string isbn,
+        CancellationToken cancellationToken)
     {
         try
         {
             var url = $"https://openlibrary.org/isbn/{isbn}.json";
-            var response = await client.GetAsync(url);
+            var response = await client.GetAsync(url, cancellationToken);
             if (!response.IsSuccessStatusCode) return null;
 
-            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             var root = doc.RootElement;
             var workKey = ExtractWorkKey(root);
 
@@ -71,15 +121,17 @@ public class OpenLibraryBooksService(
             string? author = null;
             if (root.TryGetProperty("authors", out var authorRefs) && authorRefs.GetArrayLength() > 0)
             {
-                var names = new List<string>();
-                foreach (var authorRef in authorRefs.EnumerateArray())
-                {
-                    if (!authorRef.TryGetProperty("key", out var keyEl)) continue;
-                    var key = keyEl.GetString();
-                    if (string.IsNullOrWhiteSpace(key)) continue;
-                    var name = await FetchAuthorNameAsync(client, key);
-                    if (!string.IsNullOrWhiteSpace(name)) names.Add(name);
-                }
+                var authorKeys = authorRefs.EnumerateArray()
+                    .Select(authorRef => authorRef.TryGetProperty("key", out var keyEl) ? keyEl.GetString() : null)
+                    .Where(key => !string.IsNullOrWhiteSpace(key))
+                    .Take(MaxAuthorFetches)
+                    .ToList();
+
+                var nameTasks = authorKeys.Select(key => FetchAuthorNameAsync(client, key!, cancellationToken));
+                var names = (await Task.WhenAll(nameTasks))
+                    .Where(name => !string.IsNullOrWhiteSpace(name))
+                    .ToList();
+
                 if (names.Count > 0) author = string.Join(", ", names);
             }
 
@@ -108,7 +160,11 @@ public class OpenLibraryBooksService(
                 return null;
 
             var meta = new BookMetadata(title, author, publisher, pubDate, pageCount, null, null, null, coverUrl);
-            return await EnrichDescriptionAsync(client, meta, workKey);
+            return await EnrichDescriptionAsync(client, meta, workKey, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -117,16 +173,23 @@ public class OpenLibraryBooksService(
         }
     }
 
-    private static async Task<string?> FetchAuthorNameAsync(HttpClient client, string authorKey)
+    private static async Task<string?> FetchAuthorNameAsync(
+        HttpClient client,
+        string authorKey,
+        CancellationToken cancellationToken)
     {
         try
         {
             var path = authorKey.TrimStart('/');
-            var response = await client.GetAsync($"https://openlibrary.org/{path}.json");
+            var response = await client.GetAsync($"https://openlibrary.org/{path}.json", cancellationToken);
             if (!response.IsSuccessStatusCode) return null;
 
-            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             return doc.RootElement.TryGetProperty("name", out var n) ? n.GetString() : null;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch
         {
@@ -134,15 +197,18 @@ public class OpenLibraryBooksService(
         }
     }
 
-    private async Task<BookMetadata?> TrySearchAsync(HttpClient client, string isbn)
+    private async Task<BookMetadata?> TrySearchAsync(
+        HttpClient client,
+        string isbn,
+        CancellationToken cancellationToken)
     {
         try
         {
             var url = $"https://openlibrary.org/search.json?isbn={isbn}&limit=1";
-            var response = await client.GetAsync(url);
+            var response = await client.GetAsync(url, cancellationToken);
             if (!response.IsSuccessStatusCode) return null;
 
-            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             if (!doc.RootElement.TryGetProperty("docs", out var docs) || docs.GetArrayLength() == 0)
                 return null;
 
@@ -198,7 +264,11 @@ public class OpenLibraryBooksService(
 
             var meta = new BookMetadata(
                 title, author, publisher, pubDate, pageCount, description, genre, null, coverUrl);
-            return await EnrichDescriptionAsync(client, meta, workKey);
+            return await EnrichDescriptionAsync(client, meta, workKey, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -271,30 +341,35 @@ public class OpenLibraryBooksService(
         return null;
     }
 
-    private async Task<BookMetadata> EnrichDescriptionAsync(
+    private static async Task<BookMetadata> EnrichDescriptionAsync(
         HttpClient client,
         BookMetadata meta,
-        string? workKey)
+        string? workKey,
+        CancellationToken cancellationToken)
     {
-        if (!string.IsNullOrWhiteSpace(meta.Description)) return meta;
+        if (!string.IsNullOrWhiteSpace(meta.Description) || cancellationToken.IsCancellationRequested)
+            return meta;
 
-        var fromWork = await FetchWorkDescriptionAsync(client, workKey);
+        var fromWork = await FetchWorkDescriptionAsync(client, workKey, cancellationToken);
         if (fromWork is null) return meta;
 
         return meta with { Description = fromWork };
     }
 
-    private static async Task<string?> FetchWorkDescriptionAsync(HttpClient client, string? workKey)
+    private static async Task<string?> FetchWorkDescriptionAsync(
+        HttpClient client,
+        string? workKey,
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(workKey)) return null;
 
         try
         {
             var path = workKey.TrimStart('/');
-            var response = await client.GetAsync($"https://openlibrary.org/{path}.json");
+            var response = await client.GetAsync($"https://openlibrary.org/{path}.json", cancellationToken);
             if (!response.IsSuccessStatusCode) return null;
 
-            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
             var root = doc.RootElement;
 
             var description = ParseWorkDescriptionProperty(root);
@@ -312,6 +387,10 @@ public class OpenLibraryBooksService(
             }
 
             return null;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch
         {

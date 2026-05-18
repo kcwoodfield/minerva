@@ -5,13 +5,13 @@ public class CompositeBookLookupService(
     GoogleBooksService googleBooks,
     OpenLibraryBooksService openLibrary) : IBookLookupService
 {
-    public async Task<BookMetadata?> LookupByISBN(string isbn)
+    public async Task<BookMetadata?> LookupByISBN(string isbn, CancellationToken cancellationToken = default)
     {
         var normalized = IsbnHelper.Normalize(isbn);
         if (normalized is null) return null;
 
-        var googleTask = googleBooks.LookupByISBN(normalized);
-        var openLibraryTask = openLibrary.LookupByISBN(normalized);
+        var googleTask = googleBooks.LookupByISBN(normalized, cancellationToken);
+        var openLibraryTask = openLibrary.LookupByISBN(normalized, cancellationToken);
 
         await Task.WhenAll(googleTask, openLibraryTask);
 

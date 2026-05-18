@@ -4,10 +4,6 @@ public static class BookMetadataHttpClient
 {
     public const string Name = "BookMetadata";
 
-    public static HttpClient Create(IHttpClientFactory factory)
-    {
-        var client = factory.CreateClient(Name);
-        client.Timeout = TimeSpan.FromSeconds(15);
-        return client;
-    }
+    public static HttpClient Create(IHttpClientFactory factory) =>
+        factory.CreateClient(Name);
 }
