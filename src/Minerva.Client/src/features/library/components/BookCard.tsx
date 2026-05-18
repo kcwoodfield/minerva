@@ -9,18 +9,28 @@ import type { Book } from '../types/library.types';
 
 interface Props {
   book: Book;
+  onSelect: (book: Book) => void;
   onEdit: (book: Book) => void;
   onDelete: (book: Book) => void;
 }
 
-export function BookCard({ book, onEdit, onDelete }: Props) {
+export function BookCard({ book, onSelect, onEdit, onDelete }: Props) {
   const status = getStatus(book.completed);
   const showProgress = status === 'reading';
 
   return (
     <div
-      className="flex items-start gap-4 border-b border-rule-soft"
+      role="button"
+      tabIndex={0}
+      className="flex items-start gap-4 border-b border-rule-soft cursor-pointer hover:bg-cream-warm transition-colors duration-[120ms]"
       style={{ padding: '16px 18px' }}
+      onClick={() => onSelect(book)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(book);
+        }
+      }}
     >
       {/* Cover */}
       {book.coverImageUrl
@@ -70,7 +80,10 @@ export function BookCard({ book, onEdit, onDelete }: Props) {
 
       {/* Actions */}
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="ghost" className="h-7 w-7 p-0 flex-shrink-0" />}>
+        <DropdownMenuTrigger
+          render={<Button variant="ghost" className="h-7 w-7 p-0 flex-shrink-0" />}
+          onClick={(e) => e.stopPropagation()}
+        >
           <MoreVertical style={{ width: 15, height: 15 }} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

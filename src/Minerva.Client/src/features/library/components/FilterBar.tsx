@@ -3,6 +3,7 @@ import { LayoutList, Grid3X3 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useLibraryStore } from '../stores/libraryStore';
+import { useLibraryFilters, useLibrarySort, useLibraryView } from '../stores/librarySelectors';
 
 type StatusChip = { label: string; value: 'reading' | 'finished' | 'unread' | null };
 
@@ -22,13 +23,20 @@ const SORT_OPTIONS = [
 ];
 
 export function FilterBar() {
-  const { filters, setFilters, sortBy, ascending, setSort, view, setView } = useLibraryStore();
+  const filters = useLibraryFilters();
+  const { sortBy, ascending } = useLibrarySort();
+  const view = useLibraryView();
+  const setFilters = useLibraryStore((s) => s.setFilters);
+  const setSort = useLibraryStore((s) => s.setSort);
+  const setView = useLibraryStore((s) => s.setView);
+
   const [searchInput, setSearchInput] = useState(filters.search);
   const debouncedSearch = useDebounce(searchInput, 300);
 
   useEffect(() => {
+    if (debouncedSearch === filters.search) return;
     setFilters({ search: debouncedSearch });
-  }, [debouncedSearch, setFilters]);
+  }, [debouncedSearch, filters.search, setFilters]);
 
   const activeStatus = filters.status ?? null;
 
@@ -42,10 +50,15 @@ export function FilterBar() {
         {/* Search */}
         <div className="relative">
           <svg
-            width="15" height="15" viewBox="0 0 24 24"
-            fill="none" stroke="#9C9789" strokeWidth="1.5"
-            strokeLinecap="round" strokeLinejoin="round"
-            className="absolute pointer-events-none"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="absolute pointer-events-none text-ink-faint"
             style={{ left: 12, top: '50%', transform: 'translateY(-50%)' }}
           >
             <circle cx="11" cy="11" r="8" />
@@ -66,19 +79,10 @@ export function FilterBar() {
             return (
               <button
                 key={chip.label}
+                type="button"
                 onClick={() => setFilters({ status: chip.value })}
-                className="font-serif transition-colors duration-[140ms]"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  fontSize: 13,
-                  padding: '4px 10px 5px',
-                  borderRadius: 9999,
-                  border: `1px solid ${active ? '#1B1A17' : '#E5DFCE'}`,
-                  background: active ? '#1B1A17' : 'transparent',
-                  color: active ? '#FAF8F2' : '#6B665C',
-                  cursor: 'pointer',
-                }}
+                className="chip-filter font-serif"
+                data-active={active}
               >
                 {chip.label}
               </button>
@@ -109,37 +113,23 @@ export function FilterBar() {
         </div>
 
         {/* View toggle */}
-        <div
-          className="flex"
-          style={{
-            border: '1px solid #E5DFCE',
-            borderRadius: 4,
-            overflow: 'hidden',
-          }}
-        >
+        <div className="segment-toggle">
           {(['list', 'grid'] as const).map((v) => {
             const active = view === v;
             return (
               <button
                 key={v}
+                type="button"
                 onClick={() => setView(v)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 32,
-                  height: 32,
-                  background: active ? '#1B1A17' : 'transparent',
-                  color: active ? '#FAF8F2' : '#9C9789',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'background-color 140ms, color 140ms',
-                }}
+                className="segment-toggle__btn"
+                data-active={active}
+                aria-pressed={active}
+                aria-label={v === 'list' ? 'List view' : 'Grid view'}
                 title={v === 'list' ? 'List view' : 'Grid view'}
               >
                 {v === 'list'
-                  ? <LayoutList style={{ width: 15, height: 15 }} />
-                  : <Grid3X3 style={{ width: 15, height: 15 }} />
+                  ? <LayoutList className="size-[15px] shrink-0" strokeWidth={1.75} />
+                  : <Grid3X3 className="size-[15px] shrink-0" strokeWidth={1.75} />
                 }
               </button>
             );

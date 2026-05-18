@@ -1,18 +1,26 @@
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace Minerva.Api.Features.Books.Services;
 
-public class GoogleBooksService(IHttpClientFactory httpClientFactory) : IBookLookupService
+public class GoogleBooksService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
 {
     public async Task<BookMetadata?> LookupByISBN(string isbn)
     {
+        var normalized = IsbnHelper.Normalize(isbn);
+        if (normalized is null) return null;
+
         try
         {
-            using var client = httpClientFactory.CreateClient();
-            client.Timeout = TimeSpan.FromSeconds(10);
+            var client = BookMetadataHttpClient.Create(httpClientFactory);
 
-            var url = $"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}";
+            var apiKey = configuration["GoogleBooks:ApiKey"];
+            var url = string.IsNullOrWhiteSpace(apiKey)
+                ? $"https://www.googleapis.com/books/v1/volumes?q=isbn:{normalized}"
+                : $"https://www.googleapis.com/books/v1/volumes?q=isbn:{normalized}&key={apiKey}";
+
             var response = await client.GetAsync(url);
+            // Quota / auth errors — let composite fall back to Open Library
             if (!response.IsSuccessStatusCode) return null;
 
             using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());

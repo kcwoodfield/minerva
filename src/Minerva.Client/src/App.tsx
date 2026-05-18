@@ -1,33 +1,17 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Logo } from '@/components/logo';
 import { Toaster } from '@/components/ui/sonner';
 import { AddBookDrawer } from './features/library/components/AddBookDrawer';
 import { FilterBar } from './features/library/components/FilterBar';
 import { LibraryTable } from './features/library/components/LibraryTable';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
 
 function LibraryContent() {
   return (
     <div className="min-h-screen bg-cream">
       <header className="border-b border-rule-soft bg-cream">
         <div className="flex items-center justify-between px-page-x py-5">
-          <div className="flex items-center gap-3">
-            <img
-              src="/logo.webp"
-              alt=""
-              width={36}
-              height={36}
-              className="mix-blend-multiply select-none object-contain"
-              style={{ width: 36, height: 36 }}
-            />
+          <div className="flex items-center gap-4">
+            <Logo size="lg" />
             <div>
               <h1
                 className="font-display font-semibold text-ink leading-none"
@@ -40,7 +24,10 @@ function LibraryContent() {
               </p>
             </div>
           </div>
-          <AddBookDrawer />
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            <AddBookDrawer />
+          </div>
         </div>
       </header>
 
@@ -55,12 +42,7 @@ function LibraryContent() {
 }
 
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <LibraryContent />
-      <ReactQueryDevtools />
-    </QueryClientProvider>
-  );
+  return <LibraryContent />;
 }
 
 export default App;

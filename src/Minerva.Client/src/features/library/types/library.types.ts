@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { normalizeIsbn } from '@/lib/isbn';
 
 export interface Book {
   id: string;
@@ -71,8 +72,17 @@ export interface BookMetadata {
 export const createBookSchema = z.object({
   title: z.string().min(1, 'Title is required').max(500),
   author: z.string().min(1, 'Author is required').max(300),
-  isbn13: z.string().min(10, 'ISBN-13 is required'),
-  isbn10: z.string().optional(),
+  isbn13: z
+    .string()
+    .min(1, 'ISBN-13 is required')
+    .refine((v) => normalizeIsbn(v)?.length === 13, 'Enter a valid 13-digit ISBN (dashes optional)'),
+  isbn10: z
+    .string()
+    .optional()
+    .refine(
+      (v) => !v?.trim() || normalizeIsbn(v)?.length === 10,
+      'Enter a valid 10-digit ISBN (dashes optional)',
+    ),
   pages: z.number().min(1, 'Pages must be at least 1'),
   rating: z.number().min(0).max(5),
   review: z.string().optional(),

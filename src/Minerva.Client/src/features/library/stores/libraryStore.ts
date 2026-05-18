@@ -28,6 +28,10 @@ interface LibraryState {
 
   view: 'list' | 'grid';
   setView: (view: 'list' | 'grid') => void;
+
+  /** Incremented after create/update/delete to refetch the book list. */
+  listVersion: number;
+  bumpList: () => void;
 }
 
 export const useLibraryStore = create<LibraryState>()(
@@ -63,6 +67,9 @@ export const useLibraryStore = create<LibraryState>()(
 
       view: 'list',
       setView: (view) => set({ view }),
+
+      listVersion: 0,
+      bumpList: () => set((s) => ({ listVersion: s.listVersion + 1 })),
     }),
     {
       name: 'minerva-library-store',

@@ -12,8 +12,9 @@ function Star({ filled, size }: { filled: boolean; size: number }) {
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      fill={filled ? '#B8893A' : 'none'}
-      stroke={filled ? '#B8893A' : '#9C9789'}
+      fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      className={filled ? 'text-accent-gold' : 'text-ink-faint'}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"

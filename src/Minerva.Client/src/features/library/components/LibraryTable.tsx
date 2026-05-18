@@ -1,50 +1,70 @@
-import { useState } from 'react';
-import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-} from '@tanstack/react-table';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
+import { useCallback, useMemo, useState } from 'react';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useBooks } from '../hooks/useLibrary';
-import { useLibraryStore } from '../stores/libraryStore';
+import {
+  useLibraryFilters,
+  useLibraryPagination,
+  useLibrarySort,
+  useLibraryView,
+} from '../stores/librarySelectors';
 import { getStatus } from '@/components/ui/status-badge';
-import { createColumns } from './columns';
+import { LibraryBookRow, LibraryBookTableHeader } from './LibraryBookRow';
 import { BookCard } from './BookCard';
-import { EditBookDrawer } from './EditBookDrawer';
+import { BookGridCard } from './BookGridCard';
+import { BookDetailModal } from './BookDetailModal';
+import { EditBookModal } from './EditBookModal';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { LibraryPagination } from './LibraryPagination';
 import type { Book } from '../types/library.types';
 
-export function LibraryTable() {
-  const { filters, sortBy, ascending, page, pageSize } = useLibraryStore();
-  const { data, isLoading } = useBooks({
-    page, pageSize,
-    search: filters.search,
-    sortBy, ascending,
-  });
+const TABLE_COL_COUNT = 9;
 
+function EmptyState() {
+  return (
+    <p className="text-center py-12 font-serif italic text-ink-mute">No books found</p>
+  );
+}
+
+export function LibraryTable() {
+  const filters = useLibraryFilters();
+  const { sortBy, ascending } = useLibrarySort();
+  const { page, pageSize } = useLibraryPagination();
+  const view = useLibraryView();
+
+  const queryParams = useMemo(
+    () => ({ page, pageSize, search: filters.search, sortBy, ascending }),
+    [page, pageSize, filters.search, sortBy, ascending],
+  );
+
+  const { data, isLoading } = useBooks(queryParams);
+
+  const [detailIndex, setDetailIndex] = useState<number | null>(null);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [deletingBook, setDeletingBook] = useState<Book | null>(null);
 
-  const columns = createColumns({
-    onEdit: setEditingBook,
-    onDelete: setDeletingBook,
-  });
+  const handleEdit = useCallback((book: Book) => setEditingBook(book), []);
+  const handleDelete = useCallback((book: Book) => setDeletingBook(book), []);
 
   const allBooks = data?.items ?? [];
-  const books = filters.status
-    ? allBooks.filter((b) => getStatus(b.completed) === filters.status)
-    : allBooks;
+  const books = useMemo(
+    () =>
+      filters.status
+        ? allBooks.filter((b) => getStatus(b.completed) === filters.status)
+        : allBooks,
+    [allBooks, filters.status],
+  );
   const total = data?.total ?? 0;
 
-  const table = useReactTable({
-    data: books,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
+  const openDetail = useCallback(
+    (book: Book) => {
+      const idx = books.findIndex((b) => b.id === book.id);
+      if (idx >= 0) setDetailIndex(idx);
+    },
+    [books],
+  );
+
+  const closeDetail = useCallback(() => setDetailIndex(null), []);
 
   if (isLoading) {
     return (
@@ -54,75 +74,96 @@ export function LibraryTable() {
     );
   }
 
+  const bookList = books.map((book) => (
+    <BookCard
+      key={book.id}
+      book={book}
+      onSelect={openDetail}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+    />
+  ));
+
+  const bookGrid = (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      {books.map((book) => (
+        <BookGridCard
+          key={book.id}
+          book={book}
+          onSelect={openDetail}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      ))}
+    </div>
+  );
+
   return (
     <>
-      {/* Mobile card view */}
-      <div className="block md:hidden pt-4">
-        {books.length === 0
-          ? <p className="text-center py-12 font-serif italic text-ink-mute">No books found</p>
-          : books.map((book) => (
-            <BookCard key={book.id} book={book} onEdit={setEditingBook} onDelete={setDeletingBook} />
-          ))
-        }
-      </div>
+      {view === 'grid' ? (
+        <div className="pt-4">
+          {books.length === 0 ? <EmptyState /> : bookGrid}
+        </div>
+      ) : (
+        <>
+          <div className="block md:hidden pt-4">
+            {books.length === 0 ? <EmptyState /> : bookList}
+          </div>
 
-      {/* Desktop table view */}
-      <div className="hidden md:block">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((hg) => (
-              <TableRow
-                key={hg.id}
-                className="border-b border-rule"
-                style={{ background: 'transparent' }}
-              >
-                {hg.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className="text-ink-faint"
-                    style={{ padding: '10px 16px 14px', background: 'transparent' }}
-                  >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="text-center py-12 font-serif italic text-ink-mute"
-                >
-                  No books found
-                </TableCell>
-              </TableRow>
-            ) : (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className="border-b border-rule-soft hover:bg-cream-warm cursor-pointer transition-colors duration-[120ms]"
-                >
-                  {row.getVisibleCells().map((cell) => (
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <LibraryBookTableHeader />
+              </TableHeader>
+              <TableBody>
+                {books.length === 0 ? (
+                  <TableRow>
                     <TableCell
-                      key={cell.id}
-                      style={{ padding: '14px 16px' }}
+                      colSpan={TABLE_COL_COUNT}
+                      className="text-center py-12 font-serif italic text-ink-mute"
                     >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      No books found
                     </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+                  </TableRow>
+                ) : (
+                  books.map((book) => (
+                    <LibraryBookRow
+                      key={book.id}
+                      book={book}
+                      onSelect={openDetail}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                    />
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </>
+      )}
 
       <LibraryPagination total={total} />
 
-      <EditBookDrawer book={editingBook} onClose={() => setEditingBook(null)} />
-      <DeleteConfirmDialog book={deletingBook} onClose={() => setDeletingBook(null)} />
+      <BookDetailModal
+        books={books}
+        index={detailIndex ?? 0}
+        open={detailIndex !== null && books.length > 0}
+        onIndexChange={setDetailIndex}
+        onClose={closeDetail}
+        onEdit={handleEdit}
+      />
+
+      <EditBookModal book={editingBook} onClose={() => setEditingBook(null)} />
+
+      <DeleteConfirmDialog
+        book={deletingBook}
+        onClose={() => {
+          if (deletingBook && detailIndex !== null && books[detailIndex]?.id === deletingBook.id) {
+            setDetailIndex(null);
+          }
+          setDeletingBook(null);
+        }}
+      />
     </>
   );
 }

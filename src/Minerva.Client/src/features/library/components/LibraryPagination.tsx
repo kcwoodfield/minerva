@@ -2,13 +2,16 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLibraryStore } from '../stores/libraryStore';
+import { useLibraryPagination } from '../stores/librarySelectors';
 
 interface Props {
   total: number;
 }
 
 export function LibraryPagination({ total }: Props) {
-  const { page, pageSize, setPage, setPageSize } = useLibraryStore();
+  const { page, pageSize } = useLibraryPagination();
+  const setPage = useLibraryStore((s) => s.setPage);
+  const setPageSize = useLibraryStore((s) => s.setPageSize);
   const totalPages = Math.ceil(total / pageSize);
   const from = (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);

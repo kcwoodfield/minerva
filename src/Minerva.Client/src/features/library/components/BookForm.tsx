@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { Barcode, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { normalizeIsbn } from '@/lib/isbn';
 import { createBookSchema, type CreateBookForm, type BookMetadata } from '../types/library.types';
 import { useLookupISBN } from '../hooks/useLibrary';
 
 interface Props {
   defaultValues?: Partial<CreateBookForm>;
   onSubmit: (data: CreateBookForm) => Promise<void>;
+  onCancel?: () => void;
   submitLabel?: string;
   isPending?: boolean;
 }
@@ -36,11 +38,39 @@ function Field({ label, error, children }: { label: string; error?: string; chil
   );
 }
 
+function metadataToFormValues(isbn: string, metadata: BookMetadata): Partial<CreateBookForm> {
+  const normalized = normalizeIsbn(isbn);
+  const pages = metadata.pageCount && metadata.pageCount > 0 ? metadata.pageCount : 1;
+
+  let publicationDate = '';
+  if (metadata.publicationDate) {
+    const parsed = new Date(metadata.publicationDate);
+    if (!Number.isNaN(parsed.getTime())) {
+      publicationDate = parsed.toISOString().split('T')[0];
+    }
+  }
+
+  return {
+    title: metadata.title ?? '',
+    author: metadata.author ?? '',
+    isbn13: normalized ?? isbn.replace(/[^0-9Xx]/g, ''),
+    pages,
+    rating: 0,
+    completed: 0,
+    ...(metadata.publisher ? { publisher: metadata.publisher } : {}),
+    ...(publicationDate ? { publicationDate } : {}),
+    ...(metadata.genre ? { genre: metadata.genre } : {}),
+    ...(metadata.language ? { language: metadata.language } : {}),
+    ...(metadata.description ? { summary: metadata.description } : {}),
+    ...(metadata.coverImageUrl ? { coverImageUrl: metadata.coverImageUrl } : {}),
+  };
+}
+
 function ISBNLookupCard({
-  onUse,
+  onFound,
   defaultIsbn,
 }: {
-  onUse: (isbn: string, metadata: BookMetadata) => void;
+  onFound: (isbn: string, metadata: BookMetadata) => void;
   defaultIsbn?: string;
 }) {
   const [isbnInput, setIsbnInput] = useState(defaultIsbn ?? '');
@@ -55,8 +85,13 @@ function ISBNLookupCard({
     try {
       const metadata = await lookupMutation.mutateAsync(isbnInput.trim());
       setResult(metadata);
-    } catch {
-      setError('No book found for that ISBN. Try entering details manually.');
+      onFound(normalizeIsbn(isbnInput) ?? isbnInput.trim(), metadata);
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(
+        message ?? 'No book found for that ISBN. Try entering details manually.',
+      );
     }
   };
 
@@ -67,7 +102,7 @@ function ISBNLookupCard({
     >
       {/* Card title */}
       <div className="flex items-center gap-2" style={{ marginBottom: 8 }}>
-        <Barcode style={{ width: 18, height: 18, color: '#6B665C' }} />
+        <Barcode className="text-ink-mute" style={{ width: 18, height: 18 }} />
         <h3
           className="font-display font-semibold text-ink"
           style={{ fontSize: 17, lineHeight: 1.2 }}
@@ -76,7 +111,7 @@ function ISBNLookupCard({
         </h3>
       </div>
       <p className="font-serif italic text-ink-mute" style={{ fontSize: 13.5, marginBottom: 14 }}>
-        Enter an ISBN-13 to auto-fill book details from Google Books.
+        Enter ISBN-10 or ISBN-13 — with or without dashes (e.g. 978-0-140-44924-2 or 9780140449242).
       </p>
 
       {/* Input row */}
@@ -138,22 +173,17 @@ function ISBNLookupCard({
                 {result.publisher}{result.publicationDate ? ` · ${result.publicationDate}` : ''}
               </div>
             )}
+            <p className="font-serif italic text-accent-moss" style={{ fontSize: 12, marginTop: 8 }}>
+              Details loaded — review and save below.
+            </p>
           </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => onUse(isbnInput, result)}
-            className="flex-shrink-0 self-start"
-          >
-            Use
-          </Button>
         </div>
       )}
     </div>
   );
 }
 
-export function BookForm({ defaultValues, onSubmit, submitLabel = 'Save Book', isPending }: Props) {
+export function BookForm({ defaultValues, onSubmit, onCancel, submitLabel = 'Save Book', isPending }: Props) {
   const [showForm, setShowForm] = useState(!!defaultValues?.title);
 
   const { register, handleSubmit, reset, getValues, formState: { errors } } = useForm<CreateBookForm>({
@@ -161,18 +191,10 @@ export function BookForm({ defaultValues, onSubmit, submitLabel = 'Save Book', i
     defaultValues: { title: '', author: '', isbn13: '', pages: 0, rating: 0, completed: 0, ...defaultValues },
   });
 
-  const handleUseMetadata = (isbn: string, metadata: BookMetadata) => {
+  const handleFoundMetadata = (isbn: string, metadata: BookMetadata) => {
     reset({
       ...getValues(),
-      title:        metadata.title ?? '',
-      author:       metadata.author ?? '',
-      isbn13:       isbn,
-      pages:        metadata.pageCount ?? 0,
-      publisher:    metadata.publisher ?? '',
-      genre:        metadata.genre ?? '',
-      language:     metadata.language ?? '',
-      summary:      metadata.description ?? '',
-      coverImageUrl:metadata.coverImageUrl ?? '',
+      ...metadataToFormValues(isbn, metadata),
     });
     setShowForm(true);
   };
@@ -182,7 +204,7 @@ export function BookForm({ defaultValues, onSubmit, submitLabel = 'Save Book', i
       {/* ISBN lookup — always shown so user can re-look while editing */}
       {!defaultValues?.title && (
         <ISBNLookupCard
-          onUse={handleUseMetadata}
+          onFound={handleFoundMetadata}
           defaultIsbn={defaultValues?.isbn13}
         />
       )}
@@ -194,7 +216,18 @@ export function BookForm({ defaultValues, onSubmit, submitLabel = 'Save Book', i
       )}
 
       {showForm && (
-        <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <form
+          onSubmit={handleSubmit((data) =>
+            onSubmit({
+              ...data,
+              isbn13: normalizeIsbn(data.isbn13) ?? data.isbn13,
+              isbn10: data.isbn10?.trim()
+                ? normalizeIsbn(data.isbn10) ?? data.isbn10
+                : undefined,
+            }),
+          )}
+          style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+        >
           <Field label="Title *" error={errors.title?.message}>
             <Input {...register('title')} />
           </Field>
@@ -259,7 +292,12 @@ export function BookForm({ defaultValues, onSubmit, submitLabel = 'Save Book', i
             className="flex justify-end gap-3 border-t border-rule-soft"
             style={{ paddingTop: 16, marginTop: 6 }}
           >
-            {!defaultValues?.title && (
+            {onCancel && (
+              <Button type="button" variant="ghost" onClick={onCancel} disabled={isPending}>
+                Cancel
+              </Button>
+            )}
+            {!defaultValues?.title && !onCancel && (
               <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
                 Back
               </Button>

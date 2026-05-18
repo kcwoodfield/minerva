@@ -12,8 +12,13 @@ public class LookupByISBNModule : ICarterModule
     {
         app.MapGet("/api/books/lookup/{isbn}", async (string isbn, ISender sender) =>
         {
+            if (IsbnHelper.Normalize(isbn) is null)
+                return Results.BadRequest(new { message = "Invalid ISBN. Enter 10 or 13 digits." });
+
             var result = await sender.Send(new LookupByISBNQuery(isbn));
-            return result is null ? Results.NotFound() : Results.Ok(result);
+            return result is null
+                ? Results.NotFound(new { message = "No book found for that ISBN." })
+                : Results.Ok(result);
         })
         .WithName("LookupByISBN")
         .WithOpenApi();
