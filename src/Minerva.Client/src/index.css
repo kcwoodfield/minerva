@@ -1,143 +1,234 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Source+Serif+4:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
 
+/* ------------------------------------------------------------------ */
+/* Minerva brand tokens — direct utilities: bg-cream, text-ink, etc.  */
+/* ------------------------------------------------------------------ */
 @theme {
-  --color-cream: #FAF9F6;
-  --color-primary: #4A5D7E;
-  --color-accent: #E8E5DA;
-  --font-serif: "Crimson Text", serif;
-  --font-sans: "Inter", sans-serif;
+  /* Surface */
+  --color-cream:            #FAF8F2;
+  --color-cream-warm:       #F4EFE3;
+  --color-cream-deep:       #ECE5D2;
+  --color-paper:            #FFFEFA;
+
+  /* Ink */
+  --color-ink:              #1B1A17;
+  --color-ink-soft:         #2E2C26;
+  --color-ink-mute:         #6B665C;
+  --color-ink-faint:        #9C9789;
+
+  /* Rule */
+  --color-rule:             #E5DFCE;
+  --color-rule-soft:        #EFEADB;
+
+  /* Accent */
+  --color-accent-blue:      #4A7BA7;
+  --color-accent-blue-deep: #355C82;
+  --color-accent-blue-soft: #EAF0F6;
+  --color-accent-gold:      #B8893A;
+  --color-accent-gold-soft: #F1E7D0;
+  --color-accent-terracotta:#B05E3B;
+  --color-accent-moss:      #5C7A4F;
+
+  /* Fonts */
+  --font-display: "Lora", "Crimson Pro", Georgia, serif;
+  --font-serif:   "Source Serif 4", "Source Serif Pro", "Lora", Georgia, serif;
+  --font-mono:    "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --font-sans:    "Source Serif 4", Georgia, serif;
+
+  /* Type scale */
+  --text-display-1: 72px;
+  --text-display-1--line-height: 1.05;
+  --text-display-2: 48px;
+  --text-display-2--line-height: 1.10;
+  --text-h1: 28px;
+  --text-h1--line-height: 1.25;
+  --text-h2: 20px;
+  --text-h2--line-height: 1.30;
+  --text-h3: 17px;
+  --text-h3--line-height: 1.35;
+  --text-body: 16px;
+  --text-body--line-height: 1.60;
+  --text-body-sm: 15px;
+  --text-body-sm--line-height: 1.50;
+  --text-caption: 13px;
+  --text-caption--line-height: 1.50;
+  --text-meta: 12px;
+  --text-meta--line-height: 1.40;
+  --text-eyebrow: 11px;
+  --text-eyebrow--line-height: 1.20;
+
+  /* Semantic spacing */
+  --spacing-page-x: 36px;
+  --spacing-page-y: 22px;
+  --spacing-drawer: 460px;
+  --spacing-row-y:  14px;
+  --spacing-row-x:  16px;
+
+  /* Shadows */
+  --shadow-minerva-1:      0 1px 0 rgba(27,26,23,.04);
+  --shadow-minerva-2:      0 1px 2px rgba(27,26,23,.05), 0 4px 14px rgba(27,26,23,.04);
+  --shadow-minerva-cover:  0 1px 2px rgba(27,26,23,.10), 0 6px 14px rgba(27,26,23,.06);
+  --shadow-minerva-drawer: -24px 0 60px rgba(27,26,23,.10);
+
+  /* Motion */
+  --ease-minerva: cubic-bezier(.22,.61,.36,1);
+  --duration-fast: 140ms;
+  --duration-base: 220ms;
+  --duration-slow: 320ms;
 }
 
-body {
-  margin: 0;
-  font-family: var(--font-sans);
-}
-
+/* ------------------------------------------------------------------ */
+/* shadcn semantic tokens → wired to Minerva palette                  */
+/* ------------------------------------------------------------------ */
 @theme inline {
-  --font-heading: var(--font-sans);
-  --font-sans: 'Geist Variable', sans-serif;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
+  --color-background:            var(--background);
+  --color-foreground:            var(--foreground);
+  --color-card:                  var(--card);
+  --color-card-foreground:       var(--card-foreground);
+  --color-popover:               var(--popover);
+  --color-popover-foreground:    var(--popover-foreground);
+  --color-primary:               var(--primary);
+  --color-primary-foreground:    var(--primary-foreground);
+  --color-secondary:             var(--secondary);
+  --color-secondary-foreground:  var(--secondary-foreground);
+  --color-muted:                 var(--muted);
+  --color-muted-foreground:      var(--muted-foreground);
+  --color-accent:                var(--accent);
+  --color-accent-foreground:     var(--accent-foreground);
+  --color-destructive:           var(--destructive);
+  --color-border:                var(--border);
+  --color-input:                 var(--input);
+  --color-ring:                  var(--ring);
+  --color-sidebar:               var(--sidebar);
+  --color-sidebar-foreground:    var(--sidebar-foreground);
+  --color-sidebar-primary:       var(--sidebar-primary);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --color-sidebar-accent:        var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border:        var(--sidebar-border);
+  --color-sidebar-ring:          var(--sidebar-ring);
+
+  /* Radius — Minerva restrained scale */
+  --radius-sm:  2px;
+  --radius-md:  4px;
+  --radius-lg:  8px;
+  --radius-xl:  8px;
+  --radius-2xl: 12px;
+  --radius-3xl: 16px;
+  --radius-4xl: 24px;
 }
 
+/* ------------------------------------------------------------------ */
+/* Minerva CSS custom properties (used by shadcn components)          */
+/* ------------------------------------------------------------------ */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --background:        #FAF8F2;  /* cream */
+  --foreground:        #1B1A17;  /* ink */
+  --card:              #FFFEFA;  /* paper */
+  --card-foreground:   #1B1A17;
+  --popover:           #FFFEFA;
+  --popover-foreground:#1B1A17;
+  --primary:           #4A7BA7;  /* accent-blue */
+  --primary-foreground:#FAF8F2;
+  --secondary:         #F4EFE3;  /* cream-warm */
+  --secondary-foreground: #1B1A17;
+  --muted:             #F4EFE3;  /* cream-warm */
+  --muted-foreground:  #6B665C;  /* ink-mute */
+  --accent:            #F4EFE3;  /* cream-warm (used by shadcn for hover) */
+  --accent-foreground: #1B1A17;
+  --destructive:       #B05E3B;  /* terracotta */
+  --border:            #E5DFCE;  /* rule */
+  --input:             #E5DFCE;
+  --ring:              #4A7BA7;  /* accent-blue */
+  --radius:            4px;
+
+  --sidebar:                     #FAF8F2;
+  --sidebar-foreground:          #1B1A17;
+  --sidebar-primary:             #4A7BA7;
+  --sidebar-primary-foreground:  #FAF8F2;
+  --sidebar-accent:              #F4EFE3;
+  --sidebar-accent-foreground:   #1B1A17;
+  --sidebar-border:              #E5DFCE;
+  --sidebar-ring:                #4A7BA7;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
-
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-cream text-ink;
+    font-family: "Source Serif 4", "Source Serif Pro", Georgia, serif;
+    font-feature-settings: "kern", "liga", "onum";
+    text-rendering: geometricPrecision;
   }
-  html {
-    @apply font-sans;
-  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Minerva utility classes                                             */
+/* ------------------------------------------------------------------ */
+.t-display {
+  font-family: "Lora", "Crimson Pro", Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.t-eyebrow {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #9C9789;
+}
+
+.t-meta {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+  color: #6B665C;
+}
+
+.m-rule {
+  height: 1px;
+  background: #E5DFCE;
+  border: 0;
+}
+
+.m-cover-ph {
+  background:
+    repeating-linear-gradient(135deg,
+      rgba(27,26,23,.05) 0 6px,
+      transparent 6px 12px),
+    #ECE5D2;
+  color: #6B665C;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 6px;
+  text-align: center;
+}
+
+.m-prog {
+  position: relative;
+  height: 2px;
+  background: #E5DFCE;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.m-prog__fill {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  background: #1B1A17;
+  border-radius: 1px;
 }

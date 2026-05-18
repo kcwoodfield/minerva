@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCreateBook } from '../hooks/useLibrary';
 import { BookForm } from './BookForm';
 import type { CreateBookForm } from '../types/library.types';
@@ -19,15 +19,28 @@ export function AddBookDrawer() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button>
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus style={{ width: 15, height: 15 }} />
           Add Book
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>Add New Book</SheetTitle>
-        </SheetHeader>
-        <BookForm onSubmit={handleSubmit} isPending={createMutation.isPending} />
+      <SheetContent>
+        {/* Drawer header */}
+        <div style={{ padding: '22px 28px 16px' }}>
+          <p className="t-eyebrow" style={{ marginBottom: 6 }}>Add a Volume</p>
+          <h2
+            className="font-display font-semibold text-ink"
+            style={{ fontSize: 24, lineHeight: 1.2, letterSpacing: '-0.01em' }}
+          >
+            Add New Book
+          </h2>
+        </div>
+
+        <hr className="m-rule mx-0" style={{ margin: '0 28px' }} />
+
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto" style={{ padding: '22px 28px' }}>
+          <BookForm onSubmit={handleSubmit} isPending={createMutation.isPending} />
+        </div>
       </SheetContent>
     </Sheet>
   );

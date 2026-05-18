@@ -16,20 +16,35 @@ const queryClient = new QueryClient({
 
 function LibraryContent() {
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-5">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-cream">
+      <header className="border-b border-rule-soft bg-cream">
+        <div className="flex items-center justify-between px-page-x py-5">
+          <div className="flex items-center gap-3">
+            <img
+              src="/logo.webp"
+              alt=""
+              width={36}
+              height={36}
+              className="mix-blend-multiply select-none object-contain"
+              style={{ width: 36, height: 36 }}
+            />
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Minerva</h1>
-              <p className="text-sm text-muted-foreground">A Library Worth the Gods</p>
+              <h1
+                className="font-display font-semibold text-ink leading-none"
+                style={{ fontSize: 22, letterSpacing: '-0.01em' }}
+              >
+                Minerva
+              </h1>
+              <p className="font-serif italic text-ink-mute" style={{ fontSize: 12, marginTop: 2 }}>
+                Read like a god.
+              </p>
             </div>
-            <AddBookDrawer />
           </div>
+          <AddBookDrawer />
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="px-page-x py-6">
         <FilterBar />
         <LibraryTable />
       </main>

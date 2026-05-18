@@ -1,8 +1,9 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { MoreHorizontal } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { StarRating } from '@/components/ui/star-rating';
+import { StatusBadge } from '@/components/ui/status-badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,93 +17,140 @@ interface ColumnActions {
   onDelete: (book: Book) => void;
 }
 
+function CoverCell({ url, title }: { url?: string; title: string }) {
+  if (url) {
+    return (
+      <img
+        src={url}
+        alt={title}
+        className="object-cover rounded-sm shadow-minerva-cover"
+        style={{ width: 36, height: 52, flexShrink: 0 }}
+      />
+    );
+  }
+  return (
+    <div
+      className="m-cover-ph rounded-sm shadow-minerva-cover"
+      style={{ width: 36, height: 52, flexShrink: 0 }}
+    >
+      cover
+    </div>
+  );
+}
+
+function ProgressBar({ completed }: { completed: number }) {
+  return (
+    <div className="m-prog" style={{ width: 120 }}>
+      <div className="m-prog__fill" style={{ width: `${completed}%` }} />
+    </div>
+  );
+}
+
 export const createColumns = ({ onEdit, onDelete }: ColumnActions): ColumnDef<Book>[] => [
   {
     accessorKey: 'coverImageUrl',
     header: '',
-    cell: ({ row }) => {
-      const url = row.getValue('coverImageUrl') as string | undefined;
-      return url
-        ? <img src={url} alt="Cover" className="h-16 w-10 object-cover rounded" />
-        : <div className="h-16 w-10 bg-muted rounded flex items-center justify-center text-xs text-muted-foreground">No cover</div>;
-    },
+    size: 52,
+    cell: ({ row }) => (
+      <CoverCell url={row.getValue('coverImageUrl')} title={row.getValue('title')} />
+    ),
   },
   {
     accessorKey: 'title',
-    header: 'Title',
-    cell: ({ row }) => <div className="font-medium max-w-xs truncate">{row.getValue('title')}</div>,
-  },
-  {
-    accessorKey: 'author',
-    header: 'Author',
-    cell: ({ row }) => <div className="max-w-xs truncate">{row.getValue('author')}</div>,
-  },
-  {
-    accessorKey: 'genre',
-    header: 'Genre',
+    header: () => <span className="t-eyebrow">Title</span>,
     cell: ({ row }) => {
-      const genre = row.getValue('genre') as string | undefined;
-      return genre ? <Badge variant="secondary">{genre}</Badge> : null;
-    },
-  },
-  {
-    accessorKey: 'format',
-    header: 'Format',
-    cell: ({ row }) => {
-      const fmt = row.getValue('format') as string | undefined;
-      return fmt ? <Badge variant="outline">{fmt}</Badge> : null;
-    },
-  },
-  {
-    accessorKey: 'pages',
-    header: 'Pages',
-    cell: ({ row }) => <div className="text-right tabular-nums">{row.getValue('pages')}</div>,
-  },
-  {
-    accessorKey: 'rating',
-    header: 'Rating',
-    cell: ({ row }) => {
-      const rating = row.getValue('rating') as number;
+      const year = row.original.publicationDate
+        ? new Date(row.original.publicationDate).getFullYear()
+        : null;
+      const pages = row.original.pages;
       return (
-        <div className="flex">
-          {[...Array(5)].map((_, i) => (
-            <span key={i} className={i < rating ? 'text-yellow-500' : 'text-gray-300'}>★</span>
-          ))}
+        <div style={{ maxWidth: 280 }}>
+          <div
+            className="font-serif text-ink truncate"
+            style={{ fontSize: 15, fontWeight: 500, lineHeight: 1.3 }}
+          >
+            {row.getValue('title')}
+          </div>
+          {(year || pages) && (
+            <div className="t-meta truncate" style={{ marginTop: 2 }}>
+              {[year, pages ? `${pages} pp.` : null].filter(Boolean).join(' · ')}
+            </div>
+          )}
         </div>
       );
     },
   },
   {
+    accessorKey: 'author',
+    header: () => <span className="t-eyebrow">Author</span>,
+    cell: ({ row }) => (
+      <div className="font-serif text-ink-soft truncate" style={{ fontSize: 14, maxWidth: 200 }}>
+        {row.getValue('author')}
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'genre',
+    header: () => <span className="t-eyebrow">Genre</span>,
+    cell: ({ row }) => {
+      const genre = row.getValue('genre') as string | undefined;
+      return genre
+        ? <span className="font-serif italic text-ink-mute" style={{ fontSize: 13 }}>{genre}</span>
+        : <span className="text-ink-faint" style={{ fontSize: 13 }}>—</span>;
+    },
+  },
+  {
     accessorKey: 'completed',
-    header: 'Progress',
+    header: () => <span className="t-eyebrow">Status</span>,
+    cell: ({ row }) => <StatusBadge completed={row.getValue('completed')} />,
+  },
+  {
+    accessorKey: 'rating',
+    header: () => <span className="t-eyebrow">Rating</span>,
+    cell: ({ row }) => {
+      const rating = row.getValue('rating') as number;
+      return rating > 0
+        ? <StarRating rating={rating} size={14} />
+        : <span className="text-ink-faint" style={{ fontSize: 13 }}>—</span>;
+    },
+  },
+  {
+    id: 'progress',
+    accessorKey: 'completed',
+    header: () => <span className="t-eyebrow">Progress</span>,
     cell: ({ row }) => {
       const completed = row.getValue('completed') as number;
       return (
-        <div className="flex items-center gap-2 min-w-[100px]">
-          <div className="w-20 bg-muted rounded-full h-2">
-            <div className="h-2 rounded-full bg-primary" style={{ width: `${completed}%` }} />
-          </div>
-          <span className="text-xs text-muted-foreground tabular-nums">{completed}%</span>
+        <div className="flex items-center gap-2">
+          <ProgressBar completed={completed} />
+          <span className="t-meta tabular-nums" style={{ minWidth: 30, textAlign: 'right' }}>
+            {completed}%
+          </span>
         </div>
       );
     },
   },
   {
     accessorKey: 'dateAdded',
-    header: 'Added',
+    header: () => <span className="t-eyebrow">Added</span>,
     cell: ({ row }) => {
       const date = row.getValue('dateAdded') as string;
-      return <div className="text-sm tabular-nums">{format(new Date(date), 'MMM d, yyyy')}</div>;
+      return (
+        <div className="t-meta tabular-nums">
+          {format(new Date(date), 'MMM d, yyyy')}
+        </div>
+      );
     },
   },
   {
     id: 'actions',
+    size: 40,
     cell: ({ row }) => {
       const book = row.original;
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="ghost" className="h-8 w-8 p-0" />}>
-            <MoreHorizontal className="h-4 w-4" />
+          <DropdownMenuTrigger render={<Button variant="ghost" className="h-7 w-7 p-0" />}>
+            <MoreHorizontal style={{ width: 15, height: 15 }} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onEdit(book)}>Edit</DropdownMenuItem>

@@ -10,6 +10,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { useBooks } from '../hooks/useLibrary';
 import { useLibraryStore } from '../stores/libraryStore';
+import { getStatus } from '@/components/ui/status-badge';
 import { createColumns } from './columns';
 import { BookCard } from './BookCard';
 import { EditBookDrawer } from './EditBookDrawer';
@@ -33,29 +34,32 @@ export function LibraryTable() {
     onDelete: setDeletingBook,
   });
 
+  const allBooks = data?.items ?? [];
+  const books = filters.status
+    ? allBooks.filter((b) => getStatus(b.completed) === filters.status)
+    : allBooks;
+  const total = data?.total ?? 0;
+
   const table = useReactTable({
-    data: data?.items ?? [],
+    data: books,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
 
   if (isLoading) {
     return (
-      <div className="space-y-2">
+      <div className="space-y-px pt-4">
         {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
       </div>
     );
   }
 
-  const books = data?.items ?? [];
-  const total = data?.total ?? 0;
-
   return (
     <>
       {/* Mobile card view */}
-      <div className="block md:hidden space-y-3">
+      <div className="block md:hidden pt-4">
         {books.length === 0
-          ? <p className="text-center py-12 text-muted-foreground">No books found</p>
+          ? <p className="text-center py-12 font-serif italic text-ink-mute">No books found</p>
           : books.map((book) => (
             <BookCard key={book.id} book={book} onEdit={setEditingBook} onDelete={setDeletingBook} />
           ))
@@ -63,13 +67,21 @@ export function LibraryTable() {
       </div>
 
       {/* Desktop table view */}
-      <div className="hidden md:block rounded-md border">
+      <div className="hidden md:block">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (
-              <TableRow key={hg.id}>
+              <TableRow
+                key={hg.id}
+                className="border-b border-rule"
+                style={{ background: 'transparent' }}
+              >
                 {hg.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="text-ink-faint"
+                    style={{ padding: '10px 16px 14px', background: 'transparent' }}
+                  >
                     {flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
@@ -79,15 +91,24 @@ export function LibraryTable() {
           <TableBody>
             {table.getRowModel().rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={columns.length} className="text-center py-12 text-muted-foreground">
+                <TableCell
+                  colSpan={columns.length}
+                  className="text-center py-12 font-serif italic text-ink-mute"
+                >
                   No books found
                 </TableCell>
               </TableRow>
             ) : (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  className="border-b border-rule-soft hover:bg-cream-warm cursor-pointer transition-colors duration-[120ms]"
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      style={{ padding: '14px 16px' }}
+                    >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Minerva.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+90b800b24619ca1131fd459ffb6dbebf046f5693")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+99ce21e476c2756e98a1a86759d80f52a5c858ad")]
 [assembly: System.Reflection.AssemblyProductAttribute("Minerva.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Minerva.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

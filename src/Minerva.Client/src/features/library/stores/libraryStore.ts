@@ -5,7 +5,7 @@ interface LibraryState {
   columnVisibility: Record<string, boolean>;
   setColumnVisibility: (v: Record<string, boolean>) => void;
 
-  filters: { search: string; genre?: string; format?: string; rating?: number };
+  filters: { search: string; genre?: string; format?: string; rating?: number; status?: 'reading' | 'finished' | 'unread' | null };
   setFilters: (f: Partial<LibraryState['filters']>) => void;
   clearFilters: () => void;
 
@@ -25,6 +25,9 @@ interface LibraryState {
 
   editingBook: string | null;
   setEditingBook: (id: string | null) => void;
+
+  view: 'list' | 'grid';
+  setView: (view: 'list' | 'grid') => void;
 }
 
 export const useLibraryStore = create<LibraryState>()(
@@ -57,10 +60,13 @@ export const useLibraryStore = create<LibraryState>()(
 
       editingBook: null,
       setEditingBook: (id) => set({ editingBook: id }),
+
+      view: 'list',
+      setView: (view) => set({ view }),
     }),
     {
       name: 'minerva-library-store',
-      partialize: (s) => ({ columnVisibility: s.columnVisibility, pageSize: s.pageSize }),
+      partialize: (s) => ({ columnVisibility: s.columnVisibility, pageSize: s.pageSize, view: s.view }),
     }
   )
 );
