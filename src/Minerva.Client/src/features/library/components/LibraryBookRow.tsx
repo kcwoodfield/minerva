@@ -11,6 +11,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { TableCell, TableHead, TableRow } from '@/components/ui/table';
 import type { Book } from '../types/library.types';
+import { BookPublishedYear } from './BookPublishedYear';
+import { BookTitle } from './BookTitle';
+import { formatBookTitle } from '../lib/formatBookTitle';
 
 interface Props {
   book: Book;
@@ -24,7 +27,7 @@ function CoverCell({ url, title }: { url?: string; title: string }) {
     return (
       <img
         src={url}
-        alt={title}
+        alt={formatBookTitle(title)}
         loading="lazy"
         decoding="async"
         className="object-cover rounded-sm shadow-minerva-cover"
@@ -104,6 +107,7 @@ export function LibraryBookTableHeader({
       <SortableTableHead label="Title" field="title" sortBy={sortBy} ascending={ascending} onSort={onSort} />
       <SortableTableHead label="Author" field="author" sortBy={sortBy} ascending={ascending} onSort={onSort} />
       <SortableTableHead label="Genre" field="genre" sortBy={sortBy} ascending={ascending} onSort={onSort} />
+      <SortableTableHead label="Pages" field="pages" sortBy={sortBy} ascending={ascending} onSort={onSort} />
       <SortableTableHead label="Status" field="completed" sortBy={sortBy} ascending={ascending} onSort={onSort} />
       <SortableTableHead label="Rating" field="rating" sortBy={sortBy} ascending={ascending} onSort={onSort} />
       <SortableTableHead label="Progress" field="completed" sortBy={sortBy} ascending={ascending} onSort={onSort} />
@@ -114,8 +118,6 @@ export function LibraryBookTableHeader({
 }
 
 export function LibraryBookRow({ book, onSelect, onEdit, onDelete }: Props) {
-  const year = book.publicationDate ? new Date(book.publicationDate).getFullYear() : null;
-
   return (
     <TableRow
       className="border-b border-rule-soft hover:bg-cream-warm cursor-pointer transition-colors duration-[120ms]"
@@ -126,17 +128,13 @@ export function LibraryBookRow({ book, onSelect, onEdit, onDelete }: Props) {
       </TableCell>
       <TableCell style={{ padding: '14px 16px' }}>
         <div style={{ maxWidth: 280 }}>
-          <div
+          <BookTitle
+            title={book.title}
+            as="div"
             className="font-serif text-ink truncate"
             style={{ fontSize: 15, fontWeight: 500, lineHeight: 1.3 }}
-          >
-            {book.title}
-          </div>
-          {(year || book.pages) && (
-            <div className="t-meta truncate" style={{ marginTop: 2 }}>
-              {[year, book.pages ? `${book.pages} pp.` : null].filter(Boolean).join(' · ')}
-            </div>
-          )}
+          />
+          <BookPublishedYear publicationDate={book.publicationDate} />
         </div>
       </TableCell>
       <TableCell style={{ padding: '14px 16px' }}>
@@ -150,6 +148,9 @@ export function LibraryBookRow({ book, onSelect, onEdit, onDelete }: Props) {
         ) : (
           <span className="text-ink-faint" style={{ fontSize: 13 }}>—</span>
         )}
+      </TableCell>
+      <TableCell style={{ padding: '14px 16px' }}>
+        <span className="t-meta tabular-nums">{book.pages > 0 ? book.pages : '—'}</span>
       </TableCell>
       <TableCell style={{ padding: '14px 16px' }}>
         <StatusBadge completed={book.completed} />

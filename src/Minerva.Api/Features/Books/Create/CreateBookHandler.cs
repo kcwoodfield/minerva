@@ -1,4 +1,5 @@
 using MediatR;
+using Minerva.Api.Infrastructure;
 using Minerva.Api.Infrastructure.Data;
 
 namespace Minerva.Api.Features.Books.Create;
@@ -22,7 +23,7 @@ public class CreateBookHandler(MinervaDbContext db) : IRequestHandler<CreateBook
             Review = req.Review,
             Completed = req.Completed,
             Publisher = req.Publisher,
-            PublicationDate = req.PublicationDate,
+            PublicationDate = DateTimeUtc.Normalize(req.PublicationDate),
             Genre = req.Genre,
             SubGenre = req.SubGenre,
             Language = req.Language,

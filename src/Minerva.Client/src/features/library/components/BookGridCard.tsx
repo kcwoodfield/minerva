@@ -9,6 +9,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { Book } from '../types/library.types';
+import { BookPublishedYear } from './BookPublishedYear';
+import { BookTitle } from './BookTitle';
 
 interface Props {
   book: Book;
@@ -76,9 +78,12 @@ export function BookGridCard({ book, onSelect, onEdit, onDelete }: Props) {
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-3">
-        <h3 className="font-display font-semibold text-ink leading-snug line-clamp-2 text-[15px]">
-          {book.title}
-        </h3>
+        <BookTitle
+          title={book.title}
+          as="h3"
+          className="font-display font-semibold text-ink leading-snug line-clamp-2 text-[15px]"
+        />
+        <BookPublishedYear publicationDate={book.publicationDate} className="t-meta line-clamp-1" />
         <p className="font-serif italic text-ink-mute text-[13px] line-clamp-1">{book.author}</p>
         <div className="flex items-center gap-2 flex-wrap mt-auto">
           <StatusBadge completed={book.completed} />

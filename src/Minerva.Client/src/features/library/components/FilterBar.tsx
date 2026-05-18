@@ -91,9 +91,9 @@ export function FilterBar() {
         </div>
       </div>
 
-      {/* Right: sort + view toggle */}
+      {/* Right: sort (grid only) + view toggle */}
       <div className="flex items-center gap-3 shrink-0">
-        {/* Sort */}
+        {view === 'grid' && (
         <div className="flex items-center gap-1.5">
           <span className="t-meta" style={{ whiteSpace: 'nowrap' }}>Sort by</span>
           <select
@@ -111,6 +111,7 @@ export function FilterBar() {
             ])}
           </select>
         </div>
+        )}
 
         {/* View toggle */}
         <div className="segment-toggle">

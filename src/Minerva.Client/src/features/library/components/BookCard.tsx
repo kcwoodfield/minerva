@@ -6,6 +6,9 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { Book } from '../types/library.types';
+import { BookPublishedYear } from './BookPublishedYear';
+import { BookTitle } from './BookTitle';
+import { formatBookTitle } from '../lib/formatBookTitle';
 
 interface Props {
   book: Book;
@@ -37,7 +40,7 @@ export function BookCard({ book, onSelect, onEdit, onDelete }: Props) {
         ? (
           <img
             src={book.coverImageUrl}
-            alt={book.title}
+            alt={formatBookTitle(book.title)}
             className="object-cover rounded-sm shadow-minerva-cover flex-shrink-0"
             style={{ width: 56, height: 84 }}
           />
@@ -53,12 +56,13 @@ export function BookCard({ book, onSelect, onEdit, onDelete }: Props) {
 
       {/* Content */}
       <div className="flex-1 min-w-0" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <h3
+        <BookTitle
+          title={book.title}
+          as="h3"
           className="font-display font-semibold text-ink leading-tight truncate"
           style={{ fontSize: 16 }}
-        >
-          {book.title}
-        </h3>
+        />
+        <BookPublishedYear publicationDate={book.publicationDate} className="t-meta truncate" />
         <p className="font-serif italic text-ink-mute truncate" style={{ fontSize: 13.5 }}>
           {book.author}
         </p>

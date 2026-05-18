@@ -8,6 +8,7 @@ import { useUpdateBook } from '../hooks/useLibrary';
 import { bookToFormValues } from '../lib/bookFormValues';
 import { BookForm } from './BookForm';
 import type { Book, CreateBookForm } from '../types/library.types';
+import { formatBookTitle } from '../lib/formatBookTitle';
 
 interface Props {
   book: Book | null;
@@ -37,7 +38,7 @@ export function EditBookModal({ book, onClose, onSaved }: Props) {
             className="font-display font-semibold text-ink text-left"
             style={{ fontSize: 22, lineHeight: 1.2, letterSpacing: '-0.01em' }}
           >
-            {book?.title ?? 'Edit book'}
+            {book?.title ? formatBookTitle(book.title) : 'Edit book'}
           </DialogTitle>
           <DialogDescription className="sr-only">
             Edit book details and save or cancel

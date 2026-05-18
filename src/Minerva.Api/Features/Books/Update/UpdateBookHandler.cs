@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Minerva.Api.Infrastructure;
 using Minerva.Api.Infrastructure.Data;
 
 namespace Minerva.Api.Features.Books.Update;
@@ -23,7 +24,7 @@ public class UpdateBookHandler(MinervaDbContext db) : IRequestHandler<UpdateBook
         if (req.Review is not null) book.Review = req.Review;
         if (req.Completed is not null) book.Completed = req.Completed.Value;
         if (req.Publisher is not null) book.Publisher = req.Publisher;
-        if (req.PublicationDate is not null) book.PublicationDate = req.PublicationDate;
+        if (req.PublicationDate is not null) book.PublicationDate = DateTimeUtc.Normalize(req.PublicationDate);
         if (req.Genre is not null) book.Genre = req.Genre;
         if (req.SubGenre is not null) book.SubGenre = req.SubGenre;
         if (req.Language is not null) book.Language = req.Language;

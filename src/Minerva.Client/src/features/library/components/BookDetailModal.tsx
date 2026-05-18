@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/star-rating';
 import { StatusBadge } from '@/components/ui/status-badge';
 import type { Book } from '../types/library.types';
+import { formatBookTitle } from '../lib/formatBookTitle';
 
 interface Props {
   books: Book[];
@@ -87,7 +88,7 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
         style={{ display: 'flex', flexDirection: 'column' }}
       >
         <DialogDescription className="sr-only">
-          Book details for {book.title}. Use previous and next to browse volumes.
+          Book details for {formatBookTitle(book.title)}. Use previous and next to browse volumes.
         </DialogDescription>
 
         <div className="flex-1 overflow-y-auto">
@@ -103,7 +104,7 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
                   className="font-display font-semibold text-ink text-left"
                   style={{ fontSize: 26, lineHeight: 1.15, letterSpacing: '-0.02em' }}
                 >
-                  {book.title}
+                  {formatBookTitle(book.title)}
                 </DialogTitle>
                 <p className="font-serif italic text-ink-mute" style={{ fontSize: 16, marginTop: 6 }}>
                   {book.author}

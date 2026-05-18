@@ -3,6 +3,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import type { Book } from '../types/library.types';
+import { formatBookTitle } from '../lib/formatBookTitle';
 import { useDeleteBook } from '../hooks/useLibrary';
 
 interface Props {
@@ -25,7 +26,7 @@ export function DeleteConfirmDialog({ book, onClose }: Props) {
         <DialogHeader>
           <DialogTitle>Delete Book</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete <strong>{book?.title}</strong>? This cannot be undone.
+            Are you sure you want to delete <strong>{book?.title ? formatBookTitle(book.title) : ''}</strong>? This cannot be undone.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Minerva.Api.Infrastructure;
 
 namespace Minerva.Api.Infrastructure.Json;
 
@@ -17,7 +18,7 @@ public sealed class NullableDateTimeJsonConverter : JsonConverter<DateTime?>
             if (string.IsNullOrWhiteSpace(text))
                 return null;
             if (DateTime.TryParse(text, out var parsed))
-                return parsed;
+                return DateTimeUtc.Normalize(parsed);
             throw new JsonException($"Invalid date: {text}");
         }
 

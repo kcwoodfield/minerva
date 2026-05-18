@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { normalizeIsbn } from '@/lib/isbn';
 import { createBookSchema, type CreateBookForm, type BookMetadata } from '../types/library.types';
+import { BookTitle } from './BookTitle';
+import { formatBookTitle } from '../lib/formatBookTitle';
 import { useLookupISBN } from '../hooks/useLibrary';
 
 interface Props {
@@ -51,7 +53,7 @@ function metadataToFormValues(isbn: string, metadata: BookMetadata): Partial<Cre
   }
 
   return {
-    title: metadata.title ?? '',
+    title: metadata.title ? formatBookTitle(metadata.title) : '',
     author: metadata.author ?? '',
     isbn13: normalized ?? isbn.replace(/[^0-9Xx]/g, ''),
     pages,
@@ -148,7 +150,7 @@ function ISBNLookupCard({
             ? (
               <img
                 src={result.coverImageUrl}
-                alt={result.title}
+                alt={formatBookTitle(result.title ?? '')}
                 className="object-cover rounded-sm shadow-minerva-cover flex-shrink-0"
                 style={{ width: 48, height: 70 }}
               />
@@ -162,9 +164,12 @@ function ISBNLookupCard({
             )
           }
           <div className="flex-1 min-w-0">
-            <div className="font-serif text-ink font-medium truncate" style={{ fontSize: 15 }}>
-              {result.title}
-            </div>
+            <BookTitle
+              title={result.title ?? ''}
+              as="div"
+              className="font-serif text-ink font-medium truncate"
+              style={{ fontSize: 15 }}
+            />
             <div className="font-serif italic text-ink-mute truncate" style={{ fontSize: 13 }}>
               {result.author}
             </div>

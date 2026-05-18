@@ -19,7 +19,7 @@ import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { LibraryPagination } from './LibraryPagination';
 import type { Book } from '../types/library.types';
 
-const TABLE_COL_COUNT = 9;
+const TABLE_COL_COUNT = 10;
 
 function EmptyState() {
   return (
