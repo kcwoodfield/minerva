@@ -26,8 +26,8 @@ dotnet ef database update   # first run only
 dotnet run --launch-profile http
 ```
 
-- API: http://localhost:5266  
-- Swagger (dev): http://localhost:5266/swagger  
+- API: http://localhost:5000  
+- Swagger (dev): http://localhost:5000/swagger  
 
 Optional: set a Google Books API key in `appsettings.Development.json` or user secrets:
 
@@ -111,8 +111,8 @@ cd src/Minerva.Client && npm run lint
 
 ## Documentation
 
-- [CLAUDE.md](CLAUDE.md) — agent/developer guide (may lag the stack during migration)
-- [docs/](docs/) — architecture, deployment, and feature notes (some pages refer to the legacy Django/Next.js stack)
+- [docs/README.md](docs/README.md) — architecture, setup, features, ADRs
+- [CLAUDE.md](CLAUDE.md) — agent/developer guide (sync with `docs/` when changing stack)
 
 ## Contributing
 

@@ -29,6 +29,8 @@ public class GetAllBooksHandler(MinervaDbContext db) : IRequestHandler<GetAllBoo
             "rating" => req.Ascending ? q.OrderBy(b => b.Rating) : q.OrderByDescending(b => b.Rating),
             "pages" => req.Ascending ? q.OrderBy(b => b.Pages) : q.OrderByDescending(b => b.Pages),
             "completed" => req.Ascending ? q.OrderBy(b => b.Completed) : q.OrderByDescending(b => b.Completed),
+            "genre" => req.Ascending ? q.OrderBy(b => b.Genre) : q.OrderByDescending(b => b.Genre),
+            "dateadded" => req.Ascending ? q.OrderBy(b => b.DateAdded) : q.OrderByDescending(b => b.DateAdded),
             _ => req.Ascending ? q.OrderBy(b => b.DateAdded) : q.OrderByDescending(b => b.DateAdded),
         };
 

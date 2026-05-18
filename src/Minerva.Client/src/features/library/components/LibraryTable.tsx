@@ -9,6 +9,7 @@ import {
   useLibraryView,
 } from '../stores/librarySelectors';
 import { getStatus } from '@/components/ui/status-badge';
+import { useLibraryStore } from '../stores/libraryStore';
 import { LibraryBookRow, LibraryBookTableHeader } from './LibraryBookRow';
 import { BookCard } from './BookCard';
 import { BookGridCard } from './BookGridCard';
@@ -29,6 +30,7 @@ function EmptyState() {
 export function LibraryTable() {
   const filters = useLibraryFilters();
   const { sortBy, ascending } = useLibrarySort();
+  const toggleSort = useLibraryStore((s) => s.toggleSort);
   const { page, pageSize } = useLibraryPagination();
   const view = useLibraryView();
 
@@ -113,7 +115,11 @@ export function LibraryTable() {
           <div className="hidden md:block">
             <Table>
               <TableHeader>
-                <LibraryBookTableHeader />
+                <LibraryBookTableHeader
+                  sortBy={sortBy}
+                  ascending={ascending}
+                  onSort={toggleSort}
+                />
               </TableHeader>
               <TableBody>
                 {books.length === 0 ? (

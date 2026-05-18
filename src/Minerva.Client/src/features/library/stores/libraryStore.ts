@@ -12,6 +12,7 @@ interface LibraryState {
   sortBy: string;
   ascending: boolean;
   setSort: (sortBy: string, ascending: boolean) => void;
+  toggleSort: (sortBy: string) => void;
 
   page: number;
   pageSize: number;
@@ -47,6 +48,14 @@ export const useLibraryStore = create<LibraryState>()(
       sortBy: 'dateAdded',
       ascending: false,
       setSort: (sortBy, ascending) => set({ sortBy, ascending, page: 1 }),
+      toggleSort: (sortBy) =>
+        set((s) => {
+          if (s.sortBy === sortBy) {
+            return { ascending: !s.ascending, page: 1 };
+          }
+          const ascending = sortBy === 'title' || sortBy === 'author';
+          return { sortBy, ascending, page: 1 };
+        }),
 
       page: 1,
       pageSize: 25,

@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { MoreHorizontal } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/star-rating';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -50,32 +50,65 @@ function ProgressBar({ completed }: { completed: number }) {
   );
 }
 
-export function LibraryBookTableHeader() {
+const headerCellStyle = { padding: '10px 16px 14px', background: 'transparent' } as const;
+
+function SortableTableHead({
+  label,
+  field,
+  sortBy,
+  ascending,
+  onSort,
+  className,
+}: {
+  label: string;
+  field: string;
+  sortBy: string;
+  ascending: boolean;
+  onSort: (field: string) => void;
+  className?: string;
+}) {
+  const active = sortBy === field;
+  const Icon = active ? (ascending ? ArrowUp : ArrowDown) : ArrowUpDown;
+
+  return (
+    <TableHead className={className} style={headerCellStyle}>
+      <button
+        type="button"
+        onClick={() => onSort(field)}
+        className="inline-flex items-center gap-1 t-eyebrow text-ink-faint hover:text-ink transition-colors duration-[120ms] cursor-pointer"
+        aria-sort={active ? (ascending ? 'ascending' : 'descending') : 'none'}
+      >
+        {label}
+        <Icon
+          className={active ? 'text-ink' : 'text-ink-faint opacity-50'}
+          style={{ width: 12, height: 12, flexShrink: 0 }}
+          aria-hidden
+        />
+      </button>
+    </TableHead>
+  );
+}
+
+export function LibraryBookTableHeader({
+  sortBy,
+  ascending,
+  onSort,
+}: {
+  sortBy: string;
+  ascending: boolean;
+  onSort: (field: string) => void;
+}) {
   return (
     <TableRow className="border-b border-rule" style={{ background: 'transparent' }}>
-      <TableHead className="text-ink-faint" style={{ padding: '10px 16px 14px', background: 'transparent' }} />
-      <TableHead className="text-ink-faint" style={{ padding: '10px 16px 14px', background: 'transparent' }}>
-        <span className="t-eyebrow">Title</span>
-      </TableHead>
-      <TableHead className="text-ink-faint" style={{ padding: '10px 16px 14px', background: 'transparent' }}>
-        <span className="t-eyebrow">Author</span>
-      </TableHead>
-      <TableHead className="text-ink-faint" style={{ padding: '10px 16px 14px', background: 'transparent' }}>
-        <span className="t-eyebrow">Genre</span>
-      </TableHead>
-      <TableHead className="text-ink-faint" style={{ padding: '10px 16px 14px', background: 'transparent' }}>
-        <span className="t-eyebrow">Status</span>
-      </TableHead>
-      <TableHead className="text-ink-faint" style={{ padding: '10px 16px 14px', background: 'transparent' }}>
-        <span className="t-eyebrow">Rating</span>
-      </TableHead>
-      <TableHead className="text-ink-faint" style={{ padding: '10px 16px 14px', background: 'transparent' }}>
-        <span className="t-eyebrow">Progress</span>
-      </TableHead>
-      <TableHead className="text-ink-faint" style={{ padding: '10px 16px 14px', background: 'transparent' }}>
-        <span className="t-eyebrow">Added</span>
-      </TableHead>
-      <TableHead className="text-ink-faint" style={{ padding: '10px 16px 14px', background: 'transparent' }} />
+      <TableHead className="text-ink-faint" style={headerCellStyle} />
+      <SortableTableHead label="Title" field="title" sortBy={sortBy} ascending={ascending} onSort={onSort} />
+      <SortableTableHead label="Author" field="author" sortBy={sortBy} ascending={ascending} onSort={onSort} />
+      <SortableTableHead label="Genre" field="genre" sortBy={sortBy} ascending={ascending} onSort={onSort} />
+      <SortableTableHead label="Status" field="completed" sortBy={sortBy} ascending={ascending} onSort={onSort} />
+      <SortableTableHead label="Rating" field="rating" sortBy={sortBy} ascending={ascending} onSort={onSort} />
+      <SortableTableHead label="Progress" field="completed" sortBy={sortBy} ascending={ascending} onSort={onSort} />
+      <SortableTableHead label="Added" field="dateAdded" sortBy={sortBy} ascending={ascending} onSort={onSort} />
+      <TableHead className="text-ink-faint" style={headerCellStyle} />
     </TableRow>
   );
 }

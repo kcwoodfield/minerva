@@ -103,7 +103,7 @@ POST   /api/token/refresh     # Refresh access token
 
 ### Frontend API Integration
 
-Frontend connects to backend at `http://localhost:5266` (development, via Vite proxy) or your deployed API URL (production).
+Frontend connects to backend at `http://localhost:5000` (development, via Vite proxy) or your deployed API URL (production).
 
 ## Key File Locations
 
@@ -129,16 +129,16 @@ Frontend connects to backend at `http://localhost:5266` (development, via Vite p
 
 ### Documentation
 
-- **Project Docs**: `docs/` with structured directories:
-  - `architecture/` - System architecture and overview
-  - `decisions/` - Architectural decision records (ADRs)
-  - `deployment/` - AWS, Azure, CI/CD, hosting platforms
-  - `development/` - Setup and development guides
-  - `features/` - Feature documentation and specifications
-  - `updates/` - Development updates and progress logs
-  - `user-guides/` - End-user documentation
-- **Main README**: `docs/README.md`
-- **Project Plan**: `docs/project-plan.md`
+Canonical docs for the **dotnet + React** stack live in `docs/`:
+
+- `docs/README.md` — index
+- `docs/development/` — setup, configuration
+- `docs/architecture/` — overview, data model
+- `docs/features/` — library UI, ISBN lookup
+- `docs/decisions/` — ADRs (including dotnet rebuild)
+- `docs/roadmap.md` — planned work
+
+Legacy Django/Next.js docs exist only on the `main` branch history.
 
 ## Development Guidelines
 
