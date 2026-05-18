@@ -38,7 +38,9 @@ export function BookCard({ book, onSelect, onEdit, onDelete }: Props) {
     >
       {/* Cover */}
       <BookCoverImage
+        bookId={book.id}
         coverImageUrl={book.coverImageUrl}
+        coverSourceUrl={book.coverSourceUrl}
         cacheKey={book.timestamp}
         alt={formatBookTitle(book.title)}
         className="object-cover rounded-sm shadow-minerva-cover flex-shrink-0"

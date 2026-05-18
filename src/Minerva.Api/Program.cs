@@ -31,6 +31,12 @@ builder.Services.AddHttpClient(BookMetadataHttpClient.Name, client =>
     client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
     client.Timeout = TimeSpan.FromSeconds(15);
 });
+builder.Services.AddHttpClient("CoverProxy", client =>
+{
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("Minerva/1.0 (personal library app; cover-proxy)");
+    client.DefaultRequestHeaders.Accept.ParseAdd("image/*,*/*");
+    client.Timeout = TimeSpan.FromSeconds(15);
+});
 builder.Services.AddScoped<GoogleBooksService>();
 builder.Services.AddScoped<OpenLibraryBooksService>();
 builder.Services.AddScoped<IBookLookupService, CompositeBookLookupService>();
@@ -42,11 +48,14 @@ Directory.CreateDirectory(imagesPath);
 builder.Services.AddSingleton(new BookImageStorageOptions { RootPath = imagesPath });
 builder.Services.AddSingleton<BookImageStorage>();
 
+var corsOrigins = (builder.Configuration["Cors:Origins"] ?? "http://localhost:5174")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:5174")
+        policy.WithOrigins(corsOrigins)
               .AllowAnyMethod()
               .AllowAnyHeader();
     });

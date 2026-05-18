@@ -33,6 +33,7 @@ public class CreateBookHandler(MinervaDbContext db) : IRequestHandler<CreateBook
             Summary = req.Summary,
             Tags = req.Tags ?? [],
             CoverImageUrl = req.CoverImageUrl,
+            CoverSourceUrl = req.CoverImageUrl,
             DateAdded = DateTime.UtcNow,
             Timestamp = DateTime.UtcNow,
         };

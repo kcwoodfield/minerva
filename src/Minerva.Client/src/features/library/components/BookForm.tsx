@@ -13,6 +13,7 @@ import { CoverImageUpload } from './CoverImageUpload';
 
 interface Props {
   bookId?: string;
+  coverSourceUrl?: string;
   cacheKey?: string;
   defaultValues?: Partial<CreateBookForm>;
   onSubmit: (data: CreateBookForm) => Promise<void>;
@@ -194,6 +195,7 @@ function ISBNLookupCard({
 
 export function BookForm({
   bookId,
+  coverSourceUrl,
   cacheKey,
   defaultValues,
   onSubmit,
@@ -305,6 +307,7 @@ export function BookForm({
               <CoverImageUpload
                 bookId={bookId}
                 coverUrl={watch('coverImageUrl')}
+                coverSourceUrl={coverSourceUrl}
                 cacheKey={cacheKey}
                 onCoverChange={(url) => setValue('coverImageUrl', url ?? '', { shouldDirty: true })}
                 disabled={isPending}

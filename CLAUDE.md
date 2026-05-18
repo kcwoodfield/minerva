@@ -4,273 +4,207 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Minerva is a full-stack personal book library management system with:
+Minerva is a personal book library management system.
 
-- **Backend**: Django 4.2.21 with Django Ninja API framework (`backend/`)
-- **Frontend**: Next.js 14.1.0 React application with Chakra UI (`frontend/`)
+- **Backend** (`src/Minerva.Api/`): ASP.NET Core (.NET 10), Carter minimal-API modules, MediatR CQRS handlers, FluentValidation, EF Core + Npgsql (PostgreSQL)
+- **Frontend** (`src/Minerva.Client/`): React 19, Vite, TypeScript, Tailwind CSS 4, Zustand, React Hook Form + Zod
 
 ## Development Commands
 
-### Full Stack Development
+### Database (Docker)
 
 ```bash
-npm run dev                    # Start both frontend and backend concurrently
-npm run install:all           # Install dependencies for both projects
+docker compose up -d   # start PostgreSQL on localhost:5434
 ```
 
-### Frontend (Next.js)
+### API
 
 ```bash
-npm run dev:frontend          # Start frontend development server
-npm run build:frontend        # Build frontend for production
-npm run start:frontend        # Start frontend production server
-npm run lint                  # Run ESLint on frontend
-cd frontend && npm run dev    # Alternative: run from frontend directory
+cd src/Minerva.Api
+dotnet ef database update   # first run — apply EF Core migrations
+dotnet run --launch-profile http
+# API: http://localhost:5000
+# Swagger: http://localhost:5000/swagger
 ```
 
-### Backend (Django)
+### Client
 
 ```bash
-npm run dev:backend           # Start Django development server
-npm run backend:migrate       # Apply database migrations
-npm run backend:makemigrations # Create database migrations
-npm run backend:shell         # Open Django shell
-
-# Alternative: run from backend directory
-cd backend && rav server      # Start server using rav
-cd backend && python manage.py runserver 8000  # Direct Django command
-```
-
-### Setup Commands
-
-```bash
-# Backend setup
-cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Frontend setup
-cd frontend
+cd src/Minerva.Client
 npm install
-
-# Root level setup
-npm install  # Install concurrently for running both services
+npm run dev
+# App: http://localhost:5174 (proxies /api/* to http://localhost:5000)
 ```
 
-## Architecture Overview
+### EF Core migrations
 
-### Backend Architecture
-
-- **Framework**: Django with Django Ninja for modern API development
-- **Database**: SQLite (development) with UUID primary keys for multi-user readiness
-- **Authentication**: JWT-based with Django Ninja JWT (currently disabled in frontend)
-- **External APIs**: Google Books API integration for automatic metadata enrichment
-- **Planned**: LangGraph integration for AI-powered book recommendations
-
-### Frontend Architecture
-
-- **Framework**: Next.js 14 with App Router and TypeScript
-- **UI Library**: Chakra UI as primary design system
-- **State Management**: URL-based state with React hooks
-- **Theming**: next-themes for dark/light mode support
-- **Animations**: Framer Motion
-
-### Key Data Model
-
-The core `LibraryEntry` model (`backend/libraries/models.py`) includes:
-
-- UUID primary keys for multi-user readiness
-- Comprehensive book metadata (title, author, ISBN-13/10, publisher, genre, etc.)
-- Progress tracking with percentage-based completion (completed field)
-- Automatic metadata enrichment via Google Books API on save
-- JSON field for flexible tagging system
-- Additional metadata fields: translator, edition, cover_image_url, summary
-- Automatic timestamp tracking (date_added, timestamp)
-
-## API Endpoints
-
-### Current Endpoints
-
-```
-GET    /api/library/          # List books (paginated, searchable, sortable)
-POST   /api/library/          # Create book with auto-metadata enrichment
-PUT    /api/library/{id}      # Update existing book
-DELETE /api/library/{id}      # Delete book
-POST   /api/token/pair        # JWT authentication
-POST   /api/token/refresh     # Refresh access token
+```bash
+cd src/Minerva.Api
+dotnet ef migrations add <Name>
+dotnet ef database update
 ```
 
-### Frontend API Integration
+## Architecture
 
-Frontend connects to backend at `http://localhost:5000` (development, via Vite proxy) or your deployed API URL (production).
+### Backend
+
+| Concern | Choice |
+|---------|--------|
+| HTTP routing | Carter `ICarterModule` — each feature registers its own routes |
+| Application layer | MediatR `IRequest<T>` / `IRequestHandler<T>` — one handler class per command/query |
+| Validation | FluentValidation validators wired into MediatR pipeline |
+| Persistence | EF Core `MinervaDbContext` + Npgsql |
+| Configuration | `appsettings.json` + env vars (double-underscore convention: `Cors__Origins`) |
+
+Feature layout: `src/Minerva.Api/Features/Books/{Create,GetAll,Update,Delete,LookupByISBN,UploadCover,CoverProxy}/`
+
+Each feature folder contains a Carter module (`*Module.cs`) and, where needed, a MediatR command/query + handler.
+
+#### ISBN lookup pipeline
+
+1. `CompositeBookLookupService` calls Google Books and Open Library **in parallel**.
+2. `BookMetadataMerger` prefers Google when both return a field; fills gaps from Open Library.
+3. `DescriptionSanitizer` strips HTML before returning to the client.
+
+#### Cover image pipeline
+
+- **Uploads**: `BookImageStorage` saves files under `BookImages:RootPath`; served as static files at `/uploads/covers/{file}`.
+- **Proxy**: `CoverProxyModule` proxies external covers from an allowlisted set of hosts (Open Library, Google Books) so the browser never hits third-party origins.
+- When a file is uploaded, the original external URL is preserved in `CoverSourceUrl`; deleting the upload reverts `CoverImageUrl` to it.
+
+### Frontend
+
+| Concern | Choice |
+|---------|--------|
+| Build | Vite |
+| UI | React 19, Tailwind CSS 4, shadcn-style Radix components |
+| Forms | React Hook Form + Zod |
+| Server data | `useEffect` + `libraryApi` (no TanStack Query) |
+| UI state | Zustand (`libraryStore`) with `useShallow` selectors |
+| Theming | `next-themes` (framework-agnostic; works with Vite) |
+
+Feature code lives in `src/Minerva.Client/src/features/library/`.
+
+## API Surface
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/api/books` | Paginated list (`page`, `pageSize`, `search`, `sortBy`, `ascending`) |
+| POST | `/api/books` | Create book |
+| PUT | `/api/books/{id}` | Update book |
+| DELETE | `/api/books/{id}` | Delete book |
+| GET | `/api/books/lookup/{isbn}` | Metadata by ISBN (digits only in path) |
+| POST | `/api/books/{id}/cover` | Upload cover image (multipart/form-data) |
+| DELETE | `/api/books/{id}/cover` | Remove uploaded cover; reverts to `CoverSourceUrl` |
+| GET | `/api/books/{id}/cover` | Serve or proxy the book's cover |
+| GET | `/api/covers/proxy?url=` | Proxy an arbitrary allowlisted cover URL |
+
+All JSON uses camelCase. Empty strings for optional date fields are normalized to `null` via `NullableDateTimeJsonConverter`.
 
 ## Key File Locations
 
-### Backend Key Files
+### API
 
-- **Models**: `backend/libraries/models.py`
-- **API**: `backend/libraries/api.py`
-- **Utils**: `backend/libraries/utils.py` (Google Books integration)
-- **Schemas**: `backend/libraries/schemas.py` (Pydantic validation)
-- **Settings**: `backend/minervahome/settings.py`
-- **URLs**: `backend/minervahome/urls.py`
-- **Requirements**: `backend/requirements.txt`
-- **Scripts**: `backend/rav.yaml`
+| File | Purpose |
+|------|---------|
+| `src/Minerva.Api/Program.cs` | Service registration, middleware, static files |
+| `src/Minerva.Api/appsettings.json` | Default config (connection string, CORS, Google Books key) |
+| `src/Minerva.Api/Features/Books/Book.cs` | `Book` entity + `BookDto` |
+| `src/Minerva.Api/Infrastructure/Data/MinervaDbContext.cs` | EF Core context |
+| `src/Minerva.Api/Infrastructure/Storage/BookImageStorage.cs` | Cover file management |
+| `src/Minerva.Api/Migrations/` | EF Core migration files |
 
-### Frontend Key Files
+### Client
 
-- **App Structure**: `frontend/app/` (Next.js App Router)
-- **Components**: `frontend/components/` (BookTable, SearchWrapper, AddBookDrawer, etc.)
-- **Types**: `frontend/types/book.ts`
-- **Config**: `frontend/next.config.mjs`, `frontend/tsconfig.json`
-- **Dependencies**: `frontend/package.json`
-- **Public Assets**: `frontend/public/`
+| File | Purpose |
+|------|---------|
+| `src/Minerva.Client/src/features/library/api/libraryApi.ts` | All HTTP calls |
+| `src/Minerva.Client/src/features/library/store/libraryStore.ts` | Zustand store |
+| `src/Minerva.Client/src/features/library/types/library.types.ts` | Shared TS types + Zod schemas |
+| `src/Minerva.Client/src/lib/api.ts` | Axios instance base config |
+| `src/Minerva.Client/vite.config.ts` | Proxy config (`/api`, `/uploads/covers`, `/assets/images`) |
 
 ### Documentation
 
-Canonical docs for the **dotnet + React** stack live in `docs/`:
+| Path | Contents |
+|------|---------|
+| `docs/README.md` | Index |
+| `docs/architecture/overview.md` | Architecture + API surface |
+| `docs/architecture/data-model.md` | `Book` field reference |
+| `docs/development/` | Setup, configuration |
+| `docs/features/` | Library UI, ISBN lookup |
+| `docs/decisions/` | ADRs (including dotnet rebuild) |
+| `docs/roadmap.md` | Planned work |
 
-- `docs/README.md` — index
-- `docs/development/` — setup, configuration
-- `docs/architecture/` — overview, data model
-- `docs/features/` — library UI, ISBN lookup
-- `docs/decisions/` — ADRs (including dotnet rebuild)
-- `docs/roadmap.md` — planned work
+## Configuration
 
-Legacy Django/Next.js docs exist only on the `main` branch history.
+Local dev values live in `src/Minerva.Api/appsettings.json`. For secrets (API keys, real DB passwords) use [.NET user secrets](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets) or environment variables.
+
+Environment variables use ASP.NET Core double-underscore convention:
+
+```bash
+ConnectionStrings__DefaultConnection=Host=...
+GoogleBooks__ApiKey=...
+Cors__Origins=http://localhost:5174
+```
+
+See `.env.example` for the full list.
 
 ## Development Guidelines
 
-### Backend Development
+### Adding a new API feature
 
-- Use Django Ninja for all new API endpoints
-- Implement Pydantic schemas for request/response validation
-- Follow Django best practices and PEP 8
-- Use UUID primary keys for new models
-- Test coverage should exceed 90%
+1. Create `src/Minerva.Api/Features/Books/<Feature>/` with a Carter module and MediatR handler.
+2. Add a FluentValidation validator if the command takes user input.
+3. Register nothing in `Program.cs` — Carter auto-discovers modules; MediatR scans the assembly.
 
-### Frontend Development
+### Adding a new client feature
 
-- Use TypeScript for all new components
-- Follow Chakra UI design system and responsive breakpoints
-- Implement URL-based state management for shareable states
-- Use React functional components with hooks
-- Follow mobile-first responsive design approach
+- Mirror the library feature structure: `api/`, `components/`, `hooks/`, `store/`, `types/`.
+- Use Zod for form validation schemas; keep them in `types/`.
+- UI state in Zustand; avoid prop-drilling for cross-component state.
 
-### Database Changes
+### Database changes
 
-1. Modify model in `backend/libraries/models.py`
-2. Run `npm run backend:makemigrations` or `cd backend && rav makemigrations`
-3. Review generated migration file
-4. Run `npm run backend:migrate` or `cd backend && rav migrate`
-5. Update corresponding schemas and API endpoints
+1. Modify `Book.cs` (entity).
+2. Run `dotnet ef migrations add <Name>` from `src/Minerva.Api/`.
+3. Review the generated migration.
+4. Run `dotnet ef database update`.
+5. Update `BookDto.FromBook()` and the client `Book` type / Zod schema as needed.
 
 ## Testing
 
-### Backend Testing
+No automated test suite is currently configured. Before shipping a change:
 
-```bash
-cd backend
-python manage.py test                    # Run all tests
-python manage.py test libraries.tests   # Run specific test file
-```
-
-### Frontend Testing
-
-No test framework currently configured. Recommended: Jest with React Testing Library.
+- **API**: `dotnet build` from `src/Minerva.Api/` — must have zero errors/warnings.
+- **Client**: `npm run build` or `npx tsc -b` from `src/Minerva.Client/` — must typecheck clean.
+- Manual smoke test: start both services and exercise the changed flows.
 
 ## Project Structure
 
 ```
-minerva/
-├── package.json              # Root workspace management with concurrently
-├── CLAUDE.md                 # This file - unified development guide
-├── .gitignore               # Unified git ignore rules
-├── backend/                  # Django backend
-│   ├── manage.py            # Django management script
-│   ├── requirements.txt     # Python dependencies
-│   ├── rav.yaml            # Development scripts
-│   ├── libraries/          # Main app for book management
-│   │   ├── models.py       # LibraryEntry model
-│   │   ├── api.py          # Django Ninja API endpoints
-│   │   ├── utils.py        # Google Books API integration
-│   │   └── schemas.py      # Pydantic validation schemas
-│   └── minervahome/        # Django project settings
-├── frontend/                # Next.js frontend
-│   ├── package.json        # Frontend dependencies
-│   ├── next.config.mjs     # Next.js configuration
-│   ├── tsconfig.json       # TypeScript configuration
-│   ├── app/                # Next.js App Router pages
-│   ├── components/         # Reusable React components
-│   ├── types/              # TypeScript type definitions
-│   └── public/             # Static assets
-└── docs/                   # Project documentation and specs
+kcw_minerva/
+├── src/
+│   ├── Minerva.Api/
+│   │   ├── Features/Books/       # Carter modules + MediatR handlers
+│   │   ├── Infrastructure/       # DbContext, storage, JSON converters
+│   │   ├── Migrations/           # EF Core migrations
+│   │   ├── Program.cs
+│   │   └── appsettings.json
+│   └── Minerva.Client/
+│       ├── src/
+│       │   ├── features/library/ # Main feature (api, components, hooks, store, types)
+│       │   ├── components/       # Shared UI components
+│       │   └── lib/              # Axios client, utilities
+│       └── vite.config.ts
+├── docker-compose.yml            # PostgreSQL for local dev
+├── docs/                         # Architecture and feature documentation
+├── .env.example                  # Deployment env var reference
+└── CLAUDE.md                     # This file
 ```
 
 ## Current Status
 
-### Authentication
-
-- JWT authentication implemented but **disabled** in frontend
-- System designed for easy multi-user conversion
-- Login page exists but not enforced
-
-### Deployment
-
-- **Production**: configure `VITE_API_URL` and API CORS for your own domains (not committed to the repo).
-- CORS configured for cross-origin requests
-
-### Planned Features
-
-- AI Integration with LangGraph workflows for intelligent recommendations
-- Multi-user support with data isolation
-- Enhanced search with semantic capabilities
-- Reading analytics and progress insights
-
-## Important Notes
-
-- This project was recently unified from two separate repositories
-- The system is single-user but architected for multi-user conversion
-- Google Books API integration provides automatic metadata enrichment
-- Both backend and frontend have comprehensive documentation in `docs/`
-- Use `npm run dev` to start both services concurrently for full-stack development
-
-## Development Best Practices
-
-### Code Quality
-- Always use descriptive variable names
-- Write self-documenting code with clear function and class names
-- Keep functions small and focused on a single responsibility
-- Use meaningful commit messages following conventional commits format
-- Add docstrings for complex functions and classes
-
-### Security
-- Never commit API keys, secrets, or credentials to version control
-- Use environment variables for sensitive configuration
-- Sanitize user inputs and validate data at API boundaries
-- Follow OWASP security guidelines for web applications
-
-### Error Handling
-- Implement comprehensive error handling with meaningful error messages
-- Use try-catch blocks appropriately and avoid silent failures
-- Log errors with appropriate detail for debugging
-- Return consistent error response formats from APIs
-
-### Performance
-- Optimize database queries to avoid N+1 problems
-- Use pagination for large data sets
-- Implement appropriate caching strategies
-- Optimize images and static assets
-
-### Testing
-- Write tests before fixing bugs (test-driven bug fixes)
-- Maintain high test coverage (>90% target)
-- Use meaningful test names that describe the behavior being tested
-- Test edge cases and error conditions
-
-### Code Organization
-- Follow consistent file and folder naming conventions
-- Group related functionality together
-- Keep components and modules loosely coupled
-- Use dependency injection where appropriate
+- Single-user; no authentication enforced.
+- CORS reads from `Cors:Origins` config (falls back to `http://localhost:5174` if unset).
+- Deployment: configure `VITE_API_URL` (build-time) and `Cors__Origins` (runtime) for your domains.

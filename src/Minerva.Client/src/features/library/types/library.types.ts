@@ -22,6 +22,7 @@ export interface Book {
   summary?: string;
   tags: string[];
   coverImageUrl?: string;
+  coverSourceUrl?: string;
   dateAdded: string;
   timestamp: string;
 }

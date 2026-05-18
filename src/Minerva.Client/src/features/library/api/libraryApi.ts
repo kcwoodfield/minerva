@@ -15,11 +15,6 @@ export const libraryApi = {
     return data;
   },
 
-  getBook: async (id: string): Promise<Book> => {
-    const { data } = await apiClient.get(`/books/${id}`);
-    return data;
-  },
-
   createBook: async (book: CreateBookDto): Promise<Book> => {
     const { data } = await apiClient.post('/books', sanitizeBookPayload(book));
     return data;

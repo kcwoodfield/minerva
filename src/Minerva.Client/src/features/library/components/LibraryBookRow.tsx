@@ -23,10 +23,24 @@ interface Props {
   onDelete: (book: Book) => void;
 }
 
-function CoverCell({ url, title, cacheKey }: { url?: string; title: string; cacheKey?: string }) {
+function CoverCell({
+  bookId,
+  url,
+  sourceUrl,
+  title,
+  cacheKey,
+}: {
+  bookId: string;
+  url?: string;
+  sourceUrl?: string;
+  title: string;
+  cacheKey?: string;
+}) {
   return (
     <BookCoverImage
+      bookId={bookId}
       coverImageUrl={url}
+      coverSourceUrl={sourceUrl}
       cacheKey={cacheKey}
       alt={formatBookTitle(title)}
       className="object-cover rounded-sm shadow-minerva-cover"
@@ -115,7 +129,13 @@ export function LibraryBookRow({ book, onSelect, onEdit, onDelete }: Props) {
       onClick={() => onSelect(book)}
     >
       <TableCell style={{ padding: '14px 16px' }}>
-        <CoverCell url={book.coverImageUrl} title={book.title} cacheKey={book.timestamp} />
+        <CoverCell
+          bookId={book.id}
+          url={book.coverImageUrl}
+          sourceUrl={book.coverSourceUrl}
+          title={book.title}
+          cacheKey={book.timestamp}
+        />
       </TableCell>
       <TableCell style={{ padding: '14px 16px' }}>
         <div style={{ maxWidth: 280 }}>

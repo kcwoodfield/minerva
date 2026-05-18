@@ -21,7 +21,8 @@ Defined in `src/Minerva.Api/Features/Books/Book.cs` and exposed as `BookDto` / c
 | `Language` / `Format` / `Edition` / `Translator` | string? | |
 | `Summary` | string? | Plain text; often from ISBN lookup |
 | `Tags` | string[] | JSON column |
-| `CoverImageUrl` | string? | Often from lookup |
+| `CoverImageUrl` | string? | Current cover; managed upload path or external URL |
+| `CoverSourceUrl` | string? | Original external URL from ISBN lookup; preserved when a file is uploaded so the upload can be reverted |
 | `DateAdded` | DateTime | Set on create |
 | `Timestamp` | DateTime | Updated on save |
 

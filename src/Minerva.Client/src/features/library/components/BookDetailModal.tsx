@@ -36,7 +36,9 @@ function DetailField({ label, children }: { label: string; children: React.React
 function BookCover({ book }: { book: Book }) {
   return (
     <BookCoverImage
+      bookId={book.id}
       coverImageUrl={book.coverImageUrl}
+      coverSourceUrl={book.coverSourceUrl}
       cacheKey={book.timestamp}
       className="object-cover rounded-sm shadow-minerva-cover w-full"
       placeholderClassName="rounded-sm shadow-minerva-cover flex items-center justify-center"

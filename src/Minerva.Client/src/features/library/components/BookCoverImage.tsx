@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { resolveCoverSrc } from '../lib/resolveCoverSrc';
+import { hasCoverData, resolveBookCoverEndpoint } from '../lib/resolveCoverSrc';
 
 interface Props {
+  bookId: string;
   coverImageUrl?: string;
+  coverSourceUrl?: string;
   cacheKey?: string;
   alt?: string;
   className?: string;
@@ -12,7 +14,9 @@ interface Props {
 }
 
 export function BookCoverImage({
+  bookId,
   coverImageUrl,
+  coverSourceUrl,
   cacheKey,
   alt = '',
   className,
@@ -20,9 +24,8 @@ export function BookCoverImage({
   placeholderClassName,
 }: Props) {
   const [failed, setFailed] = useState(false);
-  const src = resolveCoverSrc(coverImageUrl, cacheKey);
 
-  if (!src || failed) {
+  if (!hasCoverData(coverImageUrl, coverSourceUrl) || failed) {
     return (
       <div className={cn('m-cover-ph', placeholderClassName, className)} style={style}>
         cover
@@ -32,11 +35,11 @@ export function BookCoverImage({
 
   return (
     <img
-      src={src}
+      key={`${bookId}-${cacheKey ?? ''}`}
+      src={resolveBookCoverEndpoint(bookId, cacheKey)}
       alt={alt}
       loading="lazy"
       decoding="async"
-      referrerPolicy="no-referrer"
       className={className}
       style={style}
       onError={() => setFailed(true)}

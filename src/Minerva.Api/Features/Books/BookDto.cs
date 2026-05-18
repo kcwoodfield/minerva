@@ -21,6 +21,7 @@ public record BookDto(
     string? Summary,
     List<string> Tags,
     string? CoverImageUrl,
+    string? CoverSourceUrl,
     DateTime DateAdded,
     DateTime Timestamp)
 {
@@ -29,6 +30,6 @@ public record BookDto(
         book.Pages, book.Rating, book.Review, book.Completed,
         book.Publisher, book.PublicationDate, book.Genre, book.SubGenre,
         book.Language, book.Format, book.Edition, book.Translator,
-        book.Summary, book.Tags, book.CoverImageUrl,
+        book.Summary, book.Tags, book.CoverImageUrl, book.CoverSourceUrl,
         book.DateAdded, book.Timestamp);
 }

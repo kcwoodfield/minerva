@@ -49,6 +49,7 @@ export function EditBookModal({ book, onClose, onSaved }: Props) {
           {book && (
             <BookForm
               bookId={book.id}
+              coverSourceUrl={book.coverSourceUrl}
               cacheKey={book.timestamp}
               defaultValues={bookToFormValues(book)}
               onSubmit={handleSubmit}

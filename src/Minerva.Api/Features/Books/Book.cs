@@ -22,6 +22,8 @@ public class Book
     public string? Summary { get; set; }
     public List<string> Tags { get; set; } = new();
     public string? CoverImageUrl { get; set; }
+    /// <summary>Original cover URL from ISBN lookup (used when upload/override fails to load).</summary>
+    public string? CoverSourceUrl { get; set; }
     public DateTime DateAdded { get; set; }
     public DateTime Timestamp { get; set; }
 }

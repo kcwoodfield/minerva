@@ -54,8 +54,7 @@ kcw_minerva/
 │   ├── Minerva.Api/          # ASP.NET Core API (Carter, MediatR, EF Core)
 │   └── Minerva.Client/       # React + Vite + TypeScript + Tailwind
 ├── docker-compose.yml        # PostgreSQL for local dev
-├── docs/                     # Architecture and deployment notes
-└── designs/                  # UI reference (not required to run the app)
+└── docs/                     # Architecture and deployment notes
 ```
 
 ## Features
@@ -77,6 +76,10 @@ kcw_minerva/
 | PUT | `/api/books/{id}` | Update book |
 | DELETE | `/api/books/{id}` | Delete book |
 | GET | `/api/books/lookup/{isbn}` | Lookup metadata by ISBN |
+| POST | `/api/books/{id}/cover` | Upload cover image |
+| DELETE | `/api/books/{id}/cover` | Remove uploaded cover |
+| GET | `/api/books/{id}/cover` | Serve or proxy book cover |
+| GET | `/api/covers/proxy?url=` | Proxy allowlisted cover URL |
 
 ## Tech stack
 

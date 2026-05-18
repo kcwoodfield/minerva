@@ -53,6 +53,9 @@ public class UploadCoverHandler(MinervaDbContext db, BookImageStorage storage)
         var book = await db.Books.FindAsync([command.BookId], ct);
         if (book is null) return null;
 
+        if (string.IsNullOrWhiteSpace(book.CoverSourceUrl) && !storage.IsManagedUrl(book.CoverImageUrl))
+            book.CoverSourceUrl = book.CoverImageUrl;
+
         storage.DeleteIfManaged(book.CoverImageUrl);
         book.CoverImageUrl = await storage.SaveAsync(command.BookId, command.File, ct);
         book.Timestamp = DateTime.UtcNow;
@@ -71,7 +74,7 @@ public class DeleteCoverHandler(MinervaDbContext db, BookImageStorage storage)
         if (book is null) return null;
 
         storage.DeleteIfManaged(book.CoverImageUrl);
-        book.CoverImageUrl = null;
+        book.CoverImageUrl = book.CoverSourceUrl;
         book.Timestamp = DateTime.UtcNow;
 
         await db.SaveChangesAsync(ct);

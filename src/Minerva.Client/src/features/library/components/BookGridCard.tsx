@@ -42,7 +42,9 @@ export function BookGridCard({ book, onSelect, onEdit, onDelete }: Props) {
           style={{ aspectRatio: '2/3', maxHeight: 220 }}
         >
           <BookCoverImage
+            bookId={book.id}
             coverImageUrl={book.coverImageUrl}
+            coverSourceUrl={book.coverSourceUrl}
             cacheKey={book.timestamp}
             className="h-full w-full object-contain"
             placeholderClassName="flex h-full w-full items-center justify-center"

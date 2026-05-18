@@ -33,7 +33,11 @@ Minerva is a personal book library: a **React SPA** talks to an **ASP.NET Core A
 | Persistence | EF Core + Npgsql |
 | IDs | `Guid` on `Book` |
 
-Features live under `Features/Books/` (Create, GetAll, Update, Delete, LookupByISBN).
+Features live under `Features/Books/` (Create, GetAll, Update, Delete, LookupByISBN, UploadCover, CoverProxy).
+
+### Cover image pipeline
+
+Uploaded files are stored by `BookImageStorage` under the configured `BookImages:RootPath` and served as static files at `/uploads/covers/{file}`. When a file is uploaded the original external URL is preserved in `CoverSourceUrl` so deleting the upload reverts to the remote cover. `CoverProxyModule` proxies external covers from an allowlisted set of hosts (Open Library, Google Books) so the browser never hits third-party origins directly.
 
 ### ISBN lookup pipeline
 
@@ -68,6 +72,10 @@ Features live under `Features/Books/` (Create, GetAll, Update, Delete, LookupByI
 | PUT | `/api/books/{id}` | Update |
 | DELETE | `/api/books/{id}` | Delete |
 | GET | `/api/books/lookup/{isbn}` | Metadata by ISBN (digits only in path) |
+| POST | `/api/books/{id}/cover` | Upload a cover image (multipart/form-data) |
+| DELETE | `/api/books/{id}/cover` | Remove uploaded cover; reverts to `CoverSourceUrl` |
+| GET | `/api/books/{id}/cover` | Serve or proxy the book's cover image |
+| GET | `/api/covers/proxy?url=` | Proxy an arbitrary allowlisted cover URL |
 
 JSON uses **camelCase**. Empty strings for optional dates are normalized to `null` via `NullableDateTimeJsonConverter`.
 

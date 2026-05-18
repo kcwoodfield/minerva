@@ -1,37 +1,17 @@
 const LOCAL_COVER_PREFIXES = ['/assets/images/', '/uploads/covers/'] as const;
 
-function isLocalCover(url: string): boolean {
+export function isLocalCoverUrl(coverImageUrl?: string): boolean {
+  if (!coverImageUrl?.trim()) return false;
+  const url = coverImageUrl.trim();
   return LOCAL_COVER_PREFIXES.some((prefix) => url.startsWith(prefix));
 }
 
-function normalizeCoverUrl(coverImageUrl: string): string {
-  let url = coverImageUrl.trim();
-
-  if (url.startsWith('//')) return `https:${url}`;
-  if (url.startsWith('/')) return url;
-  if (/^https?:\/\//i.test(url)) {
-    // Prefer HTTPS for common cover CDNs (avoids mixed content / redirects).
-    if (url.startsWith('http://covers.openlibrary.org')) {
-      return url.replace(/^http:\/\//i, 'https://');
-    }
-    return url;
-  }
-
-  return `https://${url}`;
+export function hasCoverData(coverImageUrl?: string, coverSourceUrl?: string): boolean {
+  return !!(coverImageUrl?.trim() || coverSourceUrl?.trim());
 }
 
-/** Resolve cover src for display; cache-bust locally hosted uploads after re-upload. */
-export function resolveCoverSrc(coverImageUrl?: string, cacheKey?: string): string | undefined {
-  if (!coverImageUrl?.trim()) return undefined;
-
-  const url = normalizeCoverUrl(coverImageUrl);
-  if (isLocalCover(url) && cacheKey) {
-    return `${url}?v=${encodeURIComponent(cacheKey)}`;
-  }
-  return url;
-}
-
-export function isLocalCoverUrl(coverImageUrl?: string): boolean {
-  if (!coverImageUrl?.trim()) return false;
-  return isLocalCover(normalizeCoverUrl(coverImageUrl));
+/** Same-origin cover URL — API serves upload or fetches from Open Library / Google. */
+export function resolveBookCoverEndpoint(bookId: string, cacheKey?: string): string {
+  if (!cacheKey) return `/api/books/${bookId}/cover`;
+  return `/api/books/${bookId}/cover?v=${encodeURIComponent(cacheKey)}`;
 }

@@ -2,23 +2,33 @@ import { useRef, useState } from 'react';
 import { ImagePlus, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDeleteCover, useUploadCover } from '../hooks/useLibrary';
-import { isLocalCoverUrl, resolveCoverSrc } from '../lib/resolveCoverSrc';
+import { hasCoverData, isLocalCoverUrl, resolveBookCoverEndpoint } from '../lib/resolveCoverSrc';
 
 interface Props {
   bookId: string;
   coverUrl?: string;
+  coverSourceUrl?: string;
   cacheKey?: string;
   onCoverChange: (url: string | undefined) => void;
   disabled?: boolean;
 }
 
-export function CoverImageUpload({ bookId, coverUrl, cacheKey, onCoverChange, disabled }: Props) {
+export function CoverImageUpload({
+  bookId,
+  coverUrl,
+  coverSourceUrl,
+  cacheKey,
+  onCoverChange,
+  disabled,
+}: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const uploadMutation = useUploadCover();
   const deleteMutation = useDeleteCover();
 
-  const displaySrc = localPreview ?? resolveCoverSrc(coverUrl, cacheKey);
+  const displaySrc =
+    localPreview
+    ?? (hasCoverData(coverUrl, coverSourceUrl) ? resolveBookCoverEndpoint(bookId, cacheKey) : undefined);
   const isUploaded = isLocalCoverUrl(coverUrl);
   const busy = uploadMutation.isPending || deleteMutation.isPending;
 
@@ -40,7 +50,7 @@ export function CoverImageUpload({ bookId, coverUrl, cacheKey, onCoverChange, di
       return;
     }
     await deleteMutation.mutateAsync(bookId);
-    onCoverChange(undefined);
+    onCoverChange(coverSourceUrl);
   };
 
   return (
@@ -104,7 +114,7 @@ export function CoverImageUpload({ bookId, coverUrl, cacheKey, onCoverChange, di
             </Button>
           )}
           <p className="t-meta" style={{ fontSize: 12 }}>
-            JPEG, PNG, WebP, or GIF · max 5 MB. Upload overrides the lookup URL.
+            JPEG, PNG, WebP, or GIF · max 5 MB. Without an upload, the ISBN lookup cover is used.
           </p>
         </div>
       </div>
