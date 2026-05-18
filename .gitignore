@@ -22,8 +22,16 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.prod
 .env.docker
 .env.*.local
+
+# .NET build output
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+appsettings.*.local.json
 
 # Logs
 *.log

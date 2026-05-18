@@ -103,7 +103,7 @@ POST   /api/token/refresh     # Refresh access token
 
 ### Frontend API Integration
 
-Frontend connects to backend at `http://localhost:8000` (development) or `https://minerva-api.kevinwoodfield.com` (production).
+Frontend connects to backend at `http://localhost:5266` (development, via Vite proxy) or your deployed API URL (production).
 
 ## Key File Locations
 
@@ -218,8 +218,7 @@ minerva/
 
 ### Deployment
 
-- **Production Frontend**: https://minerva.kevinwoodfield.com/
-- **Production API**: https://minerva-api.kevinwoodfield.com/api/library
+- **Production**: configure `VITE_API_URL` and API CORS for your own domains (not committed to the repo).
 - CORS configured for cross-origin requests
 
 ### Planned Features
