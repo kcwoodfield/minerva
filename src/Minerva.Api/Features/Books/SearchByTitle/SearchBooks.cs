@@ -10,7 +10,7 @@ public class SearchBooksModule : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/books/search", async (string q, ISender sender) =>
+        app.MapGet("/api/books/search", async (string? q, ISender sender) =>
         {
             var trimmed = (q ?? "").Trim();
             if (trimmed.Length < 2) return Results.Ok(Array.Empty<BookMetadata>());

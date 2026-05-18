@@ -68,7 +68,7 @@ function metadataToFormValues(isbn: string, metadata: BookMetadata): Partial<Cre
   if (metadata.publicationDate) {
     const parsed = new Date(metadata.publicationDate);
     if (!Number.isNaN(parsed.getTime())) {
-      publicationDate = parsed.toISOString().split('T')[0];
+      publicationDate = String(parsed.getFullYear());
     }
   }
 
@@ -350,6 +350,9 @@ export function BookForm({
               isbn10: data.isbn10?.trim()
                 ? normalizeIsbn(data.isbn10) ?? data.isbn10
                 : undefined,
+              publicationDate: data.publicationDate?.trim()
+                ? `${data.publicationDate.trim()}-01-01`
+                : undefined,
             }),
           )}
           style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
@@ -387,8 +390,14 @@ export function BookForm({
             <Field label="Publisher">
               <Input {...register('publisher')} />
             </Field>
-            <Field label="Publication Date">
-              <Input type="date" {...register('publicationDate')} />
+            <Field label="Publication Year" error={errors.publicationDate?.message}>
+              <Input
+                type="number"
+                placeholder="YYYY"
+                min={1000}
+                max={new Date().getFullYear() + 5}
+                {...register('publicationDate')}
+              />
             </Field>
           </div>
 

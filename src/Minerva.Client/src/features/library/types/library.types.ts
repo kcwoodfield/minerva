@@ -91,7 +91,14 @@ export const createBookSchema = z.object({
   review: z.string().optional(),
   completed: z.number().min(0).max(100),
   publisher: z.string().optional(),
-  publicationDate: z.string().optional(),
+  publicationDate: z.string().optional().refine(
+    v => {
+      if (!v?.trim()) return true;
+      const year = parseInt(v.trim(), 10);
+      return /^\d{4}$/.test(v.trim()) && year >= 1000 && year <= new Date().getFullYear() + 5;
+    },
+    'Enter a valid 4-digit year',
+  ),
   genre: z.string().optional(),
   subGenre: z.string().optional(),
   language: z.string().optional(),

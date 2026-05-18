@@ -11,7 +11,9 @@ export function bookToFormValues(book: Book): Partial<CreateBookForm> {
     review: book.review,
     completed: book.completed,
     publisher: book.publisher,
-    publicationDate: book.publicationDate,
+    publicationDate: book.publicationDate
+      ? String(new Date(book.publicationDate).getFullYear())
+      : undefined,
     genre: book.genre,
     subGenre: book.subGenre,
     language: book.language,
