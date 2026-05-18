@@ -18,7 +18,9 @@ public static class BookMetadataMerger
             Description: Coalesce(primary.Description, secondary.Description),
             Genre: Coalesce(primary.Genre, secondary.Genre),
             Language: Coalesce(primary.Language, secondary.Language),
-            CoverImageUrl: Coalesce(primary.CoverImageUrl, secondary.CoverImageUrl));
+            CoverImageUrl: Coalesce(primary.CoverImageUrl, secondary.CoverImageUrl),
+            Isbn13: Coalesce(primary.Isbn13, secondary.Isbn13),
+            Isbn10: Coalesce(primary.Isbn10, secondary.Isbn10));
     }
 
     private static string? Coalesce(string? first, string? second) =>

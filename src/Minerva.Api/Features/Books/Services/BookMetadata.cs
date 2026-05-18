@@ -9,4 +9,6 @@ public record BookMetadata(
     string? Description,
     string? Genre,
     string? Language,
-    string? CoverImageUrl);
+    string? CoverImageUrl,
+    string? Isbn13 = null,
+    string? Isbn10 = null);

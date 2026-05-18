@@ -42,6 +42,11 @@ export const libraryApi = {
     await apiClient.delete(`/books/${id}/cover`);
   },
 
+  searchBooks: async (query: string): Promise<BookMetadata[]> => {
+    const { data } = await apiClient.get<BookMetadata[]>('/books/search', { params: { q: query } });
+    return data;
+  },
+
   lookupByISBN: async (isbn: string): Promise<BookMetadata> => {
     const normalized = normalizeIsbn(isbn);
     if (!normalized) {

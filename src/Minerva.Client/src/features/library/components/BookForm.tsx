@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Barcode, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { createBookSchema, type CreateBookForm, type BookMetadata } from '../typ
 import { BookTitle } from './BookTitle';
 import { formatBookTitle } from '../lib/formatBookTitle';
 import { useLookupISBN } from '../hooks/useLibrary';
+import { libraryApi } from '../api/libraryApi';
 import { CoverImageUpload } from './CoverImageUpload';
 
 interface Props {
@@ -44,8 +45,23 @@ function Field({ label, error, children }: { label: string; error?: string; chil
   );
 }
 
+const STOP_WORDS = new Set([
+  'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+  'of', 'with', 'by', 'from', 'is', 'was', 'are', 'were',
+]);
+
+function isIsbnMode(value: string): boolean {
+  return value.trim().length > 0 && /^[0-9\-\s X]+$/i.test(value);
+}
+
+function hasMeaningfulWord(value: string): boolean {
+  return value.trim().toLowerCase().split(/\s+/)
+    .some(w => w.length >= 2 && !STOP_WORDS.has(w));
+}
+
 function metadataToFormValues(isbn: string, metadata: BookMetadata): Partial<CreateBookForm> {
-  const normalized = normalizeIsbn(isbn);
+  const sourceIsbn = isbn || metadata.isbn13 || '';
+  const normalized = normalizeIsbn(sourceIsbn);
   const pages = metadata.pageCount && metadata.pageCount > 0 ? metadata.pageCount : 1;
 
   let publicationDate = '';
@@ -59,10 +75,11 @@ function metadataToFormValues(isbn: string, metadata: BookMetadata): Partial<Cre
   return {
     title: metadata.title ? formatBookTitle(metadata.title) : '',
     author: metadata.author ?? '',
-    isbn13: normalized ?? isbn.replace(/[^0-9Xx]/g, ''),
+    isbn13: normalized ?? sourceIsbn.replace(/[^0-9Xx]/g, ''),
     pages,
     rating: 0,
     completed: 0,
+    ...(metadata.isbn10 ? { isbn10: metadata.isbn10 } : {}),
     ...(metadata.publisher ? { publisher: metadata.publisher } : {}),
     ...(publicationDate ? { publicationDate } : {}),
     ...(metadata.genre ? { genre: metadata.genre } : {}),
@@ -72,116 +89,205 @@ function metadataToFormValues(isbn: string, metadata: BookMetadata): Partial<Cre
   };
 }
 
-function ISBNLookupCard({
+function BookLookupCard({
   onFound,
   defaultIsbn,
 }: {
   onFound: (isbn: string, metadata: BookMetadata) => void;
   defaultIsbn?: string;
 }) {
-  const [isbnInput, setIsbnInput] = useState(defaultIsbn ?? '');
-  const [result, setResult] = useState<BookMetadata | null>(null);
-  const [error, setError] = useState('');
+  const [input, setInput] = useState(defaultIsbn ?? '');
+  const [confirmedResult, setConfirmedResult] = useState<BookMetadata | null>(null);
+  const [isbnError, setIsbnError] = useState('');
+  const [searchResults, setSearchResults] = useState<BookMetadata[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const lookupMutation = useLookupISBN();
 
-  const handleLookup = async () => {
-    if (!isbnInput.trim()) return;
-    setError('');
-    setResult(null);
+  const isbnInput = isIsbnMode(input);
+
+  useEffect(() => {
+    if (isbnInput || !hasMeaningfulWord(input)) {
+      setSearchResults([]);
+      setShowDropdown(false);
+      setIsSearching(false);
+      return;
+    }
+
+    let cancelled = false;
+    setIsSearching(true);
+
+    const timer = setTimeout(() => {
+      libraryApi.searchBooks(input)
+        .then(results => {
+          if (!cancelled) {
+            setSearchResults(results);
+            setShowDropdown(results.length > 0);
+          }
+        })
+        .catch(() => { if (!cancelled) setSearchResults([]); })
+        .finally(() => { if (!cancelled) setIsSearching(false); });
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [input, isbnInput]);
+
+  const handleIsbnLookup = async () => {
+    if (!input.trim()) return;
+    setIsbnError('');
+    setConfirmedResult(null);
     try {
-      const metadata = await lookupMutation.mutateAsync(isbnInput.trim());
-      setResult(metadata);
-      onFound(normalizeIsbn(isbnInput) ?? isbnInput.trim(), metadata);
+      const metadata = await lookupMutation.mutateAsync(input.trim());
+      setConfirmedResult(metadata);
+      onFound(normalizeIsbn(input) ?? input.trim(), metadata);
     } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      setError(
-        message ?? 'No book found for that ISBN. Try entering details manually.',
-      );
+      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setIsbnError(message ?? 'No book found for that ISBN. Try entering details manually.');
     }
   };
 
+  const handleSelectResult = (result: BookMetadata) => {
+    setShowDropdown(false);
+    setSearchResults([]);
+    setConfirmedResult(result);
+    onFound(result.isbn13 ?? result.isbn10 ?? '', result);
+  };
+
   return (
-    <div
-      className="border border-rule bg-paper"
-      style={{ borderRadius: 6, padding: 22 }}
-    >
-      {/* Card title */}
+    <div className="border border-rule bg-paper" style={{ borderRadius: 6, padding: 22 }}>
       <div className="flex items-center gap-2" style={{ marginBottom: 8 }}>
         <Barcode className="text-ink-mute" style={{ width: 18, height: 18 }} />
-        <h3
-          className="font-display font-semibold text-ink"
-          style={{ fontSize: 17, lineHeight: 1.2 }}
-        >
-          Look Up by ISBN
+        <h3 className="font-display font-semibold text-ink" style={{ fontSize: 17, lineHeight: 1.2 }}>
+          Find a Book
         </h3>
       </div>
       <p className="font-serif italic text-ink-mute" style={{ fontSize: 13.5, marginBottom: 14 }}>
-        Enter ISBN-10 or ISBN-13 — with or without dashes (e.g. 978-0-140-44924-2 or 9780140449242).
+        Enter an ISBN, or search by title or author — results appear as you type.
       </p>
 
       {/* Input row */}
-      <div className="flex gap-2">
-        <Input
-          autoFocus
-          placeholder="9780000000000"
-          value={isbnInput}
-          onChange={(e) => setIsbnInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleLookup()}
-          style={{ flex: 1 }}
-        />
-        <Button onClick={handleLookup} disabled={lookupMutation.isPending}>
-          {lookupMutation.isPending
-            ? <Loader2 style={{ width: 15, height: 15 }} className="animate-spin" />
-            : 'Look Up'
-          }
-        </Button>
+      <div className="flex gap-2" style={{ position: 'relative' }}>
+        <div style={{ flex: 1, position: 'relative' }}>
+          <Input
+            autoFocus
+            placeholder="ISBN or title / author…"
+            value={input}
+            onChange={(e) => {
+              setInput(e.target.value);
+              setConfirmedResult(null);
+              setIsbnError('');
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && isbnInput) handleIsbnLookup();
+              if (e.key === 'Escape') setShowDropdown(false);
+            }}
+            onFocus={() => { if (searchResults.length > 0) setShowDropdown(true); }}
+            onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+          />
+
+          {/* Type-ahead dropdown */}
+          {showDropdown && searchResults.length > 0 && (
+            <div
+              className="absolute left-0 right-0 bg-paper border border-rule z-50 overflow-y-auto"
+              style={{ top: '100%', marginTop: 4, borderRadius: 6, maxHeight: 300, boxShadow: '0 4px 16px rgba(0,0,0,0.10)' }}
+            >
+              {searchResults.map((result, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className="flex items-start gap-3 w-full text-left hover:bg-cream-warm transition-colors"
+                  style={{
+                    padding: '10px 12px',
+                    borderBottom: i < searchResults.length - 1 ? '1px solid var(--color-rule-soft)' : undefined,
+                  }}
+                  onMouseDown={(e) => { e.preventDefault(); handleSelectResult(result); }}
+                >
+                  {result.coverImageUrl ? (
+                    <img
+                      src={result.coverImageUrl}
+                      referrerPolicy="no-referrer"
+                      alt=""
+                      className="object-cover rounded-sm flex-shrink-0"
+                      style={{ width: 30, height: 44 }}
+                    />
+                  ) : (
+                    <div className="m-cover-ph rounded-sm flex-shrink-0" style={{ width: 30, height: 44, fontSize: 9 }}>
+                      cover
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="font-serif font-medium text-ink truncate" style={{ fontSize: 14 }}>
+                      {formatBookTitle(result.title ?? '')}
+                    </div>
+                    <div className="font-serif italic text-ink-mute truncate" style={{ fontSize: 12 }}>
+                      {result.author}
+                    </div>
+                    {(result.publisher || result.publicationDate) && (
+                      <div className="t-meta truncate" style={{ marginTop: 2 }}>
+                        {[result.publisher, result.publicationDate ? new Date(result.publicationDate).getFullYear() : null]
+                          .filter(Boolean).join(' · ')}
+                      </div>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {isbnInput && (
+          <Button onClick={handleIsbnLookup} disabled={lookupMutation.isPending}>
+            {lookupMutation.isPending
+              ? <Loader2 style={{ width: 15, height: 15 }} className="animate-spin" />
+              : 'Look Up'
+            }
+          </Button>
+        )}
+        {!isbnInput && isSearching && (
+          <div className="flex items-center px-2">
+            <Loader2 style={{ width: 15, height: 15 }} className="animate-spin text-ink-mute" />
+          </div>
+        )}
       </div>
 
-      {/* Error */}
-      {error && (
+      {/* ISBN error */}
+      {isbnError && (
         <p className="font-serif italic text-accent-terracotta" style={{ fontSize: 13, marginTop: 8 }}>
-          {error}
+          {isbnError}
         </p>
       )}
 
-      {/* Result row */}
-      {result && (
-        <div
-          className="flex items-start gap-[14px] bg-cream-warm"
-          style={{ borderRadius: 4, padding: 14, marginTop: 14 }}
-        >
-          {result.coverImageUrl
-            ? (
-              <img
-                src={result.coverImageUrl}
-                referrerPolicy="no-referrer"
-                alt={formatBookTitle(result.title ?? '')}
-                className="object-cover rounded-sm shadow-minerva-cover flex-shrink-0"
-                style={{ width: 48, height: 70 }}
-              />
-            ) : (
-              <div
-                className="m-cover-ph rounded-sm flex-shrink-0"
-                style={{ width: 48, height: 70 }}
-              >
-                cover
-              </div>
-            )
-          }
+      {/* Confirmed result */}
+      {confirmedResult && (
+        <div className="flex items-start gap-[14px] bg-cream-warm" style={{ borderRadius: 4, padding: 14, marginTop: 14 }}>
+          {confirmedResult.coverImageUrl ? (
+            <img
+              src={confirmedResult.coverImageUrl}
+              referrerPolicy="no-referrer"
+              alt={formatBookTitle(confirmedResult.title ?? '')}
+              className="object-cover rounded-sm shadow-minerva-cover flex-shrink-0"
+              style={{ width: 48, height: 70 }}
+            />
+          ) : (
+            <div className="m-cover-ph rounded-sm flex-shrink-0" style={{ width: 48, height: 70 }}>cover</div>
+          )}
           <div className="flex-1 min-w-0">
             <BookTitle
-              title={result.title ?? ''}
+              title={confirmedResult.title ?? ''}
               as="div"
               className="font-serif text-ink font-medium truncate"
               style={{ fontSize: 15 }}
             />
             <div className="font-serif italic text-ink-mute truncate" style={{ fontSize: 13 }}>
-              {result.author}
+              {confirmedResult.author}
             </div>
-            {result.publisher && (
+            {confirmedResult.publisher && (
               <div className="t-meta truncate" style={{ marginTop: 4 }}>
-                {result.publisher}{result.publicationDate ? ` · ${result.publicationDate}` : ''}
+                {confirmedResult.publisher}
+                {confirmedResult.publicationDate ? ` · ${confirmedResult.publicationDate}` : ''}
               </div>
             )}
             <p className="font-serif italic text-accent-moss" style={{ fontSize: 12, marginTop: 8 }}>
@@ -223,7 +329,7 @@ export function BookForm({
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
       {/* ISBN lookup — always shown so user can re-look while editing */}
       {!defaultValues?.title && (
-        <ISBNLookupCard
+        <BookLookupCard
           onFound={handleFoundMetadata}
           defaultIsbn={defaultValues?.isbn13}
         />
