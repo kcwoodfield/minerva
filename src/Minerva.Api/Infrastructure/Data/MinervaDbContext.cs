@@ -17,6 +17,7 @@ public class MinervaDbContext(DbContextOptions<MinervaDbContext> options) : DbCo
 
             entity.Property(b => b.Title).IsRequired().HasMaxLength(500);
             entity.Property(b => b.Author).IsRequired().HasMaxLength(300);
+            entity.Property(b => b.Haiku).HasMaxLength(500);
             entity.Property(b => b.Isbn13).IsRequired();
             entity.HasIndex(b => b.Isbn13).IsUnique();
 

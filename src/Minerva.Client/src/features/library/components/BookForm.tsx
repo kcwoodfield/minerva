@@ -1,7 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect } from 'react';
-import { Barcode, Loader2 } from 'lucide-react';
+import { Barcode, Loader2, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { normalizeIsbn } from '@/lib/isbn';
@@ -11,6 +12,7 @@ import { formatBookTitle } from '../lib/formatBookTitle';
 import { useLookupISBN } from '../hooks/useLibrary';
 import { libraryApi } from '../api/libraryApi';
 import { CoverImageUpload } from './CoverImageUpload';
+import { HaikuConfirmModal } from './HaikuConfirmModal';
 
 interface Props {
   bookId?: string;
@@ -101,7 +103,6 @@ function BookLookupCard({
   const [isbnError, setIsbnError] = useState('');
   const [searchResults, setSearchResults] = useState<BookMetadata[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
   const lookupMutation = useLookupISBN();
 
   const isbnInput = isIsbnMode(input);
@@ -109,7 +110,6 @@ function BookLookupCard({
   useEffect(() => {
     if (isbnInput || !hasMeaningfulWord(input)) {
       setSearchResults([]);
-      setShowDropdown(false);
       setIsSearching(false);
       return;
     }
@@ -119,12 +119,7 @@ function BookLookupCard({
 
     const timer = setTimeout(() => {
       libraryApi.searchBooks(input)
-        .then(results => {
-          if (!cancelled) {
-            setSearchResults(results);
-            setShowDropdown(results.length > 0);
-          }
-        })
+        .then(results => { if (!cancelled) setSearchResults(results); })
         .catch(() => { if (!cancelled) setSearchResults([]); })
         .finally(() => { if (!cancelled) setIsSearching(false); });
     }, 350);
@@ -150,7 +145,6 @@ function BookLookupCard({
   };
 
   const handleSelectResult = (result: BookMetadata) => {
-    setShowDropdown(false);
     setSearchResults([]);
     setConfirmedResult(result);
     onFound(result.isbn13 ?? result.isbn10 ?? '', result);
@@ -169,75 +163,22 @@ function BookLookupCard({
       </p>
 
       {/* Input row */}
-      <div className="flex gap-2" style={{ position: 'relative' }}>
-        <div style={{ flex: 1, position: 'relative' }}>
-          <Input
-            autoFocus
-            placeholder="ISBN or title / author…"
-            value={input}
-            onChange={(e) => {
-              setInput(e.target.value);
-              setConfirmedResult(null);
-              setIsbnError('');
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && isbnInput) handleIsbnLookup();
-              if (e.key === 'Escape') setShowDropdown(false);
-            }}
-            onFocus={() => { if (searchResults.length > 0) setShowDropdown(true); }}
-            onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-          />
-
-          {/* Type-ahead dropdown */}
-          {showDropdown && searchResults.length > 0 && (
-            <div
-              className="absolute left-0 right-0 bg-paper border border-rule z-50 overflow-y-auto"
-              style={{ top: '100%', marginTop: 4, borderRadius: 6, maxHeight: 300, boxShadow: '0 4px 16px rgba(0,0,0,0.10)' }}
-            >
-              {searchResults.map((result, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  className="flex items-start gap-3 w-full text-left hover:bg-cream-warm transition-colors"
-                  style={{
-                    padding: '10px 12px',
-                    borderBottom: i < searchResults.length - 1 ? '1px solid var(--color-rule-soft)' : undefined,
-                  }}
-                  onMouseDown={(e) => { e.preventDefault(); handleSelectResult(result); }}
-                >
-                  {result.coverImageUrl ? (
-                    <img
-                      src={result.coverImageUrl}
-                      referrerPolicy="no-referrer"
-                      alt=""
-                      className="object-cover rounded-sm flex-shrink-0"
-                      style={{ width: 30, height: 44 }}
-                    />
-                  ) : (
-                    <div className="m-cover-ph rounded-sm flex-shrink-0" style={{ width: 30, height: 44, fontSize: 9 }}>
-                      cover
-                    </div>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="font-serif font-medium text-ink truncate" style={{ fontSize: 14 }}>
-                      {formatBookTitle(result.title ?? '')}
-                    </div>
-                    <div className="font-serif italic text-ink-mute truncate" style={{ fontSize: 12 }}>
-                      {result.author}
-                    </div>
-                    {(result.publisher || result.publicationDate) && (
-                      <div className="t-meta truncate" style={{ marginTop: 2 }}>
-                        {[result.publisher, result.publicationDate ? new Date(result.publicationDate).getFullYear() : null]
-                          .filter(Boolean).join(' · ')}
-                      </div>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
+      <div className="flex gap-2">
+        <Input
+          autoFocus
+          placeholder="ISBN or title / author…"
+          value={input}
+          onChange={(e) => {
+            setInput(e.target.value);
+            setConfirmedResult(null);
+            setIsbnError('');
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && isbnInput) handleIsbnLookup();
+            if (e.key === 'Escape') setSearchResults([]);
+          }}
+          style={{ flex: 1 }}
+        />
         {isbnInput && (
           <Button onClick={handleIsbnLookup} disabled={lookupMutation.isPending}>
             {lookupMutation.isPending
@@ -252,6 +193,52 @@ function BookLookupCard({
           </div>
         )}
       </div>
+
+      {/* Search results — inline so overflow-y-auto containers don't clip them */}
+      {searchResults.length > 0 && (
+        <div className="border border-rule overflow-hidden" style={{ borderRadius: 6, marginTop: 8 }}>
+          {searchResults.map((result, i) => (
+            <button
+              key={i}
+              type="button"
+              className="flex items-start gap-3 w-full text-left hover:bg-cream-warm transition-colors"
+              style={{
+                padding: '10px 12px',
+                borderBottom: i < searchResults.length - 1 ? '1px solid var(--color-rule-soft)' : undefined,
+              }}
+              onClick={() => handleSelectResult(result)}
+            >
+              {result.coverImageUrl ? (
+                <img
+                  src={result.coverImageUrl}
+                  referrerPolicy="no-referrer"
+                  alt=""
+                  className="object-cover rounded-sm flex-shrink-0"
+                  style={{ width: 30, height: 44 }}
+                />
+              ) : (
+                <div className="m-cover-ph rounded-sm flex-shrink-0" style={{ width: 30, height: 44, fontSize: 9 }}>
+                  cover
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="font-serif font-medium text-ink truncate" style={{ fontSize: 14 }}>
+                  {formatBookTitle(result.title ?? '')}
+                </div>
+                <div className="font-serif italic text-ink-mute truncate" style={{ fontSize: 12 }}>
+                  {result.author}
+                </div>
+                {(result.publisher || result.publicationDate) && (
+                  <div className="t-meta truncate" style={{ marginTop: 2 }}>
+                    {[result.publisher, result.publicationDate ? new Date(result.publicationDate).getFullYear() : null]
+                      .filter(Boolean).join(' · ')}
+                  </div>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* ISBN error */}
       {isbnError && (
@@ -300,6 +287,15 @@ function BookLookupCard({
   );
 }
 
+function haikuErrorMessage(err: unknown): string {
+  const response = (err as { response?: { data?: { message?: string }; status?: number } })?.response;
+  if (response?.data?.message) return response.data.message;
+  if (response?.status === 503) {
+    return 'Haiku generation is not configured on the server. Set HaikuGeneration:Provider to Ollama or Anthropic.';
+  }
+  return 'Could not generate a haiku. Check that your model is running and try again.';
+}
+
 export function BookForm({
   bookId,
   coverSourceUrl,
@@ -311,6 +307,12 @@ export function BookForm({
   isPending,
 }: Props) {
   const [showForm, setShowForm] = useState(!!defaultValues?.title);
+  const [haikuModalOpen, setHaikuModalOpen] = useState(false);
+  const [haikuModalMode, setHaikuModalMode] = useState<'create' | 'edit'>('create');
+  const [generatedHaiku, setGeneratedHaiku] = useState('');
+  const [pendingSubmit, setPendingSubmit] = useState<CreateBookForm | null>(null);
+  const [isGeneratingHaiku, setIsGeneratingHaiku] = useState(false);
+  const isEditMode = !!bookId || !!defaultValues?.title;
 
   const { register, handleSubmit, reset, getValues, watch, setValue, formState: { errors } } = useForm<CreateBookForm>({
     resolver: zodResolver(createBookSchema),
@@ -324,6 +326,100 @@ export function BookForm({
     });
     setShowForm(true);
   };
+
+  const requestHaiku = async (title: string, author: string, summary?: string) => {
+    setIsGeneratingHaiku(true);
+    try {
+      const haiku = await libraryApi.generateHaiku({ title, author, summary });
+      setGeneratedHaiku(haiku);
+      return haiku;
+    } finally {
+      setIsGeneratingHaiku(false);
+    }
+  };
+
+  const finalizeSubmit = async (data: CreateBookForm, haiku?: string) => {
+    await onSubmit({
+      ...data,
+      ...(haiku ? { haiku } : {}),
+    });
+    setHaikuModalOpen(false);
+    setPendingSubmit(null);
+    setGeneratedHaiku('');
+  };
+
+  const handleFormSubmit = async (data: CreateBookForm) => {
+    if (isEditMode) {
+      await finalizeSubmit(data, data.haiku);
+      return;
+    }
+
+    setPendingSubmit(data);
+    setHaikuModalMode('create');
+    setHaikuModalOpen(true);
+    try {
+      await requestHaiku(data.title, data.author, data.summary);
+    } catch (err) {
+      setHaikuModalOpen(false);
+      setPendingSubmit(null);
+      toast.error(haikuErrorMessage(err));
+    }
+  };
+
+  const handleGenerateHaikuClick = async () => {
+    const values = getValues();
+    if (!values.title?.trim() || !values.author?.trim()) {
+      toast.error('Enter title and author before generating a haiku.');
+      return;
+    }
+
+    setPendingSubmit(null);
+    setHaikuModalMode('edit');
+    setHaikuModalOpen(true);
+    try {
+      await requestHaiku(values.title, values.author, values.summary);
+    } catch (err) {
+      setHaikuModalOpen(false);
+      toast.error(haikuErrorMessage(err));
+    }
+  };
+
+  const handleHaikuConfirm = async () => {
+    try {
+      if (haikuModalMode === 'create' && pendingSubmit) {
+        await finalizeSubmit(pendingSubmit, generatedHaiku);
+        return;
+      }
+      setValue('haiku', generatedHaiku, { shouldDirty: true });
+      setHaikuModalOpen(false);
+      setGeneratedHaiku('');
+      toast.success('Haiku added — save to keep it.');
+    } catch {
+      toast.error('Failed to save book');
+    }
+  };
+
+  const handleHaikuRegenerate = async () => {
+    const source = pendingSubmit ?? getValues();
+    try {
+      await requestHaiku(source.title, source.author, source.summary);
+    } catch (err) {
+      toast.error(haikuErrorMessage(err));
+    }
+  };
+
+  const handleHaikuCancel = () => {
+    setHaikuModalOpen(false);
+    setPendingSubmit(null);
+    setGeneratedHaiku('');
+  };
+
+  const handleSaveWithoutHaiku = async () => {
+    if (!pendingSubmit) return;
+    await finalizeSubmit(pendingSubmit);
+  };
+
+  const haikuValue = watch('haiku');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
@@ -344,7 +440,7 @@ export function BookForm({
       {showForm && (
         <form
           onSubmit={handleSubmit((data) =>
-            onSubmit({
+            handleFormSubmit({
               ...data,
               isbn13: normalizeIsbn(data.isbn13) ?? data.isbn13,
               isbn10: data.isbn10?.trim()
@@ -427,6 +523,18 @@ export function BookForm({
             />
           </Field>
 
+          {haikuValue && (
+            <div className="border border-rule-soft bg-cream-warm" style={{ borderRadius: 6, padding: '14px 16px' }}>
+              <p className="t-eyebrow" style={{ marginBottom: 8 }}>Haiku</p>
+              {haikuValue.split('\n').filter(Boolean).map((line, i) => (
+                <p key={i} className="font-serif text-ink" style={{ fontSize: 16, lineHeight: 1.5 }}>
+                  {line}
+                </p>
+              ))}
+            </div>
+          )}
+          <input type="hidden" {...register('haiku')} />
+
           {bookId ? (
             <>
               <CoverImageUpload
@@ -449,25 +557,56 @@ export function BookForm({
 
           {/* Footer actions */}
           <div
-            className="flex justify-end gap-3 border-t border-rule-soft"
+            className="flex flex-wrap items-center justify-between gap-3 border-t border-rule-soft"
             style={{ paddingTop: 16, marginTop: 6 }}
           >
-            {onCancel && (
-              <Button type="button" variant="ghost" onClick={onCancel} disabled={isPending}>
-                Cancel
+            <div>
+              {isEditMode && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleGenerateHaikuClick}
+                  disabled={isPending || isGeneratingHaiku}
+                >
+                  {isGeneratingHaiku ? (
+                    <Loader2 style={{ width: 15, height: 15 }} className="animate-spin" />
+                  ) : (
+                    <Sparkles style={{ width: 15, height: 15 }} />
+                  )}
+                  Generate haiku
+                </Button>
+              )}
+            </div>
+            <div className="flex justify-end gap-3">
+              {onCancel && (
+                <Button type="button" variant="ghost" onClick={onCancel} disabled={isPending}>
+                  Cancel
+                </Button>
+              )}
+              {!defaultValues?.title && !onCancel && (
+                <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
+                  Back
+                </Button>
+              )}
+              <Button type="submit" disabled={isPending || isGeneratingHaiku}>
+                {isPending ? 'Saving…' : submitLabel}
               </Button>
-            )}
-            {!defaultValues?.title && !onCancel && (
-              <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
-                Back
-              </Button>
-            )}
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Saving…' : submitLabel}
-            </Button>
+            </div>
           </div>
         </form>
       )}
+
+      <HaikuConfirmModal
+        open={haikuModalOpen}
+        haiku={generatedHaiku}
+        isGenerating={isGeneratingHaiku}
+        isSaving={isPending}
+        mode={haikuModalMode}
+        onConfirm={handleHaikuConfirm}
+        onRegenerate={handleHaikuRegenerate}
+        onCancel={handleHaikuCancel}
+        onSaveWithoutHaiku={haikuModalMode === 'create' ? handleSaveWithoutHaiku : undefined}
+      />
     </div>
   );
 }

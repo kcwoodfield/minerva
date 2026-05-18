@@ -23,6 +23,7 @@ public record CreateBookRequest(
     string? Edition,
     string? Translator,
     string? Summary,
+    string? Haiku,
     List<string>? Tags,
     string? CoverImageUrl);
 

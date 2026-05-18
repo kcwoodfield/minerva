@@ -20,6 +20,7 @@ export interface Book {
   edition?: string;
   translator?: string;
   summary?: string;
+  haiku?: string;
   tags: string[];
   coverImageUrl?: string;
   coverSourceUrl?: string;
@@ -45,6 +46,7 @@ export interface CreateBookDto {
   edition?: string;
   translator?: string;
   summary?: string;
+  haiku?: string;
   tags?: string[];
   coverImageUrl?: string;
 }
@@ -106,6 +108,7 @@ export const createBookSchema = z.object({
   edition: z.string().optional(),
   translator: z.string().optional(),
   summary: z.string().optional(),
+  haiku: z.string().max(500).optional(),
   coverImageUrl: z.string().optional(),
 });
 

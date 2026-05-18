@@ -113,6 +113,24 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
                 )}
               </div>
 
+              {book.haiku && (
+                <div
+                  className="border border-rule-soft bg-paper text-center"
+                  style={{ borderRadius: 6, padding: '20px 18px' }}
+                >
+                  <p className="t-eyebrow" style={{ marginBottom: 10 }}>Haiku</p>
+                  {book.haiku.split('\n').filter(Boolean).map((line, i) => (
+                    <p
+                      key={i}
+                      className="font-serif text-ink"
+                      style={{ fontSize: 17, lineHeight: 1.55, letterSpacing: '0.01em' }}
+                    >
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              )}
+
               {book.summary && (
                 <p
                   className="font-serif text-ink-soft border-l-2 border-rule pl-4"

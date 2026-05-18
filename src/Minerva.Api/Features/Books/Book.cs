@@ -20,6 +20,8 @@ public class Book
     public string? Edition { get; set; }
     public string? Translator { get; set; }
     public string? Summary { get; set; }
+    /// <summary>AI-generated haiku for this volume (optional).</summary>
+    public string? Haiku { get; set; }
     public List<string> Tags { get; set; } = new();
     public string? CoverImageUrl { get; set; }
     /// <summary>Original cover URL from ISBN lookup (used when upload/override fails to load).</summary>

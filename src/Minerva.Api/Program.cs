@@ -5,6 +5,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Minerva.Api.Features.Books.Services;
+using Minerva.Api.Features.Books.Services.Haiku;
 using Minerva.Api.Infrastructure.Data;
 using Minerva.Api.Infrastructure.Json;
 using Minerva.Api.Infrastructure.Storage;
@@ -45,6 +46,18 @@ builder.Services.AddHttpClient("CoverProxy", client =>
 builder.Services.AddScoped<GoogleBooksService>();
 builder.Services.AddScoped<OpenLibraryBooksService>();
 builder.Services.AddScoped<IBookLookupService, CompositeBookLookupService>();
+
+builder.Services.Configure<HaikuGenerationOptions>(
+    builder.Configuration.GetSection(HaikuGenerationOptions.SectionName));
+var haikuOptions = builder.Configuration
+    .GetSection(HaikuGenerationOptions.SectionName)
+    .Get<HaikuGenerationOptions>() ?? new HaikuGenerationOptions();
+builder.Services.AddHttpClient(HaikuHttpClient.Name, client =>
+{
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("Minerva/1.0 (personal library app; haiku-generation)");
+    client.Timeout = TimeSpan.FromSeconds(haikuOptions.TimeoutSeconds);
+});
+builder.Services.AddScoped<IHaikuGenerationService, HaikuGenerationService>();
 
 var repoRoot = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..", ".."));
 var imagesPath = builder.Configuration["BookImages:RootPath"]

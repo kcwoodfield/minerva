@@ -19,6 +19,7 @@ public record BookDto(
     string? Edition,
     string? Translator,
     string? Summary,
+    string? Haiku,
     List<string> Tags,
     string? CoverImageUrl,
     string? CoverSourceUrl,
@@ -30,6 +31,6 @@ public record BookDto(
         book.Pages, book.Rating, book.Review, book.Completed,
         book.Publisher, book.PublicationDate, book.Genre, book.SubGenre,
         book.Language, book.Format, book.Edition, book.Translator,
-        book.Summary, book.Tags, book.CoverImageUrl, book.CoverSourceUrl,
+        book.Summary, book.Haiku, book.Tags, book.CoverImageUrl, book.CoverSourceUrl,
         book.DateAdded, book.Timestamp);
 }

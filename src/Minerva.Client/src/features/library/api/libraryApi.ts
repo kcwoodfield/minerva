@@ -47,6 +47,15 @@ export const libraryApi = {
     return data;
   },
 
+  generateHaiku: async (input: {
+    title: string;
+    author: string;
+    summary?: string;
+  }): Promise<string> => {
+    const { data } = await apiClient.post<{ haiku: string }>('/books/generate-haiku', input);
+    return data.haiku;
+  },
+
   lookupByISBN: async (isbn: string): Promise<BookMetadata> => {
     const normalized = normalizeIsbn(isbn);
     if (!normalized) {

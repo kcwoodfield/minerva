@@ -20,6 +20,7 @@ Defined in `src/Minerva.Api/Features/Books/Book.cs` and exposed as `BookDto` / c
 | `Genre` / `SubGenre` | string? | |
 | `Language` / `Format` / `Edition` / `Translator` | string? | |
 | `Summary` | string? | Plain text; often from ISBN lookup |
+| `Haiku` | string? | Optional AI-generated haiku (Ollama or Anthropic) |
 | `Tags` | string[] | JSON column |
 | `CoverImageUrl` | string? | Current cover; managed upload path or external URL |
 | `CoverSourceUrl` | string? | Original external URL from ISBN lookup; preserved when a file is uploaded so the upload can be reverted |

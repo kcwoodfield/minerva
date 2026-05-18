@@ -42,6 +42,7 @@ public class CreateBookHandler(MinervaDbContext db, BookImageStorage storage, IH
             Edition = req.Edition,
             Translator = req.Translator,
             Summary = req.Summary,
+            Haiku = req.Haiku,
             Tags = req.Tags ?? [],
             CoverImageUrl = coverImageUrl,
             CoverSourceUrl = req.CoverImageUrl,

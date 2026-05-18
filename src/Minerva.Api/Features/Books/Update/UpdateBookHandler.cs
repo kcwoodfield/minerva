@@ -34,6 +34,7 @@ public class UpdateBookHandler(MinervaDbContext db, BookImageStorage storage, IH
         if (req.Edition is not null) book.Edition = req.Edition;
         if (req.Translator is not null) book.Translator = req.Translator;
         if (req.Summary is not null) book.Summary = req.Summary;
+        if (req.Haiku is not null) book.Haiku = req.Haiku;
         if (req.Tags is not null) book.Tags = req.Tags;
         if (req.CoverImageUrl is not null)
         {
