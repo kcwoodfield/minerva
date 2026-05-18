@@ -1,6 +1,6 @@
 namespace Minerva.Api.Features.Books.Services;
 
-/// <summary>Tries Google Books first, then Open Library (no API key required).</summary>
+/// <summary>Queries Google Books and Open Library in parallel and merges the best fields from each.</summary>
 public class CompositeBookLookupService(
     GoogleBooksService googleBooks,
     OpenLibraryBooksService openLibrary) : IBookLookupService
@@ -10,9 +10,11 @@ public class CompositeBookLookupService(
         var normalized = IsbnHelper.Normalize(isbn);
         if (normalized is null) return null;
 
-        var fromGoogle = await googleBooks.LookupByISBN(normalized);
-        if (fromGoogle is not null) return fromGoogle;
+        var googleTask = googleBooks.LookupByISBN(normalized);
+        var openLibraryTask = openLibrary.LookupByISBN(normalized);
 
-        return await openLibrary.LookupByISBN(normalized);
+        await Task.WhenAll(googleTask, openLibraryTask);
+
+        return BookMetadataMerger.Merge(await googleTask, await openLibraryTask);
     }
 }

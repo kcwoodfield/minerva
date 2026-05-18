@@ -44,7 +44,8 @@ public class GoogleBooksService(IHttpClientFactory httpClientFactory, IConfigura
                 pubDate = parsed;
 
             int? pageCount = info.TryGetProperty("pageCount", out var pc) ? pc.GetInt32() : null;
-            string? description = info.TryGetProperty("description", out var desc) ? desc.GetString() : null;
+            var rawDescription = info.TryGetProperty("description", out var desc) ? desc.GetString() : null;
+            string? description = DescriptionSanitizer.Sanitize(rawDescription);
 
             string? genre = null;
             if (info.TryGetProperty("categories", out var cats) && cats.GetArrayLength() > 0)

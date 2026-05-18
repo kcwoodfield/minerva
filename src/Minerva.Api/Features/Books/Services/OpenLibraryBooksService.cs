@@ -43,7 +43,9 @@ public class OpenLibraryBooksService(
             if (!doc.RootElement.TryGetProperty(key, out var book))
                 return null;
 
-            return MapFromBooksApi(book);
+            var workKey = ExtractWorkKey(book);
+            var mapped = MapFromBooksApi(book);
+            return mapped is null ? null : await EnrichDescriptionAsync(client, mapped, workKey);
         }
         catch (Exception ex)
         {
@@ -62,6 +64,7 @@ public class OpenLibraryBooksService(
 
             using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
             var root = doc.RootElement;
+            var workKey = ExtractWorkKey(root);
 
             var title = root.TryGetProperty("title", out var t) ? t.GetString() : null;
 
@@ -104,7 +107,8 @@ public class OpenLibraryBooksService(
             if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(author))
                 return null;
 
-            return new BookMetadata(title, author, publisher, pubDate, pageCount, null, null, null, coverUrl);
+            var meta = new BookMetadata(title, author, publisher, pubDate, pageCount, null, null, null, coverUrl);
+            return await EnrichDescriptionAsync(client, meta, workKey);
         }
         catch (Exception ex)
         {
@@ -164,10 +168,37 @@ public class OpenLibraryBooksService(
             if (doc0.TryGetProperty("cover_i", out var coverId))
                 coverUrl = $"https://covers.openlibrary.org/b/id/{coverId.GetInt64()}-M.jpg";
 
+            string? genre = null;
+            if (doc0.TryGetProperty("subject", out var subjects) && subjects.GetArrayLength() > 0)
+                genre = subjects[0].GetString();
+
+            string? workKey = null;
+            if (doc0.TryGetProperty("key", out var keyEl))
+            {
+                var key = keyEl.GetString();
+                if (!string.IsNullOrWhiteSpace(key) && key.StartsWith("/works/", StringComparison.Ordinal))
+                    workKey = key;
+            }
+
+            string? description = null;
+            if (doc0.TryGetProperty("first_sentence", out var firstSentence))
+            {
+                description = firstSentence.ValueKind switch
+                {
+                    JsonValueKind.String => firstSentence.GetString(),
+                    JsonValueKind.Array when firstSentence.GetArrayLength() > 0 =>
+                        firstSentence[0].GetString(),
+                    _ => null,
+                };
+                description = DescriptionSanitizer.Sanitize(description);
+            }
+
             if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(author))
                 return null;
 
-            return new BookMetadata(title, author, publisher, pubDate, pageCount, null, null, null, coverUrl);
+            var meta = new BookMetadata(
+                title, author, publisher, pubDate, pageCount, description, genre, null, coverUrl);
+            return await EnrichDescriptionAsync(client, meta, workKey);
         }
         catch (Exception ex)
         {
@@ -226,5 +257,77 @@ public class OpenLibraryBooksService(
             return null;
 
         return new BookMetadata(title, author, publisher, pubDate, pageCount, null, genre, null, coverUrl);
+    }
+
+    private static string? ExtractWorkKey(JsonElement element)
+    {
+        if (!element.TryGetProperty("works", out var works) || works.GetArrayLength() == 0)
+            return null;
+
+        var first = works[0];
+        if (first.ValueKind == JsonValueKind.Object && first.TryGetProperty("key", out var keyEl))
+            return keyEl.GetString();
+
+        return null;
+    }
+
+    private async Task<BookMetadata> EnrichDescriptionAsync(
+        HttpClient client,
+        BookMetadata meta,
+        string? workKey)
+    {
+        if (!string.IsNullOrWhiteSpace(meta.Description)) return meta;
+
+        var fromWork = await FetchWorkDescriptionAsync(client, workKey);
+        if (fromWork is null) return meta;
+
+        return meta with { Description = fromWork };
+    }
+
+    private static async Task<string?> FetchWorkDescriptionAsync(HttpClient client, string? workKey)
+    {
+        if (string.IsNullOrWhiteSpace(workKey)) return null;
+
+        try
+        {
+            var path = workKey.TrimStart('/');
+            var response = await client.GetAsync($"https://openlibrary.org/{path}.json");
+            if (!response.IsSuccessStatusCode) return null;
+
+            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var root = doc.RootElement;
+
+            var description = ParseWorkDescriptionProperty(root);
+            if (description is not null) return DescriptionSanitizer.Sanitize(description);
+
+            if (root.TryGetProperty("first_sentence", out var firstSentence))
+            {
+                var sentence = firstSentence.ValueKind switch
+                {
+                    JsonValueKind.String => firstSentence.GetString(),
+                    JsonValueKind.Object when firstSentence.TryGetProperty("value", out var v) => v.GetString(),
+                    _ => null,
+                };
+                return DescriptionSanitizer.Sanitize(sentence);
+            }
+
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string? ParseWorkDescriptionProperty(JsonElement workRoot)
+    {
+        if (!workRoot.TryGetProperty("description", out var descEl)) return null;
+
+        return descEl.ValueKind switch
+        {
+            JsonValueKind.String => descEl.GetString(),
+            JsonValueKind.Object when descEl.TryGetProperty("value", out var val) => val.GetString(),
+            _ => null,
+        };
     }
 }
