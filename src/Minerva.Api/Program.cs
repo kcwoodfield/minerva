@@ -64,11 +64,19 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
-app.UseStaticFiles(new StaticFileOptions
+
+static void MapCoverStaticFiles(WebApplication app, string root, string requestPath)
 {
-    FileProvider = new PhysicalFileProvider(imagesPath),
-    RequestPath = "/assets/images",
-});
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(root),
+        RequestPath = requestPath,
+    });
+}
+
+MapCoverStaticFiles(app, imagesPath, "/uploads/covers");
+MapCoverStaticFiles(app, imagesPath, "/assets/images"); // legacy URLs
+
 app.MapCarter();
 
 app.Run();

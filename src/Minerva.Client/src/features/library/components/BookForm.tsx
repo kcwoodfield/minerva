@@ -153,6 +153,7 @@ function ISBNLookupCard({
             ? (
               <img
                 src={result.coverImageUrl}
+                referrerPolicy="no-referrer"
                 alt={formatBookTitle(result.title ?? '')}
                 className="object-cover rounded-sm shadow-minerva-cover flex-shrink-0"
                 style={{ width: 48, height: 70 }}

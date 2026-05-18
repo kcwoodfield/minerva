@@ -12,7 +12,7 @@ import { StarRating } from '@/components/ui/star-rating';
 import { StatusBadge } from '@/components/ui/status-badge';
 import type { Book } from '../types/library.types';
 import { formatBookTitle } from '../lib/formatBookTitle';
-import { resolveCoverSrc } from '../lib/resolveCoverSrc';
+import { BookCoverImage } from './BookCoverImage';
 
 interface Props {
   books: Book[];
@@ -34,24 +34,14 @@ function DetailField({ label, children }: { label: string; children: React.React
 }
 
 function BookCover({ book }: { book: Book }) {
-  const src = resolveCoverSrc(book.coverImageUrl, book.timestamp);
-  if (src) {
-    return (
-      <img
-        src={src}
-        alt=""
-        className="object-cover rounded-sm shadow-minerva-cover w-full"
-        style={{ maxWidth: 200, aspectRatio: '2/3' }}
-      />
-    );
-  }
   return (
-    <div
-      className="m-cover-ph rounded-sm shadow-minerva-cover flex items-center justify-center"
-      style={{ width: 200, aspectRatio: '2/3' }}
-    >
-      cover
-    </div>
+    <BookCoverImage
+      coverImageUrl={book.coverImageUrl}
+      cacheKey={book.timestamp}
+      className="object-cover rounded-sm shadow-minerva-cover w-full"
+      placeholderClassName="rounded-sm shadow-minerva-cover flex items-center justify-center"
+      style={{ maxWidth: 200, aspectRatio: '2/3', width: 200 }}
+    />
   );
 }
 

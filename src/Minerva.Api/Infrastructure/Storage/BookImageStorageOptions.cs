@@ -4,6 +4,6 @@ public class BookImageStorageOptions
 {
     public const string SectionName = "BookImages";
     public string RootPath { get; set; } = string.Empty;
-    public string PublicPathPrefix { get; set; } = "/assets/images";
+    public string PublicPathPrefix { get; set; } = "/uploads/covers";
     public long MaxBytes { get; set; } = 5 * 1024 * 1024;
 }

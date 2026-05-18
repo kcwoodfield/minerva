@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { ImagePlus, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDeleteCover, useUploadCover } from '../hooks/useLibrary';
-import { resolveCoverSrc } from '../lib/resolveCoverSrc';
+import { isLocalCoverUrl, resolveCoverSrc } from '../lib/resolveCoverSrc';
 
 interface Props {
   bookId: string;
@@ -19,7 +19,7 @@ export function CoverImageUpload({ bookId, coverUrl, cacheKey, onCoverChange, di
   const deleteMutation = useDeleteCover();
 
   const displaySrc = localPreview ?? resolveCoverSrc(coverUrl, cacheKey);
-  const isUploaded = coverUrl?.startsWith('/assets/images/');
+  const isUploaded = isLocalCoverUrl(coverUrl);
   const busy = uploadMutation.isPending || deleteMutation.isPending;
 
   const handleFile = async (file: File) => {
@@ -55,6 +55,7 @@ export function CoverImageUpload({ bookId, coverUrl, cacheKey, onCoverChange, di
             <img
               src={displaySrc}
               alt=""
+              referrerPolicy="no-referrer"
               className="h-full w-full object-cover"
             />
           ) : (

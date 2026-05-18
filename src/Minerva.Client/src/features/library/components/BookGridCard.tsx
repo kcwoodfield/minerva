@@ -11,7 +11,7 @@ import {
 import type { Book } from '../types/library.types';
 import { BookPublishedYear } from './BookPublishedYear';
 import { BookTitle } from './BookTitle';
-import { resolveCoverSrc } from '../lib/resolveCoverSrc';
+import { BookCoverImage } from './BookCoverImage';
 
 interface Props {
   book: Book;
@@ -41,19 +41,12 @@ export function BookGridCard({ book, onSelect, onEdit, onDelete }: Props) {
           className="flex w-full items-center justify-center overflow-hidden bg-ink/5"
           style={{ aspectRatio: '2/3', maxHeight: 220 }}
         >
-          {resolveCoverSrc(book.coverImageUrl, book.timestamp) ? (
-            <img
-              src={resolveCoverSrc(book.coverImageUrl, book.timestamp)}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="h-full w-full object-contain"
-            />
-          ) : (
-            <div className="m-cover-ph flex h-full w-full items-center justify-center">
-              cover
-            </div>
-          )}
+          <BookCoverImage
+            coverImageUrl={book.coverImageUrl}
+            cacheKey={book.timestamp}
+            className="h-full w-full object-contain"
+            placeholderClassName="flex h-full w-full items-center justify-center"
+          />
         </div>
         <div className="absolute top-2 right-2" onClick={(e) => e.stopPropagation()}>
           <DropdownMenu>

@@ -19,14 +19,20 @@ public class BookImageStorage(BookImageStorageOptions options)
     public string RootPath => options.RootPath;
     public string PublicPathPrefix => options.PublicPathPrefix.TrimEnd('/');
 
-    public bool IsManagedUrl(string? url) =>
-        !string.IsNullOrWhiteSpace(url)
-        && url.StartsWith($"{PublicPathPrefix}/", StringComparison.OrdinalIgnoreCase);
+    private static readonly string[] ManagedPrefixes = ["/uploads/covers/", "/assets/images/"];
+
+    public bool IsManagedUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return false;
+        return url.StartsWith($"{PublicPathPrefix}/", StringComparison.OrdinalIgnoreCase)
+            || ManagedPrefixes.Any(p => url.StartsWith(p, StringComparison.OrdinalIgnoreCase));
+    }
 
     public string? GetLocalFileName(string? url)
     {
         if (!IsManagedUrl(url)) return null;
-        return Path.GetFileName(url);
+        var path = url.Split('?', 2)[0];
+        return Path.GetFileName(path);
     }
 
     public async Task<string> SaveAsync(Guid bookId, IFormFile file, CancellationToken ct)

@@ -14,7 +14,7 @@ import type { Book } from '../types/library.types';
 import { BookPublishedYear } from './BookPublishedYear';
 import { BookTitle } from './BookTitle';
 import { formatBookTitle } from '../lib/formatBookTitle';
-import { resolveCoverSrc } from '../lib/resolveCoverSrc';
+import { BookCoverImage } from './BookCoverImage';
 
 interface Props {
   book: Book;
@@ -24,26 +24,15 @@ interface Props {
 }
 
 function CoverCell({ url, title, cacheKey }: { url?: string; title: string; cacheKey?: string }) {
-  const src = resolveCoverSrc(url, cacheKey);
-  if (src) {
-    return (
-      <img
-        src={src}
-        alt={formatBookTitle(title)}
-        loading="lazy"
-        decoding="async"
-        className="object-cover rounded-sm shadow-minerva-cover"
-        style={{ width: 36, height: 52, flexShrink: 0 }}
-      />
-    );
-  }
   return (
-    <div
-      className="m-cover-ph rounded-sm shadow-minerva-cover"
+    <BookCoverImage
+      coverImageUrl={url}
+      cacheKey={cacheKey}
+      alt={formatBookTitle(title)}
+      className="object-cover rounded-sm shadow-minerva-cover"
+      placeholderClassName="rounded-sm shadow-minerva-cover"
       style={{ width: 36, height: 52, flexShrink: 0 }}
-    >
-      cover
-    </div>
+    />
   );
 }
 
