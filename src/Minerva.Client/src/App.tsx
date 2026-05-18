@@ -10,7 +10,7 @@ function LibraryContent() {
     <div className="min-h-screen bg-cream">
       <header className="border-b border-rule-soft bg-cream">
         <div className="flex items-center justify-between px-page-x py-5">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Logo size="lg" />
             <div>
               <h1

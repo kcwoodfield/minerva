@@ -105,23 +105,22 @@ public class CoverProxyModule : ICarterModule
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
-                request.Headers.TryAddWithoutValidation("User-Agent", "Minerva/1.0 (personal library app; cover-proxy)");
-
                 using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
                 if (response.StatusCode is not HttpStatusCode.OK) continue;
 
                 var contentType = response.Content.Headers.ContentType?.MediaType;
                 if (contentType is null || !contentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
-                    contentType = "image/jpeg";
+                    continue;
 
                 var bytes = await response.Content.ReadAsByteArrayAsync(ct);
                 if (bytes.Length == 0) continue;
 
                 return Results.File(bytes, contentType);
             }
-            catch (HttpRequestException)
+            catch (Exception ex) when (ex is HttpRequestException
+                || (ex is OperationCanceledException && !ct.IsCancellationRequested))
             {
-                // try next candidate
+                // network error or client-side timeout — try next candidate
             }
         }
 
