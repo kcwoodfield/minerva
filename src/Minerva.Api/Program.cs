@@ -3,9 +3,11 @@ using System.Text.Json.Serialization;
 using Carter;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Minerva.Api.Features.Books.Services;
 using Minerva.Api.Infrastructure.Data;
 using Minerva.Api.Infrastructure.Json;
+using Minerva.Api.Infrastructure.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +35,13 @@ builder.Services.AddScoped<GoogleBooksService>();
 builder.Services.AddScoped<OpenLibraryBooksService>();
 builder.Services.AddScoped<IBookLookupService, CompositeBookLookupService>();
 
+var repoRoot = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..", ".."));
+var imagesPath = builder.Configuration["BookImages:RootPath"]
+    ?? Path.Combine(repoRoot, "assets", "images");
+Directory.CreateDirectory(imagesPath);
+builder.Services.AddSingleton(new BookImageStorageOptions { RootPath = imagesPath });
+builder.Services.AddSingleton<BookImageStorage>();
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -55,6 +64,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(imagesPath),
+    RequestPath = "/assets/images",
+});
 app.MapCarter();
 
 app.Run();

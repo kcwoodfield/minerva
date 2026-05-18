@@ -105,6 +105,47 @@ export function useDeleteBook() {
   return { mutateAsync, isPending };
 }
 
+export function useUploadCover() {
+  const [isPending, setIsPending] = useState(false);
+
+  const mutateAsync = async ({ id, file }: { id: string; file: File }) => {
+    setIsPending(true);
+    try {
+      const result = await libraryApi.uploadCover(id, file);
+      toast.success('Cover image uploaded');
+      useLibraryStore.getState().bumpList();
+      return result;
+    } catch {
+      toast.error('Failed to upload cover image');
+      throw new Error('Failed to upload cover');
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  return { mutateAsync, isPending };
+}
+
+export function useDeleteCover() {
+  const [isPending, setIsPending] = useState(false);
+
+  const mutateAsync = async (id: string) => {
+    setIsPending(true);
+    try {
+      await libraryApi.deleteCover(id);
+      toast.success('Cover image removed');
+      useLibraryStore.getState().bumpList();
+    } catch {
+      toast.error('Failed to remove cover image');
+      throw new Error('Failed to remove cover');
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  return { mutateAsync, isPending };
+}
+
 export function useLookupISBN() {
   const [isPending, setIsPending] = useState(false);
 

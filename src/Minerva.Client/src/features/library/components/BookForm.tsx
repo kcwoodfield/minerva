@@ -9,8 +9,11 @@ import { createBookSchema, type CreateBookForm, type BookMetadata } from '../typ
 import { BookTitle } from './BookTitle';
 import { formatBookTitle } from '../lib/formatBookTitle';
 import { useLookupISBN } from '../hooks/useLibrary';
+import { CoverImageUpload } from './CoverImageUpload';
 
 interface Props {
+  bookId?: string;
+  cacheKey?: string;
   defaultValues?: Partial<CreateBookForm>;
   onSubmit: (data: CreateBookForm) => Promise<void>;
   onCancel?: () => void;
@@ -188,10 +191,18 @@ function ISBNLookupCard({
   );
 }
 
-export function BookForm({ defaultValues, onSubmit, onCancel, submitLabel = 'Save Book', isPending }: Props) {
+export function BookForm({
+  bookId,
+  cacheKey,
+  defaultValues,
+  onSubmit,
+  onCancel,
+  submitLabel = 'Save Book',
+  isPending,
+}: Props) {
   const [showForm, setShowForm] = useState(!!defaultValues?.title);
 
-  const { register, handleSubmit, reset, getValues, formState: { errors } } = useForm<CreateBookForm>({
+  const { register, handleSubmit, reset, getValues, watch, setValue, formState: { errors } } = useForm<CreateBookForm>({
     resolver: zodResolver(createBookSchema),
     defaultValues: { title: '', author: '', isbn13: '', pages: 0, rating: 0, completed: 0, ...defaultValues },
   });
@@ -288,9 +299,24 @@ export function BookForm({ defaultValues, onSubmit, onCancel, submitLabel = 'Sav
             />
           </Field>
 
-          <Field label="Cover Image URL">
-            <Input {...register('coverImageUrl')} />
-          </Field>
+          {bookId ? (
+            <>
+              <CoverImageUpload
+                bookId={bookId}
+                coverUrl={watch('coverImageUrl')}
+                cacheKey={cacheKey}
+                onCoverChange={(url) => setValue('coverImageUrl', url ?? '', { shouldDirty: true })}
+                disabled={isPending}
+              />
+              <Field label="Cover image URL (optional)">
+                <Input {...register('coverImageUrl')} placeholder="https://… or leave blank" />
+              </Field>
+            </>
+          ) : (
+            <Field label="Cover Image URL">
+              <Input {...register('coverImageUrl')} />
+            </Field>
+          )}
 
           {/* Footer actions */}
           <div

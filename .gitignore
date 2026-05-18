@@ -8,6 +8,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Uploaded book cover images (keep directory via .gitkeep)
+assets/images/*
+!assets/images/.gitkeep
+
 # Production builds
 frontend/.next/
 frontend/out/

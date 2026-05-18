@@ -9,6 +9,7 @@ import type { Book } from '../types/library.types';
 import { BookPublishedYear } from './BookPublishedYear';
 import { BookTitle } from './BookTitle';
 import { formatBookTitle } from '../lib/formatBookTitle';
+import { resolveCoverSrc } from '../lib/resolveCoverSrc';
 
 interface Props {
   book: Book;
@@ -36,10 +37,10 @@ export function BookCard({ book, onSelect, onEdit, onDelete }: Props) {
       }}
     >
       {/* Cover */}
-      {book.coverImageUrl
+      {resolveCoverSrc(book.coverImageUrl, book.timestamp)
         ? (
           <img
-            src={book.coverImageUrl}
+            src={resolveCoverSrc(book.coverImageUrl, book.timestamp)}
             alt={formatBookTitle(book.title)}
             className="object-cover rounded-sm shadow-minerva-cover flex-shrink-0"
             style={{ width: 56, height: 84 }}

@@ -34,6 +34,19 @@ export const libraryApi = {
     await apiClient.delete(`/books/${id}`);
   },
 
+  uploadCover: async (id: string, file: File): Promise<{ url: string }> => {
+    const form = new FormData();
+    form.append('file', file);
+    const { data } = await apiClient.post<{ url: string }>(`/books/${id}/cover`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return data;
+  },
+
+  deleteCover: async (id: string): Promise<void> => {
+    await apiClient.delete(`/books/${id}/cover`);
+  },
+
   lookupByISBN: async (isbn: string): Promise<BookMetadata> => {
     const normalized = normalizeIsbn(isbn);
     if (!normalized) {

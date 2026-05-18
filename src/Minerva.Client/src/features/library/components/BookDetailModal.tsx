@@ -12,6 +12,7 @@ import { StarRating } from '@/components/ui/star-rating';
 import { StatusBadge } from '@/components/ui/status-badge';
 import type { Book } from '../types/library.types';
 import { formatBookTitle } from '../lib/formatBookTitle';
+import { resolveCoverSrc } from '../lib/resolveCoverSrc';
 
 interface Props {
   books: Book[];
@@ -33,10 +34,11 @@ function DetailField({ label, children }: { label: string; children: React.React
 }
 
 function BookCover({ book }: { book: Book }) {
-  if (book.coverImageUrl) {
+  const src = resolveCoverSrc(book.coverImageUrl, book.timestamp);
+  if (src) {
     return (
       <img
-        src={book.coverImageUrl}
+        src={src}
         alt=""
         className="object-cover rounded-sm shadow-minerva-cover w-full"
         style={{ maxWidth: 200, aspectRatio: '2/3' }}

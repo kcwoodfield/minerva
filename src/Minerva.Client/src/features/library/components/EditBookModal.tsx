@@ -48,6 +48,8 @@ export function EditBookModal({ book, onClose, onSaved }: Props) {
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {book && (
             <BookForm
+              bookId={book.id}
+              cacheKey={book.timestamp}
               defaultValues={bookToFormValues(book)}
               onSubmit={handleSubmit}
               onCancel={onClose}

@@ -14,6 +14,7 @@ import type { Book } from '../types/library.types';
 import { BookPublishedYear } from './BookPublishedYear';
 import { BookTitle } from './BookTitle';
 import { formatBookTitle } from '../lib/formatBookTitle';
+import { resolveCoverSrc } from '../lib/resolveCoverSrc';
 
 interface Props {
   book: Book;
@@ -22,11 +23,12 @@ interface Props {
   onDelete: (book: Book) => void;
 }
 
-function CoverCell({ url, title }: { url?: string; title: string }) {
-  if (url) {
+function CoverCell({ url, title, cacheKey }: { url?: string; title: string; cacheKey?: string }) {
+  const src = resolveCoverSrc(url, cacheKey);
+  if (src) {
     return (
       <img
-        src={url}
+        src={src}
         alt={formatBookTitle(title)}
         loading="lazy"
         decoding="async"
@@ -124,7 +126,7 @@ export function LibraryBookRow({ book, onSelect, onEdit, onDelete }: Props) {
       onClick={() => onSelect(book)}
     >
       <TableCell style={{ padding: '14px 16px' }}>
-        <CoverCell url={book.coverImageUrl} title={book.title} />
+        <CoverCell url={book.coverImageUrl} title={book.title} cacheKey={book.timestamp} />
       </TableCell>
       <TableCell style={{ padding: '14px 16px' }}>
         <div style={{ maxWidth: 280 }}>
