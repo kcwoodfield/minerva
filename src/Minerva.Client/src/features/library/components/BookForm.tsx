@@ -54,8 +54,10 @@ const STOP_WORDS = new Set([
 ]);
 
 function apiErrorMessage(err: unknown, fallback = 'Failed to save book'): string {
-  const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-  return msg ?? fallback;
+  const res = (err as { response?: { status?: number; data?: { message?: string } } })?.response;
+  if (res?.data?.message) return res.data.message;
+  if (res?.status === 409) return 'This book already exists in your library.';
+  return fallback;
 }
 
 function isIsbnMode(value: string): boolean {
