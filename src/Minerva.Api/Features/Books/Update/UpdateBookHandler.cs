@@ -29,7 +29,8 @@ public class UpdateBookHandler(MinervaDbContext db, BookImageStorage storage, IH
         if (req.PublicationDate is not null) book.PublicationDate = DateTimeUtc.Normalize(req.PublicationDate);
         if (req.Genre is not null) book.Genre = req.Genre;
         if (req.SubGenre is not null) book.SubGenre = req.SubGenre;
-        if (req.Language is not null) book.Language = req.Language;
+        if (req.Series is not null) book.Series = req.Series;
+        if (req.IsFiction is not null) book.IsFiction = req.IsFiction;
         if (req.Format is not null) book.Format = req.Format;
         if (req.Edition is not null) book.Edition = req.Edition;
         if (req.Translator is not null) book.Translator = req.Translator;

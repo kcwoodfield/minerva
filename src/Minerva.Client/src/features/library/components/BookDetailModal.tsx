@@ -153,9 +153,12 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
                 <DetailField label="Genre">
                   {[book.genre, book.subGenre].filter(Boolean).join(' · ') || undefined}
                 </DetailField>
+                <DetailField label="Series">{book.series}</DetailField>
+                <DetailField label="Fiction">
+                  {book.isFiction === true ? 'Fiction' : book.isFiction === false ? 'Non-Fiction' : undefined}
+                </DetailField>
                 <DetailField label="Format">{book.format}</DetailField>
                 <DetailField label="Pages">{book.pages ? `${book.pages} pp.` : undefined}</DetailField>
-                <DetailField label="Language">{book.language}</DetailField>
                 <DetailField label="Edition">{book.edition}</DetailField>
                 <DetailField label="Translator">{book.translator}</DetailField>
                 <DetailField label="Added">

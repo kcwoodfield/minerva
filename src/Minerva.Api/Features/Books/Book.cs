@@ -16,6 +16,8 @@ public class Book
     public string? Genre { get; set; }
     public string? SubGenre { get; set; }
     public string? Language { get; set; }
+    public string? Series { get; set; }
+    public bool? IsFiction { get; set; }
     public string? Format { get; set; }
     public string? Edition { get; set; }
     public string? Translator { get; set; }

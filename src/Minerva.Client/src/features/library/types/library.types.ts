@@ -15,7 +15,8 @@ export interface Book {
   publicationDate?: string;
   genre?: string;
   subGenre?: string;
-  language?: string;
+  series?: string;
+  isFiction?: boolean;
   format?: string;
   edition?: string;
   translator?: string;
@@ -41,7 +42,8 @@ export interface CreateBookDto {
   publicationDate?: string;
   genre?: string;
   subGenre?: string;
-  language?: string;
+  series?: string;
+  isFiction?: boolean;
   format?: string;
   edition?: string;
   translator?: string;
@@ -103,7 +105,8 @@ export const createBookSchema = z.object({
   ),
   genre: z.string().optional(),
   subGenre: z.string().optional(),
-  language: z.string().optional(),
+  series: z.string().optional(),
+  isFiction: z.boolean().optional(),
   format: z.string().optional(),
   edition: z.string().optional(),
   translator: z.string().optional(),

@@ -14,7 +14,8 @@ public record BookDto(
     DateTime? PublicationDate,
     string? Genre,
     string? SubGenre,
-    string? Language,
+    string? Series,
+    bool? IsFiction,
     string? Format,
     string? Edition,
     string? Translator,
@@ -30,7 +31,7 @@ public record BookDto(
         book.Id, book.Title, book.Author, book.Isbn13, book.Isbn10,
         book.Pages, book.Rating, book.Review, book.Completed,
         book.Publisher, book.PublicationDate, book.Genre, book.SubGenre,
-        book.Language, book.Format, book.Edition, book.Translator,
+        book.Series, book.IsFiction, book.Format, book.Edition, book.Translator,
         book.Summary, book.Haiku, book.Tags, book.CoverImageUrl, book.CoverSourceUrl,
         book.DateAdded, book.Timestamp);
 }
