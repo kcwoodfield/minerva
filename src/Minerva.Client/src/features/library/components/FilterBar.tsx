@@ -1,9 +1,6 @@
-import { useEffect, useState } from 'react';
 import { LayoutList, Grid3X3 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { useDebounce } from '@/hooks/use-debounce';
 import { useLibraryStore } from '../stores/libraryStore';
-import { useLibraryFilters, useLibrarySort, useLibraryView } from '../stores/librarySelectors';
+import { useLibrarySort, useLibraryView } from '../stores/librarySelectors';
 
 type StatusChip = { label: string; value: 'reading' | 'finished' | 'unread' | null };
 
@@ -23,56 +20,20 @@ const SORT_OPTIONS = [
 ];
 
 export function FilterBar() {
-  const filters = useLibraryFilters();
   const { sortBy, ascending } = useLibrarySort();
   const view = useLibraryView();
   const setFilters = useLibraryStore((s) => s.setFilters);
   const setSort = useLibraryStore((s) => s.setSort);
   const setView = useLibraryStore((s) => s.setView);
-
-  const [searchInput, setSearchInput] = useState(filters.search);
-  const debouncedSearch = useDebounce(searchInput, 300);
-
-  useEffect(() => {
-    if (debouncedSearch === filters.search) return;
-    setFilters({ search: debouncedSearch });
-  }, [debouncedSearch, filters.search, setFilters]);
-
-  const activeStatus = filters.status ?? null;
+  const activeStatus = useLibraryStore((s) => s.filters.status ?? null);
 
   return (
     <div
       className="flex items-center justify-between gap-4 border-b border-rule-soft"
       style={{ paddingBottom: 18, marginBottom: 0 }}
     >
-      {/* Left: search + status chips */}
+      {/* Left: status chips */}
       <div className="flex items-center gap-3 flex-wrap">
-        {/* Search */}
-        <div className="relative">
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="absolute pointer-events-none text-ink-faint"
-            style={{ left: 12, top: '50%', transform: 'translateY(-50%)' }}
-          >
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <Input
-            placeholder="Search title, author, or ISBN…"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            style={{ paddingLeft: 38, width: 240 }}
-          />
-        </div>
-
-        {/* Status chips */}
         <div className="flex items-center gap-1.5">
           {STATUS_CHIPS.map((chip) => {
             const active = activeStatus === chip.value;

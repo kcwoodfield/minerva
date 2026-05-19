@@ -1,7 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Logo } from '@/components/logo';
 import { Toaster } from '@/components/ui/sonner';
+import { Input } from '@/components/ui/input';
+import { useDebounce } from '@/hooks/use-debounce';
+import { useLibraryStore } from './features/library/stores/libraryStore';
+import { useLibraryFilters } from './features/library/stores/librarySelectors';
 import { AddBookDrawer } from './features/library/components/AddBookDrawer';
 import { FilterBar } from './features/library/components/FilterBar';
 import { LibraryTable } from './features/library/components/LibraryTable';
@@ -46,6 +50,58 @@ function NavLink({ label, page, current, onClick }: { label: string; page: Page;
   );
 }
 
+function HeaderSearch() {
+  const filters = useLibraryFilters();
+  const setFilters = useLibraryStore((s) => s.setFilters);
+  const [value, setValue] = useState(filters.search);
+  const debounced = useDebounce(value, 300);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (debounced === filters.search) return;
+    setFilters({ search: debounced });
+  }, [debounced, filters.search, setFilters]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  return (
+    <div className="relative w-full" style={{ maxWidth: 320 }}>
+      <svg
+        width="14" height="14" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+        className="absolute pointer-events-none text-ink-faint"
+        style={{ left: 12, top: '50%', transform: 'translateY(-50%)' }}
+      >
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <Input
+        ref={inputRef}
+        placeholder="Search…"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        style={{ paddingLeft: 36, paddingRight: 52 }}
+      />
+      <kbd
+        className="absolute pointer-events-none font-sans text-ink-faint"
+        style={{ right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, letterSpacing: '0.02em' }}
+      >
+        ⌘K
+      </kbd>
+    </div>
+  );
+}
+
 function App() {
   const [page, setPage] = useState<Page>(getPage);
   const [tagline] = useState(() => TAGLINES[Math.floor(Math.random() * TAGLINES.length)]);
@@ -64,7 +120,9 @@ function App() {
   return (
     <div className="min-h-screen bg-cream">
       <header className="border-b border-rule-soft bg-cream">
-        <div className="flex items-center justify-between px-page-x py-5">
+        <div className="grid items-center px-page-x py-5" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
+
+          {/* Left: logo + nav */}
           <div className="flex items-center gap-5">
             <a
               href="#"
@@ -92,7 +150,13 @@ function App() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-1">
+          {/* Center: search (library only) */}
+          <div className="flex justify-center">
+            {page === 'library' && <HeaderSearch />}
+          </div>
+
+          {/* Right: actions */}
+          <div className="flex items-center justify-end gap-1">
             <ThemeToggle />
             {page === 'library' && <AddBookDrawer />}
           </div>
