@@ -99,7 +99,7 @@ export function HaikuConfirmModal({
             </Button>
           )}
           <Button type="button" onClick={onConfirm} disabled={isSaving || isGenerating || !haiku.trim()}>
-            {isSaving ? 'Saving…' : mode === 'create' ? 'Save volume' : 'Use this haiku'}
+            {isSaving ? 'Saving…' : mode === 'create' ? 'Save book' : 'Use this haiku'}
           </Button>
         </div>
       </DialogContent>

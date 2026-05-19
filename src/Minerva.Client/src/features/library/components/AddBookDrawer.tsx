@@ -23,7 +23,7 @@ export function AddBookDrawer() {
           Add Book
         </Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="sm:w-[500px]">
         {/* Drawer header */}
         <div style={{ padding: '22px 28px 16px' }}>
           <p className="t-eyebrow" style={{ marginBottom: 6 }}>Add a Volume</p>
@@ -31,7 +31,7 @@ export function AddBookDrawer() {
             className="font-display font-semibold text-ink"
             style={{ fontSize: 24, lineHeight: 1.2, letterSpacing: '-0.01em' }}
           >
-            Add New Book
+            Add New Volume
           </SheetTitle>
           <SheetDescription className="sr-only">
             Search by ISBN or title to find a book, or enter details manually.

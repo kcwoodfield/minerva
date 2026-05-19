@@ -195,7 +195,7 @@ function BookLookupCard({
         </h3>
       </div>
       <p className="font-serif italic text-ink-mute" style={{ fontSize: 13.5, marginBottom: 14 }}>
-        Enter an ISBN, or search by title or author — results appear as you type.
+        Enter an ISBN, or search by title or author. Results appear as you type.
       </p>
 
       {/* Input row */}

@@ -122,7 +122,7 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
                   {book.haiku.split('\n').filter(Boolean).map((line, i) => (
                     <p
                       key={i}
-                      className="font-serif text-ink"
+                      className="font-serif italic text-ink"
                       style={{ fontSize: 17, lineHeight: 1.55, letterSpacing: '0.01em' }}
                     >
                       {line}
