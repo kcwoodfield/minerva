@@ -2,12 +2,14 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Minerva.Api.Features.Books;
+using Minerva.Api.Features.Notes;
 
 namespace Minerva.Api.Infrastructure.Data;
 
 public class MinervaDbContext(DbContextOptions<MinervaDbContext> options) : DbContext(options)
 {
     public DbSet<Book> Books => Set<Book>();
+    public DbSet<BookNote> Notes => Set<BookNote>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +37,15 @@ public class MinervaDbContext(DbContextOptions<MinervaDbContext> options) : DbCo
 
             entity.Property(b => b.DateAdded).HasDefaultValueSql("NOW()");
             entity.Property(b => b.Timestamp).HasDefaultValueSql("NOW()");
+        });
+
+        modelBuilder.Entity<BookNote>(entity =>
+        {
+            entity.HasKey(n => n.Id);
+            entity.Property(n => n.Type).IsRequired().HasMaxLength(20);
+            entity.Property(n => n.Content).IsRequired();
+            entity.Property(n => n.CreatedAt).HasDefaultValueSql("NOW()");
+            entity.HasIndex(n => n.BookId);
         });
     }
 }

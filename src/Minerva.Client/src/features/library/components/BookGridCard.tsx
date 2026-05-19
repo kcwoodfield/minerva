@@ -78,7 +78,7 @@ export function BookGridCard({ book, onSelect, onEdit, onDelete }: Props) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(book)}>Edit</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive" onClick={() => onDelete(book)}>
+              <DropdownMenuItem variant="destructive" onClick={() => onDelete(book)}>
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>

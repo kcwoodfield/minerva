@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { ArrowDown, ArrowUp, ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/star-rating';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -187,7 +187,7 @@ export function LibraryBookRow({ book, onSelect, onEdit, onDelete }: Props) {
       <TableCell style={{ padding: '14px 16px' }} onClick={(e) => e.stopPropagation()}>
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button variant="ghost" className="h-7 w-7 p-0" />}>
-            <MoreHorizontal style={{ width: 15, height: 15 }} />
+            <MoreVertical style={{ width: 15, height: 15 }} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onEdit(book)}>Edit</DropdownMenuItem>

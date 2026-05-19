@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { format } from 'date-fns';
-import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MoreVertical } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -87,6 +87,11 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
       <DialogContent
         className="max-h-[92vh] max-w-3xl overflow-hidden border-rule bg-cream p-0 gap-0 sm:rounded-lg"
         style={{ display: 'flex', flexDirection: 'column' }}
+        onPointerDownOutside={(e) => {
+          if ((e.target as Element).closest('[data-slot="dropdown-menu-content"]')) {
+            e.preventDefault();
+          }
+        }}
       >
         <DialogDescription className="sr-only">
           Book details for {formatBookTitle(book.title)}. Use previous and next to browse volumes.
@@ -202,13 +207,13 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
         <footer className="flex items-center justify-between gap-4 border-t border-rule-soft bg-paper px-6 py-4">
           <DropdownMenu>
             <DropdownMenuTrigger render={
-              <Button type="button" variant="outline" size="icon" className="h-9 w-9" aria-label="Book actions">
-                <MoreHorizontal className="size-4" />
-              </Button>
-            } />
+              <Button type="button" variant="ghost" size="icon" className="h-9 w-9" aria-label="Book actions" />
+            }>
+              <MoreVertical className="size-4" />
+            </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
               <DropdownMenuItem onClick={() => onEdit(book)}>Edit</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive" onClick={() => { onClose(); onDelete(book); }}>
+              <DropdownMenuItem variant="destructive" onClick={() => { onClose(); onDelete(book); }}>
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>

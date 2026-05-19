@@ -29,6 +29,15 @@ export interface Book {
   timestamp: string;
 }
 
+export interface BookNote {
+  id: string;
+  bookId: string;
+  type: string;
+  content: string;
+  pageNumber?: number;
+  createdAt: string;
+}
+
 export interface CreateBookDto {
   title: string;
   author: string;

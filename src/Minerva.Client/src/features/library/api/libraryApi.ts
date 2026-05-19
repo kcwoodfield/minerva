@@ -1,7 +1,7 @@
 import { apiClient } from '@/lib/api';
 import { normalizeIsbn } from '@/lib/isbn';
 import { sanitizeBookPayload } from '@/lib/sanitize-book-payload';
-import type { Book, BookMetadata, CreateBookDto, PaginatedResponse, UpdateBookDto } from '../types/library.types';
+import type { Book, BookMetadata, BookNote, CreateBookDto, PaginatedResponse, UpdateBookDto } from '../types/library.types';
 
 export const libraryApi = {
   getBooks: async (params: {
@@ -54,6 +54,25 @@ export const libraryApi = {
   }): Promise<string> => {
     const { data } = await apiClient.post<{ haiku: string }>('/books/generate-haiku', input);
     return data.haiku;
+  },
+
+  getNotes: async (bookId: string) => {
+    const { data } = await apiClient.get<BookNote[]>(`/books/${bookId}/notes`);
+    return data;
+  },
+
+  createNote: async (bookId: string, note: { type: string; content: string; pageNumber?: number }) => {
+    const { data } = await apiClient.post<BookNote>(`/books/${bookId}/notes`, note);
+    return data;
+  },
+
+  updateNote: async (bookId: string, noteId: string, note: { content: string; pageNumber?: number }) => {
+    const { data } = await apiClient.put<BookNote>(`/books/${bookId}/notes/${noteId}`, note);
+    return data;
+  },
+
+  deleteNote: async (bookId: string, noteId: string) => {
+    await apiClient.delete(`/books/${bookId}/notes/${noteId}`);
   },
 
   getStats: async (): Promise<{
