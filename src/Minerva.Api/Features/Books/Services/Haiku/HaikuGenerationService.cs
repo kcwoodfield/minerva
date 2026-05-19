@@ -94,7 +94,7 @@ public class HaikuGenerationService(
         request.Content = JsonContent.Create(new
         {
             model = settings.Model,
-            max_tokens = 120,
+            max_tokens = settings.MaxOutputTokens,
             messages = new[] { new { role = "user", content = prompt } },
         }, options: JsonOptions);
 

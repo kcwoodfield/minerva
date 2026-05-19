@@ -52,10 +52,14 @@ builder.Services.Configure<HaikuGenerationOptions>(
 var haikuOptions = builder.Configuration
     .GetSection(HaikuGenerationOptions.SectionName)
     .Get<HaikuGenerationOptions>() ?? new HaikuGenerationOptions();
+var haikuTimeoutSeconds = haikuOptions.Provider.Trim().Equals("Anthropic", StringComparison.OrdinalIgnoreCase)
+        || haikuOptions.Provider.Trim().Equals("Claude", StringComparison.OrdinalIgnoreCase)
+    ? haikuOptions.Anthropic.RequestTimeoutSeconds
+    : haikuOptions.TimeoutSeconds;
 builder.Services.AddHttpClient(HaikuHttpClient.Name, client =>
 {
     client.DefaultRequestHeaders.UserAgent.ParseAdd("Minerva/1.0 (personal library app; haiku-generation)");
-    client.Timeout = TimeSpan.FromSeconds(haikuOptions.TimeoutSeconds);
+    client.Timeout = TimeSpan.FromSeconds(haikuTimeoutSeconds);
 });
 builder.Services.AddScoped<IHaikuGenerationService, HaikuGenerationService>();
 

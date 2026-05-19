@@ -23,4 +23,6 @@ public class AnthropicOptions
 {
     public string ApiKey { get; set; } = "";
     public string Model { get; set; } = "claude-sonnet-4-20250514";
+    public int RequestTimeoutSeconds { get; set; } = 120;
+    public int MaxOutputTokens { get; set; } = 120;
 }
