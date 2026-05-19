@@ -42,13 +42,23 @@ public class CreateBookModule : ICarterModule
                 var result = await sender.Send(command);
                 return Results.Created($"/api/books/{result.Id}", result);
             }
-            catch (DbUpdateException ex)
-                when (ex.InnerException is PostgresException { SqlState: "23505" })
+            catch (Exception ex) when (IsDuplicateIsbn(ex))
             {
-                return Results.Conflict(new { message = "A book with this ISBN-13 already exists in your library." });
+                return Results.Conflict(new { message = "This book already exists in your library." });
             }
         })
         .WithName("CreateBook")
         .WithOpenApi();
+    }
+
+    private static bool IsDuplicateIsbn(Exception ex)
+    {
+        var current = ex as Exception;
+        while (current is not null)
+        {
+            if (current is PostgresException pg && pg.SqlState == "23505") return true;
+            current = current.InnerException;
+        }
+        return false;
     }
 }
