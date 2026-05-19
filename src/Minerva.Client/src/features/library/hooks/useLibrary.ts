@@ -144,6 +144,31 @@ export function useDeleteCover() {
   return { mutateAsync, isPending };
 }
 
+export function useStats() {
+  const listVersion = useLibraryStore((s) => s.listVersion);
+  const [data, setData] = useState<{
+    totalBooks: number;
+    totalFinished: number;
+    totalReading: number;
+    totalPagesRead: number;
+    averageRating: number;
+    booksThisYear: number;
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    libraryApi.getStats()
+      .then((result) => { if (!cancelled) setData(result); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setIsLoading(false); });
+    return () => { cancelled = true; };
+  }, [listVersion]);
+
+  return { data, isLoading };
+}
+
 export function useLookupISBN() {
   const [isPending, setIsPending] = useState(false);
 

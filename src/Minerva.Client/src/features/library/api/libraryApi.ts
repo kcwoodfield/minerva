@@ -56,6 +56,18 @@ export const libraryApi = {
     return data.haiku;
   },
 
+  getStats: async (): Promise<{
+    totalBooks: number;
+    totalFinished: number;
+    totalReading: number;
+    totalPagesRead: number;
+    averageRating: number;
+    booksThisYear: number;
+  }> => {
+    const { data } = await apiClient.get('/books/stats');
+    return data;
+  },
+
   lookupByISBN: async (isbn: string): Promise<BookMetadata> => {
     const normalized = normalizeIsbn(isbn);
     if (!normalized) {

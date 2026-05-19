@@ -38,7 +38,7 @@ export function BookGridCard({ book, onSelect, onEdit, onDelete }: Props) {
     >
       <div className="relative">
         <div
-          className="flex w-full items-center justify-center overflow-hidden bg-ink/5"
+          className="relative flex w-full items-center justify-center overflow-hidden bg-ink/5"
           style={{ aspectRatio: '2/3', maxHeight: 220 }}
         >
           <BookCoverImage
@@ -49,6 +49,19 @@ export function BookGridCard({ book, onSelect, onEdit, onDelete }: Props) {
             className="max-h-full w-[85%] object-contain translate-y-[5%] group-hover:translate-y-0 transition-transform duration-[420ms] ease-in-out"
             placeholderClassName="flex h-full w-full items-center justify-center"
           />
+          {book.completed === 100 && book.haiku && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-3 bg-ink/82 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-300 pointer-events-none">
+              {book.haiku.split('\n').filter(Boolean).map((line, i) => (
+                <p
+                  key={i}
+                  className="font-serif italic text-cream text-center leading-snug"
+                  style={{ fontSize: 11 }}
+                >
+                  {line}
+                </p>
+              ))}
+            </div>
+          )}
         </div>
         <div className="absolute top-2 right-2" onClick={(e) => e.stopPropagation()}>
           <DropdownMenu>
