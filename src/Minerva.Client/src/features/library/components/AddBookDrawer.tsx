@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useCreateBook } from '../hooks/useLibrary';
 import { BookForm } from './BookForm';
 import type { CreateBookForm } from '../types/library.types';
@@ -27,12 +27,15 @@ export function AddBookDrawer() {
         {/* Drawer header */}
         <div style={{ padding: '22px 28px 16px' }}>
           <p className="t-eyebrow" style={{ marginBottom: 6 }}>Add a Volume</p>
-          <h2
+          <SheetTitle
             className="font-display font-semibold text-ink"
             style={{ fontSize: 24, lineHeight: 1.2, letterSpacing: '-0.01em' }}
           >
             Add New Book
-          </h2>
+          </SheetTitle>
+          <SheetDescription className="sr-only">
+            Search by ISBN or title to find a book, or enter details manually.
+          </SheetDescription>
         </div>
 
         <hr className="m-rule mx-0" style={{ margin: '0 28px' }} />

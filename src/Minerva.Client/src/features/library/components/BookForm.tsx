@@ -472,24 +472,15 @@ export function BookForm({
           )}
           style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
         >
-          {bookId ? (
-            <>
-              <CoverImageUpload
-                bookId={bookId}
-                coverUrl={watch('coverImageUrl')}
-                coverSourceUrl={coverSourceUrl}
-                cacheKey={cacheKey}
-                onCoverChange={(url) => setValue('coverImageUrl', url ?? '', { shouldDirty: true })}
-                disabled={isPending}
-              />
-              <Field label="Cover image URL (optional)">
-                <Input {...register('coverImageUrl')} placeholder="https://… or leave blank" />
-              </Field>
-            </>
-          ) : (
-            <Field label="Cover Image URL">
-              <Input {...register('coverImageUrl')} />
-            </Field>
+          {bookId && (
+            <CoverImageUpload
+              bookId={bookId}
+              coverUrl={watch('coverImageUrl')}
+              coverSourceUrl={coverSourceUrl}
+              cacheKey={cacheKey}
+              onCoverChange={(url) => setValue('coverImageUrl', url ?? '', { shouldDirty: true })}
+              disabled={isPending}
+            />
           )}
 
           <Field label="Title *" error={errors.title?.message}>
