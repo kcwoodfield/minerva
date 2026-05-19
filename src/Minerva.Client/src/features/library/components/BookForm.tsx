@@ -5,6 +5,7 @@ import { Barcode, Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import { normalizeIsbn } from '@/lib/isbn';
 import { createBookSchema, type CreateBookForm, type BookMetadata } from '../types/library.types';
 import { BookTitle } from './BookTitle';
@@ -64,7 +65,7 @@ function hasMeaningfulWord(value: string): boolean {
 function metadataToFormValues(isbn: string, metadata: BookMetadata): Partial<CreateBookForm> {
   const sourceIsbn = isbn || metadata.isbn13 || '';
   const normalized = normalizeIsbn(sourceIsbn);
-  const pages = metadata.pageCount && metadata.pageCount > 0 ? metadata.pageCount : 1;
+  const pages = metadata.pageCount && metadata.pageCount > 0 ? metadata.pageCount : 0;
 
   let publicationDate = '';
   if (metadata.publicationDate) {
@@ -187,15 +188,32 @@ function BookLookupCard({
             }
           </Button>
         )}
-        {!isbnInput && isSearching && (
-          <div className="flex items-center px-2">
-            <Loader2 style={{ width: 15, height: 15 }} className="animate-spin text-ink-mute" />
-          </div>
-        )}
       </div>
 
+      {/* Skeleton rows while searching */}
+      {!isbnInput && isSearching && (
+        <div className="border border-rule overflow-hidden" style={{ borderRadius: 6, marginTop: 8 }}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-3"
+              style={{
+                padding: '10px 12px',
+                borderBottom: i < 3 ? '1px solid var(--color-rule-soft)' : undefined,
+              }}
+            >
+              <Skeleton className="flex-shrink-0 rounded-sm" style={{ width: 30, height: 44 }} />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-3 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Search results — inline so overflow-y-auto containers don't clip them */}
-      {searchResults.length > 0 && (
+      {!isSearching && searchResults.length > 0 && (
         <div className="border border-rule overflow-hidden" style={{ borderRadius: 6, marginTop: 8 }}>
           {searchResults.map((result, i) => (
             <button
@@ -362,7 +380,8 @@ export function BookForm({
     } catch (err) {
       setHaikuModalOpen(false);
       setPendingSubmit(null);
-      toast.error(haikuErrorMessage(err));
+      toast.warning('Haiku generation failed — saving book without one.');
+      await finalizeSubmit(data);
     }
   };
 
