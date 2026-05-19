@@ -55,12 +55,30 @@ export function FilterBar() {
 
   return (
     <div
-      className="flex items-center justify-between gap-4 border-b border-rule-soft"
-      style={{ paddingBottom: 18, marginBottom: 0 }}
+      className="grid items-center gap-4 border-b border-rule-soft"
+      style={{ gridTemplateColumns: 'auto 1fr auto', paddingBottom: 18, marginBottom: 0 }}
     >
-      {/* Left: search + status chips */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="relative">
+      {/* Left: status chips */}
+      <div className="flex items-center gap-1.5">
+        {STATUS_CHIPS.map((chip) => {
+          const active = activeStatus === chip.value;
+          return (
+            <button
+              key={chip.label}
+              type="button"
+              onClick={() => setFilters({ status: chip.value })}
+              className="chip-filter font-serif"
+              data-active={active}
+            >
+              {chip.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Center: search */}
+      <div className="flex justify-center">
+        <div className="relative w-full" style={{ maxWidth: 360 }}>
           <svg
             width="14" height="14" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
@@ -75,7 +93,7 @@ export function FilterBar() {
             placeholder="Search…"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            style={{ paddingLeft: 36, paddingRight: 48, width: 200 }}
+            style={{ paddingLeft: 36, paddingRight: 48 }}
           />
           <kbd
             className="absolute pointer-events-none font-sans text-ink-faint"
@@ -83,23 +101,6 @@ export function FilterBar() {
           >
             ⌘K
           </kbd>
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          {STATUS_CHIPS.map((chip) => {
-            const active = activeStatus === chip.value;
-            return (
-              <button
-                key={chip.label}
-                type="button"
-                onClick={() => setFilters({ status: chip.value })}
-                className="chip-filter font-serif"
-                data-active={active}
-              >
-                {chip.label}
-              </button>
-            );
-          })}
         </div>
       </div>
 
