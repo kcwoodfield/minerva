@@ -93,6 +93,33 @@ function metadataToFormValues(isbn: string, metadata: BookMetadata): Partial<Cre
   };
 }
 
+function Typewriter({ text, speed = 28 }: { text: string; speed?: number }) {
+  const [displayed, setDisplayed] = useState('');
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    setDisplayed('');
+    setDone(false);
+    let i = 0;
+    const id = setInterval(() => {
+      i++;
+      setDisplayed(text.slice(0, i));
+      if (i >= text.length) {
+        clearInterval(id);
+        setDone(true);
+      }
+    }, speed);
+    return () => clearInterval(id);
+  }, [text, speed]);
+
+  return (
+    <span>
+      {displayed}
+      {!done && <span className="animate-pulse">▎</span>}
+    </span>
+  );
+}
+
 function BookLookupCard({
   onFound,
   defaultIsbn,
@@ -299,7 +326,7 @@ function BookLookupCard({
               </div>
             )}
             <p className="font-serif italic text-accent-moss" style={{ fontSize: 12, marginTop: 8 }}>
-              Details loaded. Please review and save below.
+              <Typewriter key={confirmedResult?.title} text="Details loaded. Please review and save below." />
             </p>
           </div>
         </div>
