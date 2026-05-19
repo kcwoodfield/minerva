@@ -10,13 +10,14 @@ export function useBooks(params: {
   search?: string;
   sortBy?: string;
   ascending?: boolean;
+  archived?: boolean;
 }) {
   const listVersion = useLibraryStore((s) => s.listVersion);
   const [data, setData] = useState<PaginatedResponse<Book> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const { page, pageSize, search, sortBy, ascending } = params;
+  const { page, pageSize, search, sortBy, ascending, archived } = params;
 
   useEffect(() => {
     let cancelled = false;
@@ -24,7 +25,7 @@ export function useBooks(params: {
     setError(null);
 
     libraryApi
-      .getBooks({ page, pageSize, search, sortBy, ascending })
+      .getBooks({ page, pageSize, search, sortBy, ascending, archived })
       .then((result) => {
         if (!cancelled) setData(result);
       })
@@ -38,7 +39,7 @@ export function useBooks(params: {
     return () => {
       cancelled = true;
     };
-  }, [page, pageSize, search, sortBy, ascending, listVersion]);
+  }, [page, pageSize, search, sortBy, ascending, archived, listVersion]);
 
   return { data, isLoading, error };
 }

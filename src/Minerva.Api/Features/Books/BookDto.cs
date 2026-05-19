@@ -24,6 +24,7 @@ public record BookDto(
     List<string> Tags,
     string? CoverImageUrl,
     string? CoverSourceUrl,
+    bool Archived,
     DateTime DateAdded,
     DateTime Timestamp)
 {
@@ -33,5 +34,5 @@ public record BookDto(
         book.Publisher, book.PublicationDate, book.Genre, book.SubGenre,
         book.Series, book.IsFiction, book.Format, book.Edition, book.Translator,
         book.Summary, book.Haiku, book.Tags, book.CoverImageUrl, book.CoverSourceUrl,
-        book.DateAdded, book.Timestamp);
+        book.Archived, book.DateAdded, book.Timestamp);
 }

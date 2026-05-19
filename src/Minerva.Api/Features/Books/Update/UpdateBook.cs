@@ -24,7 +24,8 @@ public record UpdateBookRequest(
     string? Summary,
     string? Haiku,
     List<string>? Tags,
-    string? CoverImageUrl);
+    string? CoverImageUrl,
+    bool? Archived);
 
 public class UpdateBookModule : ICarterModule
 {

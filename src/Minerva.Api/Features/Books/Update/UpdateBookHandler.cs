@@ -37,6 +37,7 @@ public class UpdateBookHandler(MinervaDbContext db, BookImageStorage storage, IH
         if (req.Summary is not null) book.Summary = req.Summary;
         if (req.Haiku is not null) book.Haiku = req.Haiku;
         if (req.Tags is not null) book.Tags = req.Tags;
+        if (req.Archived.HasValue) book.Archived = req.Archived.Value;
         if (req.CoverImageUrl is not null)
         {
             if (storage.IsManagedUrl(req.CoverImageUrl))

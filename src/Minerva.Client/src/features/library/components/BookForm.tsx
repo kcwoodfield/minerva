@@ -199,7 +199,7 @@ function BookLookupCard({
       </p>
 
       {/* Input row */}
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         <Input
           autoFocus
           placeholder="ISBN or title / author…"
@@ -213,10 +213,14 @@ function BookLookupCard({
             if (e.key === 'Enter' && isbnInput) handleIsbnLookup();
             if (e.key === 'Escape') setSearchResults([]);
           }}
-          style={{ flex: 1 }}
+          className="h-[42px] flex-1 py-0"
         />
         {isbnInput && (
-          <Button onClick={handleIsbnLookup} disabled={lookupMutation.isPending}>
+          <Button
+            className="h-[42px] shrink-0 px-5"
+            onClick={handleIsbnLookup}
+            disabled={lookupMutation.isPending}
+          >
             {lookupMutation.isPending
               ? <Loader2 style={{ width: 15, height: 15 }} className="animate-spin" />
               : 'Look Up'
@@ -377,7 +381,7 @@ export function BookForm({
     resolver: zodResolver(createBookSchema),
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
-    defaultValues: { title: '', author: '', isbn13: '', pages: 0, rating: 0, completed: 0, ...defaultValues },
+    defaultValues: { title: '', author: '', isbn13: '', pages: 0, rating: 0, completed: 0, archived: false, ...defaultValues },
   });
 
   const { onBlur: isbn13RhfBlur, ...isbn13Register } = register('isbn13');
@@ -680,10 +684,22 @@ export function BookForm({
             </datalist>
           </Field>
 
+          {haikuValue && (
+            <div className="border border-rule-soft bg-cream-warm" style={{ borderRadius: 6, padding: '14px 16px' }}>
+              <p className="t-eyebrow" style={{ marginBottom: 8 }}>Haiku</p>
+              {haikuValue.split('\n').filter(Boolean).map((line, i) => (
+                <p key={i} className="font-serif text-ink" style={{ fontSize: 16, lineHeight: 1.5 }}>
+                  {line}
+                </p>
+              ))}
+            </div>
+          )}
+          <input type="hidden" {...register('haiku')} />
+
           <Field label="Summary">
             <textarea
               className="w-full rounded-md border border-rule bg-paper font-serif text-ink placeholder:italic placeholder:text-ink-faint focus-visible:border-accent-blue focus-visible:outline-none transition-[border-color] duration-[140ms]"
-              style={{ minHeight: 80, padding: '11px 14px', fontSize: 15, resize: 'vertical' }}
+              style={{ minHeight: 160, padding: '11px 14px', fontSize: 15, resize: 'vertical' }}
               {...register('summary')}
             />
           </Field>
@@ -697,17 +713,20 @@ export function BookForm({
             </Field>
           </div>
 
-          {haikuValue && (
-            <div className="border border-rule-soft bg-cream-warm" style={{ borderRadius: 6, padding: '14px 16px' }}>
-              <p className="t-eyebrow" style={{ marginBottom: 8 }}>Haiku</p>
-              {haikuValue.split('\n').filter(Boolean).map((line, i) => (
-                <p key={i} className="font-serif text-ink" style={{ fontSize: 16, lineHeight: 1.5 }}>
-                  {line}
-                </p>
-              ))}
-            </div>
-          )}
-          <input type="hidden" {...register('haiku')} />
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1 accent-accent"
+              checked={watch('archived') === true}
+              onChange={(e) => setValue('archived', e.target.checked, { shouldDirty: true })}
+            />
+            <span>
+              <span className="font-serif text-ink" style={{ fontSize: 15 }}>Archived</span>
+              <span className="block t-meta" style={{ marginTop: 2 }}>
+                No longer in your collection (sold, donated, given away) but keep the record.
+              </span>
+            </span>
+          </label>
 
           {/* Footer actions */}
           <div

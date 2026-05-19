@@ -8,7 +8,8 @@ public record GetAllBooksRequest(
     int PageSize = 25,
     string? Search = null,
     string? SortBy = "dateAdded",
-    bool Ascending = false);
+    bool Ascending = false,
+    bool? Archived = false);
 
 public record GetAllBooksResponse(List<BookDto> Items, int Total, int Page, int PageSize);
 
@@ -22,6 +23,7 @@ public class GetAllBooksModule : ICarterModule
             string? search,
             string? sortBy,
             bool ascending,
+            bool? archived,
             ISender sender) =>
         {
             var request = new GetAllBooksRequest(
@@ -29,7 +31,8 @@ public class GetAllBooksModule : ICarterModule
                 pageSize == 0 ? 25 : pageSize,
                 search,
                 sortBy ?? "dateAdded",
-                ascending);
+                ascending,
+                archived ?? false);
             var result = await sender.Send(new GetAllBooksQuery(request));
             return Results.Ok(result);
         })

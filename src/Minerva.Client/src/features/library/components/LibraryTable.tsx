@@ -53,8 +53,15 @@ export function LibraryTable() {
   const view = useLibraryView();
 
   const queryParams = useMemo(
-    () => ({ page, pageSize, search: filters.search, sortBy, ascending }),
-    [page, pageSize, filters.search, sortBy, ascending],
+    () => ({
+      page,
+      pageSize,
+      search: filters.search,
+      sortBy,
+      ascending,
+      archived: filters.archived === true,
+    }),
+    [page, pageSize, filters.search, sortBy, ascending, filters.archived],
   );
 
   const { data, isLoading } = useBooks(queryParams);

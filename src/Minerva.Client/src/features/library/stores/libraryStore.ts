@@ -5,7 +5,14 @@ interface LibraryState {
   columnVisibility: Record<string, boolean>;
   setColumnVisibility: (v: Record<string, boolean>) => void;
 
-  filters: { search: string; genre?: string; format?: string; rating?: number; status?: 'reading' | 'finished' | 'unread' | null };
+  filters: {
+    search: string;
+    genre?: string;
+    format?: string;
+    rating?: number;
+    status?: 'reading' | 'finished' | 'unread' | null;
+    archived?: boolean;
+  };
   setFilters: (f: Partial<LibraryState['filters']>) => void;
   clearFilters: () => void;
 

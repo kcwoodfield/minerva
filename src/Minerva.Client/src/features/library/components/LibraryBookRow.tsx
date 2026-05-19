@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { ArrowDown, ArrowUp, ArrowUpDown, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/star-rating';
-import { StatusBadge } from '@/components/ui/status-badge';
+import { ArchivedBadge, StatusBadge } from '@/components/ui/status-badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -164,7 +164,10 @@ export function LibraryBookRow({ book, onSelect, onEdit, onDelete }: Props) {
         <span className="t-meta tabular-nums">{book.pages > 0 ? book.pages : '—'}</span>
       </TableCell>
       <TableCell style={{ padding: '14px 16px' }}>
-        <StatusBadge completed={book.completed} />
+        <div className="flex flex-col gap-1">
+          <StatusBadge completed={book.completed} />
+          {book.archived && <ArchivedBadge />}
+        </div>
       </TableCell>
       <TableCell style={{ padding: '14px 16px' }}>
         {book.rating > 0 ? (

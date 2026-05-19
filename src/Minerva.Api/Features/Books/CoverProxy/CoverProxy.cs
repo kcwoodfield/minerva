@@ -25,12 +25,24 @@ public class CoverProxyModule : ICarterModule
         var fileName = storage.GetLocalFileName(book.CoverImageUrl);
         if (fileName is not null)
         {
-            var path = Path.Combine(storage.RootPath, fileName);
-            if (File.Exists(path))
+            var resolved = ResolveLocalCoverPath(storage.RootPath, fileName);
+            if (resolved is not null)
             {
-                var contentType = BookImageStorage.GetContentType(fileName) ?? "image/jpeg";
+                var (path, name) = resolved.Value;
+                var contentType = BookImageStorage.GetContentType(name) ?? "image/jpeg";
                 return Results.File(path, contentType);
             }
+        }
+
+        var bookIdFiles = Directory.Exists(storage.RootPath)
+            ? Directory.EnumerateFiles(storage.RootPath, $"{id}.*").Take(1).ToList()
+            : [];
+        if (bookIdFiles.Count > 0)
+        {
+            var path = bookIdFiles[0];
+            var name = Path.GetFileName(path);
+            var contentType = BookImageStorage.GetContentType(name) ?? "image/jpeg";
+            return Results.File(path, contentType);
         }
 
         var sourceUrl = book.CoverSourceUrl ?? book.CoverImageUrl;
@@ -57,5 +69,21 @@ public class CoverProxyModule : ICarterModule
         {
             return Results.NotFound();
         }
+    }
+
+  private static (string Path, string FileName)? ResolveLocalCoverPath(string root, string fileName)
+    {
+        var exact = Path.Combine(root, fileName);
+        if (File.Exists(exact)) return (exact, fileName);
+
+        var stem = Path.GetFileNameWithoutExtension(fileName);
+        foreach (var ext in new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" })
+        {
+            var altName = stem + ext;
+            var alt = Path.Combine(root, altName);
+            if (File.Exists(alt)) return (alt, altName);
+        }
+
+        return null;
     }
 }

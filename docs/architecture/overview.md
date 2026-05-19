@@ -67,7 +67,7 @@ Uploaded files are stored by `BookImageStorage` under the configured `BookImages
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| GET | `/api/books` | Paginated list (`page`, `pageSize`, `search`, `sortBy`, `ascending`) |
+| GET | `/api/books` | Paginated list (`page`, `pageSize`, `search`, `sortBy`, `ascending`, `archived`) — defaults to active volumes only |
 | POST | `/api/books` | Create |
 | PUT | `/api/books/{id}` | Update |
 | DELETE | `/api/books/{id}` | Delete |

@@ -28,7 +28,8 @@ public record CreateBookRequest(
     string? Summary,
     string? Haiku,
     List<string>? Tags,
-    string? CoverImageUrl);
+    string? CoverImageUrl,
+    bool Archived = false);
 
 public class CreateBookModule : ICarterModule
 {

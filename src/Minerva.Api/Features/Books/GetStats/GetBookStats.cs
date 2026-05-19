@@ -39,6 +39,7 @@ public class GetBookStatsHandler(MinervaDbContext db) : IRequestHandler<GetBookS
     public async Task<BookStatsDto> Handle(GetBookStatsQuery _, CancellationToken ct)
     {
         var books = await db.Books
+            .Where(b => !b.Archived)
             .Select(b => new
             {
                 b.DateAdded,

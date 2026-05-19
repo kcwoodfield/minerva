@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { StarRating } from '@/components/ui/star-rating';
-import { StatusBadge } from '@/components/ui/status-badge';
+import { ArchivedBadge, StatusBadge } from '@/components/ui/status-badge';
 import type { Book } from '../types/library.types';
 import { formatBookTitle } from '../lib/formatBookTitle';
 import { BookCoverImage } from './BookCoverImage';
@@ -115,6 +115,7 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
 
               <div className="flex flex-wrap items-center gap-3">
                 <StatusBadge completed={book.completed} />
+                {book.archived && <ArchivedBadge />}
                 {book.rating > 0 && <StarRating rating={book.rating} size={16} />}
                 {book.completed > 0 && book.completed < 100 && (
                   <span className="t-meta tabular-nums">{book.completed}% read</span>

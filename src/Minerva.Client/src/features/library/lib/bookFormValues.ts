@@ -24,5 +24,6 @@ export function bookToFormValues(book: Book): Partial<CreateBookForm> {
     summary: book.summary,
     haiku: book.haiku,
     coverImageUrl: book.coverImageUrl,
+    archived: book.archived,
   };
 }

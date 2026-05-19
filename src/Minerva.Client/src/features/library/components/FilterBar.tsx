@@ -62,12 +62,12 @@ export function FilterBar() {
       <div className="-mx-1 overflow-x-auto px-1 md:mx-0 md:px-0">
         <div className="flex w-max min-w-full items-center gap-1.5 md:w-auto">
           {STATUS_CHIPS.map((chip) => {
-            const active = activeStatus === chip.value;
+            const active = activeStatus === chip.value && !filters.archived;
             return (
               <button
                 key={chip.label}
                 type="button"
-                onClick={() => setFilters({ status: chip.value })}
+                onClick={() => setFilters({ status: chip.value, archived: false })}
                 className="chip-filter font-serif shrink-0"
                 data-active={active}
               >
@@ -75,6 +75,19 @@ export function FilterBar() {
               </button>
             );
           })}
+          <button
+            type="button"
+            onClick={() =>
+              setFilters({
+                archived: filters.archived ? false : true,
+                status: filters.archived ? filters.status : null,
+              })
+            }
+            className="chip-filter font-serif shrink-0"
+            data-active={filters.archived === true}
+          >
+            Archived
+          </button>
         </div>
       </div>
 

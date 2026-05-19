@@ -47,6 +47,7 @@ public class CreateBookHandler(MinervaDbContext db, BookImageStorage storage, IH
             Tags = req.Tags ?? [],
             CoverImageUrl = coverImageUrl,
             CoverSourceUrl = req.CoverImageUrl,
+            Archived = req.Archived,
             DateAdded = DateTime.UtcNow,
             Timestamp = DateTime.UtcNow,
         };

@@ -25,6 +25,7 @@ export interface Book {
   tags: string[];
   coverImageUrl?: string;
   coverSourceUrl?: string;
+  archived: boolean;
   dateAdded: string;
   timestamp: string;
 }
@@ -77,6 +78,7 @@ export interface CreateBookDto {
   haiku?: string;
   tags?: string[];
   coverImageUrl?: string;
+  archived?: boolean;
 }
 
 export type UpdateBookDto = Partial<CreateBookDto>;
@@ -140,6 +142,7 @@ export const createBookSchema = z.object({
   summary: z.string().optional(),
   haiku: z.string().max(500).optional(),
   coverImageUrl: z.string().optional(),
+  archived: z.boolean().optional(),
 });
 
 export type CreateBookForm = z.infer<typeof createBookSchema>;

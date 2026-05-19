@@ -1,7 +1,7 @@
 import { MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/star-rating';
-import { StatusBadge, getStatus } from '@/components/ui/status-badge';
+import { ArchivedBadge, StatusBadge, getStatus } from '@/components/ui/status-badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -100,6 +100,7 @@ export function BookGridCard({ book, onSelect, onEdit, onDelete }: Props) {
         <p className="font-serif italic text-ink-mute text-[13px] line-clamp-1">{book.author}</p>
         <div className="flex items-center gap-2 flex-wrap mt-auto">
           <StatusBadge completed={book.completed} />
+          {book.archived && <ArchivedBadge />}
           {book.rating > 0 && <StarRating rating={book.rating} size={12} />}
         </div>
         {showProgress && (

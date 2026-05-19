@@ -24,6 +24,7 @@ Defined in `src/Minerva.Api/Features/Books/Book.cs` and exposed as `BookDto` / c
 | `Tags` | string[] | JSON column |
 | `CoverImageUrl` | string? | Current cover; managed upload path or external URL |
 | `CoverSourceUrl` | string? | Original external URL from ISBN lookup; preserved when a file is uploaded so the upload can be reverted |
+| `Archived` | bool | Default `false`; volumes no longer owned but kept in the catalog |
 | `DateAdded` | DateTime | Set on create |
 | `Timestamp` | DateTime | Updated on save |
 

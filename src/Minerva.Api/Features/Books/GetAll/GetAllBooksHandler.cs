@@ -13,6 +13,10 @@ public class GetAllBooksHandler(MinervaDbContext db) : IRequestHandler<GetAllBoo
         var req = query.Request;
         var q = db.Books.AsQueryable();
 
+        q = req.Archived == true
+            ? q.Where(b => b.Archived)
+            : q.Where(b => !b.Archived);
+
         if (!string.IsNullOrWhiteSpace(req.Search))
         {
             var term = req.Search.Trim();

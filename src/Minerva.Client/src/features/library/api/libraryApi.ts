@@ -18,6 +18,7 @@ export const libraryApi = {
     search?: string;
     sortBy?: string;
     ascending?: boolean;
+    archived?: boolean;
   }): Promise<PaginatedResponse<Book>> => {
     const { data } = await apiClient.get('/books', { params });
     return data;

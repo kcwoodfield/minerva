@@ -16,23 +16,13 @@ export function resolveBookCoverEndpoint(bookId: string, cacheKey?: string): str
   return `/api/books/${bookId}/cover?v=${encodeURIComponent(cacheKey)}`;
 }
 
-function withCacheBust(url: string, cacheKey?: string): string {
-  if (!cacheKey) return url;
-  const sep = url.includes('?') ? '&' : '?';
-  return `${url}${sep}v=${encodeURIComponent(cacheKey)}`;
-}
-
-/** Preview URL for edit form — local uploads hit static path; others use cover API. */
+/** Preview URL for edit form — always via cover API (upload, legacy path, or ISBN source). */
 export function resolveCoverDisplaySrc(
   bookId: string,
   coverUrl?: string,
   coverSourceUrl?: string,
   cacheKey?: string,
 ): string | undefined {
-  const local = coverUrl?.trim();
-  if (local && isLocalCoverUrl(local)) {
-    return withCacheBust(local, cacheKey);
-  }
   if (!hasCoverData(coverUrl, coverSourceUrl)) return undefined;
   return resolveBookCoverEndpoint(bookId, cacheKey);
 }

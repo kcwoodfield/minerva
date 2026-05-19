@@ -37,3 +37,16 @@ export function StatusBadge({ completed, className }: StatusBadgeProps) {
     </span>
   );
 }
+
+export function ArchivedBadge({ className }: { className?: string }) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center font-serif text-caption italic text-ink-faint',
+        className,
+      )}
+    >
+      Archived
+    </span>
+  );
+}

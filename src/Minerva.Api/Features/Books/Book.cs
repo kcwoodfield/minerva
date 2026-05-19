@@ -28,6 +28,8 @@ public class Book
     public string? CoverImageUrl { get; set; }
     /// <summary>Original cover URL from ISBN lookup (used when upload/override fails to load).</summary>
     public string? CoverSourceUrl { get; set; }
+    /// <summary>Volume no longer owned (sold, donated, etc.) but kept in the catalog.</summary>
+    public bool Archived { get; set; }
     public DateTime DateAdded { get; set; }
     public DateTime Timestamp { get; set; }
 }

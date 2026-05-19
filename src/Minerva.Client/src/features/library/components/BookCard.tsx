@@ -1,7 +1,7 @@
 import { MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/star-rating';
-import { StatusBadge, getStatus } from '@/components/ui/status-badge';
+import { ArchivedBadge, StatusBadge, getStatus } from '@/components/ui/status-badge';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -63,6 +63,7 @@ export function BookCard({ book, onSelect, onEdit, onDelete }: Props) {
 
         <div className="flex items-center gap-3" style={{ marginTop: 4 }}>
           <StatusBadge completed={book.completed} />
+          {book.archived && <ArchivedBadge />}
           {book.rating > 0 && <StarRating rating={book.rating} size={13} />}
         </div>
 
