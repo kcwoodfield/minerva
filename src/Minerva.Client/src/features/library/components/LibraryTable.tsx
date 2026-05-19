@@ -214,6 +214,7 @@ export function LibraryTable() {
         }}
         onClose={closeDetail}
         onEdit={handleEdit}
+        onDelete={handleDelete}
       />
 
       <EditBookModal book={editingBook} onClose={() => setEditingBook(null)} />

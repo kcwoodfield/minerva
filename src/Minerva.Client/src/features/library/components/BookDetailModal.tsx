@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { format } from 'date-fns';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -8,6 +8,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { StarRating } from '@/components/ui/star-rating';
 import { StatusBadge } from '@/components/ui/status-badge';
 import type { Book } from '../types/library.types';
@@ -21,6 +27,7 @@ interface Props {
   onIndexChange: (index: number) => void;
   onClose: () => void;
   onEdit: (book: Book) => void;
+  onDelete: (book: Book) => void;
 }
 
 function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
@@ -47,7 +54,7 @@ function BookCover({ book }: { book: Book }) {
   );
 }
 
-export function BookDetailModal({ books, index, open, onIndexChange, onClose, onEdit }: Props) {
+export function BookDetailModal({ books, index, open, onIndexChange, onClose, onEdit, onDelete }: Props) {
   const book = books[index];
   const hasPrev = index > 0;
   const hasNext = index < books.length - 1;
@@ -193,9 +200,19 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
         </div>
 
         <footer className="flex items-center justify-between gap-4 border-t border-rule-soft bg-paper px-6 py-4">
-          <Button type="button" variant="outline" onClick={() => onEdit(book)}>
-            Edit
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger render={
+              <Button type="button" variant="outline" size="icon" className="h-9 w-9" aria-label="Book actions">
+                <MoreHorizontal className="size-4" />
+              </Button>
+            } />
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onClick={() => onEdit(book)}>Edit</DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive" onClick={() => { onClose(); onDelete(book); }}>
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <div className="flex items-center gap-2">
             <Button
