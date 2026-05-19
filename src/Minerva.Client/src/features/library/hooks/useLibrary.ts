@@ -53,9 +53,8 @@ export function useCreateBook() {
       toast.success('Book added successfully');
       useLibraryStore.getState().bumpList();
       return result;
-    } catch {
-      toast.error('Failed to add book');
-      throw new Error('Failed to add book');
+    } catch (err) {
+      throw err;
     } finally {
       setIsPending(false);
     }
@@ -74,9 +73,8 @@ export function useUpdateBook() {
       toast.success('Book updated successfully');
       useLibraryStore.getState().bumpList();
       return result;
-    } catch {
-      toast.error('Failed to update book');
-      throw new Error('Failed to update book');
+    } catch (err) {
+      throw err;
     } finally {
       setIsPending(false);
     }
