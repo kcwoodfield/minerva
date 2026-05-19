@@ -74,6 +74,7 @@ export interface BookMetadata {
   coverImageUrl?: string;
   isbn13?: string;
   isbn10?: string;
+  series?: string;
 }
 
 export const createBookSchema = z.object({

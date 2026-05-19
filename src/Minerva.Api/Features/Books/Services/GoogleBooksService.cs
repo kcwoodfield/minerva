@@ -81,7 +81,13 @@ public class GoogleBooksService(
                 }
             }
 
-            return new BookMetadata(title, author, publisher, pubDate, pageCount, description, genre, language, coverUrl, isbn13, isbn10);
+            string? series = null;
+            if (info.TryGetProperty("seriesInfo", out var si) &&
+                si.TryGetProperty("shortSeriesBookTitle", out var sst))
+                series = sst.GetString();
+            series ??= PublisherImprints.AsImprint(publisher);
+
+            return new BookMetadata(title, author, publisher, pubDate, pageCount, description, genre, language, coverUrl, isbn13, isbn10, series);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

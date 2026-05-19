@@ -11,4 +11,5 @@ public record BookMetadata(
     string? Language,
     string? CoverImageUrl,
     string? Isbn13 = null,
-    string? Isbn10 = null);
+    string? Isbn10 = null,
+    string? Series = null);

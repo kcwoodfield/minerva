@@ -89,6 +89,7 @@ function metadataToFormValues(isbn: string, metadata: BookMetadata): Partial<Cre
     ...(metadata.language ? { language: metadata.language } : {}),
     ...(metadata.description ? { summary: metadata.description } : {}),
     ...(metadata.coverImageUrl ? { coverImageUrl: metadata.coverImageUrl } : {}),
+    ...(metadata.series ? { series: metadata.series } : {}),
   };
 }
 
@@ -334,6 +335,8 @@ export function BookForm({
 
   const { register, handleSubmit, reset, getValues, watch, setValue, clearErrors, formState: { errors } } = useForm<CreateBookForm>({
     resolver: zodResolver(createBookSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
     defaultValues: { title: '', author: '', isbn13: '', pages: 0, rating: 0, completed: 0, ...defaultValues },
   });
 
@@ -585,6 +588,14 @@ export function BookForm({
             </datalist>
           </Field>
 
+          <Field label="Summary">
+            <textarea
+              className="w-full rounded-md border border-rule bg-paper font-serif text-ink placeholder:italic placeholder:text-ink-faint focus-visible:border-accent-blue focus-visible:outline-none transition-[border-color] duration-[140ms]"
+              style={{ minHeight: 80, padding: '11px 14px', fontSize: 15, resize: 'vertical' }}
+              {...register('summary')}
+            />
+          </Field>
+
           <div className="grid grid-cols-2 gap-3">
             <Field label="Format">
               <Input placeholder="Hardcover, Paperback…" {...register('format')} />
@@ -593,14 +604,6 @@ export function BookForm({
               <Input placeholder="1st, 2nd…" {...register('edition')} />
             </Field>
           </div>
-
-          <Field label="Summary">
-            <textarea
-              className="w-full rounded-md border border-rule bg-paper font-serif text-ink placeholder:italic placeholder:text-ink-faint focus-visible:border-accent-blue focus-visible:outline-none transition-[border-color] duration-[140ms]"
-              style={{ minHeight: 80, padding: '11px 14px', fontSize: 15, resize: 'vertical' }}
-              {...register('summary')}
-            />
-          </Field>
 
           {haikuValue && (
             <div className="border border-rule-soft bg-cream-warm" style={{ borderRadius: 6, padding: '14px 16px' }}>

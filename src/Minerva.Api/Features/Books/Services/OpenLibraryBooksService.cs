@@ -225,10 +225,15 @@ public class OpenLibraryBooksService(
                 coverUrl = $"https://covers.openlibrary.org/b/id/{coverId}-M.jpg";
             }
 
+            string? series = null;
+            if (root.TryGetProperty("series", out var seriesArr) && seriesArr.GetArrayLength() > 0)
+                series = seriesArr[0].GetString();
+            series ??= PublisherImprints.AsImprint(publisher);
+
             if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(author))
                 return null;
 
-            var meta = new BookMetadata(title, author, publisher, pubDate, pageCount, null, null, null, coverUrl);
+            var meta = new BookMetadata(title, author, publisher, pubDate, pageCount, null, null, null, coverUrl, Series: series);
             return await EnrichDescriptionAsync(client, meta, workKey, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
