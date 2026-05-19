@@ -54,7 +54,7 @@ public class HaikuGenerationService(
             sb.AppendLine(excerpt);
         }
         sb.AppendLine();
-        sb.AppendLine("Return only the haiku as three short lines. No title, quotation marks, labels, or explanation.");
+        sb.AppendLine("Return only the haiku as three short lines. No title, quotation marks, labels, explanation, dashes, or hyphens.");
         return sb.ToString();
     }
 
@@ -113,6 +113,9 @@ public class HaikuGenerationService(
     {
         var lines = text
             .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace("—", "", StringComparison.Ordinal)
+            .Replace("–", "", StringComparison.Ordinal)
+            .Replace("-", "", StringComparison.Ordinal)
             .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
             .Take(3)
             .ToArray();
