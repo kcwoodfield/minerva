@@ -558,9 +558,9 @@ export function BookForm({
 
           <div className="grid grid-cols-2 gap-3">
             <Field label="Genre">
-              <Input {...register('genre')} />
+              <Input placeholder="e.g. Mystery, Self-Help" {...register('genre')} />
             </Field>
-            <Field label="Fiction">
+            <Field label="Fiction / Non-Fiction">
               <select
                 className="w-full rounded-md border border-rule bg-paper font-serif text-ink focus-visible:border-accent-blue focus-visible:outline-none transition-[border-color] duration-[140ms]"
                 style={{ height: 42, padding: '0 14px', fontSize: 15 }}
@@ -570,7 +570,7 @@ export function BookForm({
                   setValue('isFiction', v === 'true' ? true : v === 'false' ? false : undefined, { shouldDirty: true });
                 }}
               >
-                <option value="">Unknown</option>
+                <option value="">—</option>
                 <option value="true">Fiction</option>
                 <option value="false">Non-Fiction</option>
               </select>
