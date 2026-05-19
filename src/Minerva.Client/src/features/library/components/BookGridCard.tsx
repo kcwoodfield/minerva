@@ -46,7 +46,7 @@ export function BookGridCard({ book, onSelect, onEdit, onDelete }: Props) {
             coverImageUrl={book.coverImageUrl}
             coverSourceUrl={book.coverSourceUrl}
             cacheKey={book.timestamp}
-            className="h-full w-full object-contain"
+            className="max-h-full w-[85%] object-contain translate-y-[5%] group-hover:translate-y-0 transition-transform duration-[420ms] ease-in-out"
             placeholderClassName="flex h-full w-full items-center justify-center"
           />
         </div>

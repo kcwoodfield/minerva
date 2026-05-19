@@ -144,8 +144,6 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
               ) : null}
 
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                <DetailField label="ISBN-13">{book.isbn13}</DetailField>
-                <DetailField label="ISBN-10">{book.isbn10}</DetailField>
                 <DetailField label="Publisher">{book.publisher}</DetailField>
                 <DetailField label="Published">
                   {pubYear ?? book.publicationDate}
@@ -164,6 +162,8 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
                 <DetailField label="Added">
                   {format(new Date(book.dateAdded), 'MMMM d, yyyy')}
                 </DetailField>
+                <DetailField label="ISBN-13">{book.isbn13}</DetailField>
+                <DetailField label="ISBN-10">{book.isbn10}</DetailField>
               </dl>
 
               {book.review && (

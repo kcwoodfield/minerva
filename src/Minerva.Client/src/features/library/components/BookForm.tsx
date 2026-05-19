@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { normalizeIsbn } from '@/lib/isbn';
+import { normalizeIsbn, isbn10ToIsbn13 } from '@/lib/isbn';
 import { createBookSchema, type CreateBookForm, type BookMetadata } from '../types/library.types';
 import { BookTitle } from './BookTitle';
 import { formatBookTitle } from '../lib/formatBookTitle';
@@ -498,7 +498,17 @@ export function BookForm({
 
           <div className="grid grid-cols-2 gap-3">
             <Field label="ISBN-13 *" error={errors.isbn13?.message}>
-              <Input {...register('isbn13')} />
+              <Input
+                {...register('isbn13')}
+                onBlur={(e) => {
+                  const val = e.target.value.trim();
+                  const normalized = normalizeIsbn(val);
+                  if (normalized?.length === 10) {
+                    const converted = isbn10ToIsbn13(normalized);
+                    if (converted) setValue('isbn13', converted, { shouldValidate: true });
+                  }
+                }}
+              />
             </Field>
             <Field label="ISBN-10">
               <Input {...register('isbn10')} />
@@ -517,8 +527,17 @@ export function BookForm({
             <Field label="Rating (0–5)">
               <Input type="number" min={0} max={5} {...register('rating', { valueAsNumber: true })} />
             </Field>
-            <Field label="Progress %">
-              <Input type="number" min={0} max={100} {...register('completed', { valueAsNumber: true })} />
+            <Field label={`Progress — ${watch('completed') ?? 0}%`}>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={25}
+                value={watch('completed') ?? 0}
+                onChange={(e) => setValue('completed', Number(e.target.value), { shouldValidate: false })}
+                className="w-full accent-accent"
+                style={{ height: 36 }}
+              />
             </Field>
           </div>
 
