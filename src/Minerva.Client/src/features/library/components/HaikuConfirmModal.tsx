@@ -48,9 +48,21 @@ export function HaikuConfirmModal({
             : 'Add this haiku to the volume, or try another.'}
         </DialogDescription>
 
+        <div className="flex justify-center" style={{ marginTop: 20 }}>
+          <button
+            type="button"
+            onClick={onRegenerate}
+            disabled={isSaving || isGenerating}
+            className="flex items-center gap-2 font-sans text-sm text-ink-mute bg-transparent border border-transparent rounded px-3 py-1.5 transition-colors hover:border-white hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <RefreshCw style={{ width: 14, height: 14 }} />
+            Regenerate
+          </button>
+        </div>
+
         <div
           className="border border-rule bg-paper text-center"
-          style={{ borderRadius: 6, padding: '28px 24px', marginTop: 20, marginBottom: 20 }}
+          style={{ borderRadius: 6, padding: '28px 24px', marginTop: 12, marginBottom: 20 }}
         >
           {isGenerating ? (
             <div className="flex items-center justify-center gap-2 font-serif italic text-ink-mute">
@@ -86,15 +98,6 @@ export function HaikuConfirmModal({
               Save without haiku
             </Button>
           )}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onRegenerate}
-            disabled={isSaving || isGenerating}
-          >
-            <RefreshCw style={{ width: 14, height: 14 }} />
-            Regenerate
-          </Button>
           <Button type="button" onClick={onConfirm} disabled={isSaving || isGenerating || !haiku.trim()}>
             {isSaving ? 'Saving…' : mode === 'create' ? 'Save volume' : 'Use this haiku'}
           </Button>

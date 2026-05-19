@@ -10,7 +10,7 @@ public record CreateBookRequest(
     string Author,
     string Isbn13,
     string? Isbn10,
-    int Pages,
+    int? Pages,
     int Rating,
     string? Review,
     int Completed,

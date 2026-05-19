@@ -506,7 +506,7 @@ export function BookForm({
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <Field label="Pages *" error={errors.pages?.message}>
+            <Field label="Pages" error={errors.pages?.message}>
               <Input
                 type="number"
                 placeholder="e.g. 312"

@@ -34,7 +34,7 @@ export interface CreateBookDto {
   author: string;
   isbn13: string;
   isbn10?: string;
-  pages: number;
+  pages?: number;
   rating?: number;
   review?: string;
   completed?: number;
@@ -91,7 +91,7 @@ export const createBookSchema = z.object({
       (v) => !v?.trim() || normalizeIsbn(v)?.length === 10,
       'Enter a valid 10-digit ISBN (dashes optional)',
     ),
-  pages: z.number().min(1, 'Pages must be at least 1'),
+  pages: z.number().min(0).optional(),
   rating: z.number().min(0).max(5),
   review: z.string().optional(),
   completed: z.number().min(0).max(100),

@@ -29,7 +29,7 @@ public class CreateBookHandler(MinervaDbContext db, BookImageStorage storage, IH
             Author = req.Author,
             Isbn13 = req.Isbn13,
             Isbn10 = req.Isbn10,
-            Pages = req.Pages,
+            Pages = req.Pages ?? 0,
             Rating = req.Rating,
             Review = req.Review,
             Completed = req.Completed,
