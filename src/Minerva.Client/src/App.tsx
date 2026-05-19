@@ -7,6 +7,19 @@ import { FilterBar } from './features/library/components/FilterBar';
 import { LibraryTable } from './features/library/components/LibraryTable';
 import { InsightsPage } from './features/library/components/InsightsPage';
 
+const TAGLINES = [
+  'Read like a god.',
+  'Every page, a door.',
+  'Build your canon.',
+  'A life well-shelved.',
+  'Words outlast empires.',
+  'The shelf never lies.',
+  'Know thyself. Read more.',
+  'Pages over everything.',
+  'Ink runs deep.',
+  'One volume at a time.',
+];
+
 type Page = 'library' | 'insights';
 
 function getPage(): Page {
@@ -35,6 +48,7 @@ function NavLink({ label, page, current, onClick }: { label: string; page: Page;
 
 function App() {
   const [page, setPage] = useState<Page>(getPage);
+  const [tagline] = useState(() => TAGLINES[Math.floor(Math.random() * TAGLINES.length)]);
 
   useEffect(() => {
     const onHash = () => setPage(getPage());
@@ -67,7 +81,7 @@ function App() {
                   Minerva
                 </h1>
                 <p className="font-serif italic text-ink-mute" style={{ fontSize: 12, marginTop: 2 }}>
-                  Read like a god.
+                  {tagline}
                 </p>
               </div>
             </a>
