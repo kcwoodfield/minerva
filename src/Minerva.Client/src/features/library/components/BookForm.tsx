@@ -293,11 +293,13 @@ function BookLookupCard({
             {confirmedResult.publisher && (
               <div className="t-meta truncate" style={{ marginTop: 4 }}>
                 {confirmedResult.publisher}
-                {confirmedResult.publicationDate ? ` · ${confirmedResult.publicationDate}` : ''}
+                {confirmedResult.publicationDate
+                  ? ` · ${new Date(confirmedResult.publicationDate).getFullYear()}`
+                  : ''}
               </div>
             )}
             <p className="font-serif italic text-accent-moss" style={{ fontSize: 12, marginTop: 8 }}>
-              Details loaded — review and save below.
+              Details loaded. Please review and save below.
             </p>
           </div>
         </div>
@@ -340,14 +342,15 @@ export function BookForm({
     defaultValues: { title: '', author: '', isbn13: '', pages: 0, rating: 0, completed: 0, ...defaultValues },
   });
 
+  const { onBlur: isbn13RhfBlur, ...isbn13Register } = register('isbn13');
+
   const handleFoundMetadata = (isbn: string, metadata: BookMetadata) => {
+    setShowForm(true);
     reset({
       ...getValues(),
       ...metadataToFormValues(isbn, metadata),
     });
-    // clearErrors must run after the resolver's async re-validation cycle
     setTimeout(() => clearErrors('pages'), 0);
-    setShowForm(true);
   };
 
   const requestHaiku = async (title: string, author: string, summary?: string) => {
@@ -499,8 +502,9 @@ export function BookForm({
           <div className="grid grid-cols-2 gap-3">
             <Field label="ISBN-13 *" error={errors.isbn13?.message}>
               <Input
-                {...register('isbn13')}
+                {...isbn13Register}
                 onBlur={(e) => {
+                  isbn13RhfBlur(e);
                   const val = e.target.value.trim();
                   const normalized = normalizeIsbn(val);
                   if (normalized?.length === 10) {
