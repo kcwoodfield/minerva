@@ -40,9 +40,9 @@ function BookCover({ book }: { book: Book }) {
       coverImageUrl={book.coverImageUrl}
       coverSourceUrl={book.coverSourceUrl}
       cacheKey={book.timestamp}
-      className="object-cover rounded-sm shadow-minerva-cover w-full"
+      className="object-cover rounded-sm shadow-minerva-cover"
       placeholderClassName="rounded-sm shadow-minerva-cover flex items-center justify-center"
-      style={{ maxWidth: 200, aspectRatio: '2/3', width: 200 }}
+      style={{ width: 160, maxWidth: '100%', aspectRatio: '2/3' }}
     />
   );
 }
@@ -87,7 +87,7 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
 
         <div className="flex-1 overflow-y-auto">
           <div className="flex flex-col sm:flex-row gap-6 p-6 pr-12">
-            <div className="flex-shrink-0 flex justify-center sm:justify-start">
+            <div className="flex-shrink-0 flex justify-center sm:justify-start self-start">
               <BookCover book={book} />
             </div>
 
@@ -113,7 +113,7 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
                 )}
               </div>
 
-              {book.haiku && (
+              {book.haiku ? (
                 <div
                   className="border border-rule-soft bg-paper text-center"
                   style={{ borderRadius: 6, padding: '20px 18px' }}
@@ -129,16 +129,19 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
                     </p>
                   ))}
                 </div>
-              )}
-
-              {book.summary && (
-                <p
-                  className="font-serif text-ink-soft border-l-2 border-rule pl-4"
-                  style={{ fontSize: 15, lineHeight: 1.55 }}
+              ) : book.summary ? (
+                <div
+                  className="overflow-y-auto border-l-2 border-rule pl-4"
+                  style={{ maxHeight: 120 }}
                 >
-                  {book.summary}
-                </p>
-              )}
+                  <p
+                    className="font-serif text-ink-soft"
+                    style={{ fontSize: 15, lineHeight: 1.55 }}
+                  >
+                    {book.summary}
+                  </p>
+                </div>
+              ) : null}
 
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
                 <DetailField label="ISBN-13">{book.isbn13}</DetailField>
