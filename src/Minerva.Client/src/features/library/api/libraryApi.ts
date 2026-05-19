@@ -77,7 +77,11 @@ export const libraryApi = {
     return data;
   },
 
-  updateNote: async (bookId: string, noteId: string, note: { content: string; pageNumber?: number }) => {
+  updateNote: async (
+    bookId: string,
+    noteId: string,
+    note: { content: string; pageNumber?: number | null },
+  ) => {
     const { data } = await apiClient.put<BookNote>(`/books/${bookId}/notes/${noteId}`, note);
     return data;
   },

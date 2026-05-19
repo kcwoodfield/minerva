@@ -118,7 +118,7 @@ export function InsightsPage() {
   const pagesDisplay = isLoading ? dash : (data?.totalPagesRead ?? 0).toLocaleString();
 
   return (
-    <main className="px-page-x" style={{ maxWidth: 900, margin: '0 auto', paddingBottom: 64 }}>
+    <main className="px-4 md:px-page-x" style={{ maxWidth: 900, margin: '0 auto', paddingBottom: 64 }}>
 
       {/* Hero */}
       <div className="text-center" style={{ paddingTop: 48, paddingBottom: 44 }}>

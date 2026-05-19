@@ -6,8 +6,20 @@ import { useCreateBook } from '../hooks/useLibrary';
 import { BookForm } from './BookForm';
 import type { CreateBookForm } from '../types/library.types';
 
-export function AddBookDrawer() {
-  const [open, setOpen] = useState(false);
+interface AddBookDrawerProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  showTrigger?: boolean;
+}
+
+export function AddBookDrawer({
+  open: openProp,
+  onOpenChange,
+  showTrigger = true,
+}: AddBookDrawerProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = openProp ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   const createMutation = useCreateBook();
 
   const handleSubmit = async (data: CreateBookForm) => {
@@ -17,12 +29,14 @@ export function AddBookDrawer() {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button>
-          <Plus style={{ width: 15, height: 15 }} />
-          Add Book
-        </Button>
-      </SheetTrigger>
+      {showTrigger && (
+        <SheetTrigger asChild>
+          <Button>
+            <Plus style={{ width: 15, height: 15 }} />
+            Add Book
+          </Button>
+        </SheetTrigger>
+      )}
       <SheetContent className="sm:w-[500px]">
         {/* Drawer header */}
         <div style={{ padding: '22px 28px 16px' }}>

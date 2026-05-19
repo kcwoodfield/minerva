@@ -55,30 +55,32 @@ export function FilterBar() {
 
   return (
     <div
-      className="grid items-center gap-4 border-b border-rule-soft"
-      style={{ gridTemplateColumns: 'auto 1fr auto', paddingBottom: 18, marginBottom: 0 }}
+      className="flex flex-col gap-4 border-b border-rule-soft pb-4 md:grid md:items-center md:gap-4"
+      style={{ marginBottom: 0, gridTemplateColumns: 'auto 1fr auto' }}
     >
-      {/* Left: status chips */}
-      <div className="flex items-center gap-1.5">
-        {STATUS_CHIPS.map((chip) => {
-          const active = activeStatus === chip.value;
-          return (
-            <button
-              key={chip.label}
-              type="button"
-              onClick={() => setFilters({ status: chip.value })}
-              className="chip-filter font-serif"
-              data-active={active}
-            >
-              {chip.label}
-            </button>
-          );
-        })}
+      {/* Status chips — scroll on narrow screens */}
+      <div className="-mx-1 overflow-x-auto px-1 md:mx-0 md:px-0">
+        <div className="flex w-max min-w-full items-center gap-1.5 md:w-auto">
+          {STATUS_CHIPS.map((chip) => {
+            const active = activeStatus === chip.value;
+            return (
+              <button
+                key={chip.label}
+                type="button"
+                onClick={() => setFilters({ status: chip.value })}
+                className="chip-filter font-serif shrink-0"
+                data-active={active}
+              >
+                {chip.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Center: search */}
-      <div className="flex justify-center">
-        <div className="relative w-full" style={{ maxWidth: 360 }}>
+      {/* Search */}
+      <div className="flex justify-stretch md:justify-center">
+        <div className="relative w-full md:max-w-[360px]">
           <svg
             width="14" height="14" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
@@ -93,10 +95,11 @@ export function FilterBar() {
             placeholder="Search…"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
+            className="w-full"
             style={{ paddingLeft: 36, paddingRight: 48 }}
           />
           <kbd
-            className="absolute pointer-events-none font-sans text-ink-faint"
+            className="absolute pointer-events-none font-sans text-ink-faint hidden sm:inline"
             style={{ right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11 }}
           >
             ⌘K
@@ -104,18 +107,18 @@ export function FilterBar() {
         </div>
       </div>
 
-      {/* Right: sort + view toggle */}
-      <div className="flex items-center gap-3 shrink-0">
+      {/* Sort + view */}
+      <div className="flex items-center justify-between gap-3 shrink-0 md:justify-end">
         {view === 'grid' && (
-          <div className="flex items-center gap-1.5">
-            <span className="t-meta" style={{ whiteSpace: 'nowrap' }}>Sort by</span>
+          <div className="flex min-w-0 flex-1 items-center gap-1.5 md:flex-initial">
+            <span className="t-meta shrink-0" style={{ whiteSpace: 'nowrap' }}>Sort by</span>
             <select
               value={`${sortBy}:${ascending ? 'asc' : 'desc'}`}
               onChange={(e) => {
                 const [field, dir] = e.target.value.split(':');
                 setSort(field, dir === 'asc');
               }}
-              className="font-serif text-ink-mute bg-transparent border-none outline-none cursor-pointer"
+              className="min-w-0 flex-1 font-serif text-ink-mute bg-transparent border-none outline-none cursor-pointer md:flex-initial"
               style={{ fontSize: 13 }}
             >
               {SORT_OPTIONS.map((o) => [
@@ -126,7 +129,7 @@ export function FilterBar() {
           </div>
         )}
 
-        <div className="segment-toggle">
+        <div className="segment-toggle shrink-0">
           {(['list', 'grid'] as const).map((v) => {
             const active = view === v;
             return (
