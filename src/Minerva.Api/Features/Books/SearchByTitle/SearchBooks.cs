@@ -20,9 +20,36 @@ public class SearchBooksModule : ICarterModule
     }
 }
 
-public class SearchBooksHandler(GoogleBooksService googleBooks)
+public class SearchBooksHandler(GoogleBooksService googleBooks, OpenLibraryBooksService openLibrary)
     : IRequestHandler<SearchBooksQuery, IReadOnlyList<BookMetadata>>
 {
-    public Task<IReadOnlyList<BookMetadata>> Handle(SearchBooksQuery query, CancellationToken ct) =>
-        googleBooks.SearchByTitle(query.Query, cancellationToken: ct);
+    private const int MaxResults = 8;
+
+    public async Task<IReadOnlyList<BookMetadata>> Handle(SearchBooksQuery query, CancellationToken ct)
+    {
+        var googleTask = googleBooks.SearchByTitle(query.Query, MaxResults, ct);
+        var olTask = openLibrary.SearchByTitle(query.Query, MaxResults, ct);
+        await Task.WhenAll(googleTask, olTask);
+        var googleResults = await googleTask;
+        var olResults = await olTask;
+
+        // Google Books first; fill remaining slots with OL entries not already represented
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var merged = new List<BookMetadata>(MaxResults);
+
+        foreach (var item in googleResults.Concat(olResults))
+        {
+            if (merged.Count >= MaxResults) break;
+
+            // Deduplicate on ISBN-13, then fall back to normalised title+author
+            var key = !string.IsNullOrWhiteSpace(item.Isbn13)
+                ? item.Isbn13!
+                : $"{item.Title?.ToLowerInvariant().Trim()}|{item.Author?.ToLowerInvariant().Trim()}";
+
+            if (seen.Add(key))
+                merged.Add(item);
+        }
+
+        return merged;
+    }
 }

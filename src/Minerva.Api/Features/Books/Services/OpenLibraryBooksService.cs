@@ -9,6 +9,75 @@ public class OpenLibraryBooksService(
 {
     private const int MaxAuthorFetches = 3;
 
+    public async Task<IReadOnlyList<BookMetadata>> SearchByTitle(string query, int maxResults = 8, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var client = BookMetadataHttpClient.Create(httpClientFactory);
+            var encoded = Uri.EscapeDataString(query);
+            var url = $"https://openlibrary.org/search.json?q={encoded}&limit={maxResults}&fields=title,author_name,publisher,first_publish_year,number_of_pages_median,cover_i,isbn,subject,language,key";
+
+            var response = await client.GetAsync(url, cancellationToken);
+            if (!response.IsSuccessStatusCode) return [];
+
+            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+            if (!doc.RootElement.TryGetProperty("docs", out var docs)) return [];
+
+            var results = new List<BookMetadata>();
+            foreach (var item in docs.EnumerateArray())
+            {
+                var title = item.TryGetProperty("title", out var t) ? t.GetString() : null;
+                if (string.IsNullOrWhiteSpace(title)) continue;
+
+                string? author = null;
+                if (item.TryGetProperty("author_name", out var names) && names.GetArrayLength() > 0)
+                    author = string.Join(", ", names.EnumerateArray().Select(n => n.GetString()).Where(n => n is not null));
+
+                string? publisher = null;
+                if (item.TryGetProperty("publisher", out var pubs) && pubs.GetArrayLength() > 0)
+                    publisher = pubs[0].GetString();
+
+                int? year = item.TryGetProperty("first_publish_year", out var y) ? y.GetInt32() : null;
+                DateTime? pubDate = year.HasValue ? new DateTime(year.Value, 1, 1) : null;
+
+                int? pageCount = item.TryGetProperty("number_of_pages_median", out var pages) ? pages.GetInt32() : null;
+
+                string? coverUrl = null;
+                if (item.TryGetProperty("cover_i", out var coverId))
+                    coverUrl = $"https://covers.openlibrary.org/b/id/{coverId.GetInt64()}-M.jpg";
+
+                string? language = null;
+                if (item.TryGetProperty("language", out var langs) && langs.GetArrayLength() > 0)
+                    language = langs[0].GetString();
+
+                string? isbn13 = null, isbn10 = null;
+                if (item.TryGetProperty("isbn", out var isbns))
+                {
+                    foreach (var isbnEl in isbns.EnumerateArray())
+                    {
+                        var val = isbnEl.GetString();
+                        if (val?.Length == 13) isbn13 ??= val;
+                        else if (val?.Length == 10) isbn10 ??= val;
+                        if (isbn13 is not null && isbn10 is not null) break;
+                    }
+                }
+
+                results.Add(new BookMetadata(title, author, publisher, pubDate, pageCount, null, null, language, coverUrl, isbn13, isbn10));
+            }
+
+            return results;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogDebug(ex, "Open Library title search failed for query {Query}", query);
+            return [];
+        }
+    }
+
     public async Task<BookMetadata?> LookupByISBN(string isbn, CancellationToken cancellationToken = default)
     {
         var normalized = IsbnHelper.Normalize(isbn);
