@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useBooks } from '../hooks/useLibrary';
@@ -20,6 +20,24 @@ import { LibraryPagination } from './LibraryPagination';
 import type { Book } from '../types/library.types';
 
 const TABLE_COL_COUNT = 10;
+
+function getBookIdFromUrl(): string | null {
+  return new URLSearchParams(window.location.search).get('book');
+}
+
+function setBookIdInUrl(id: string | null, replace = false) {
+  const url = new URL(window.location.href);
+  if (id) {
+    url.searchParams.set('book', id);
+  } else {
+    url.searchParams.delete('book');
+  }
+  if (replace) {
+    window.history.replaceState(null, '', url.toString());
+  } else {
+    window.history.pushState(null, '', url.toString());
+  }
+}
 
 function EmptyState() {
   return (
@@ -58,15 +76,51 @@ export function LibraryTable() {
   );
   const total = data?.total ?? 0;
 
+  // Restore modal from ?book=<id> on initial load
+  const restoredFromUrl = useRef(false);
+  useEffect(() => {
+    if (restoredFromUrl.current || books.length === 0) return;
+    restoredFromUrl.current = true;
+    const id = getBookIdFromUrl();
+    if (!id) return;
+    const idx = books.findIndex((b) => b.id === id);
+    if (idx >= 0) {
+      setDetailIndex(idx);
+    } else {
+      setBookIdInUrl(null, true);
+    }
+  }, [books]);
+
+  // Sync modal state when user navigates with browser back/forward
+  useEffect(() => {
+    const onPop = () => {
+      const id = getBookIdFromUrl();
+      if (id) {
+        const idx = books.findIndex((b) => b.id === id);
+        setDetailIndex(idx >= 0 ? idx : null);
+      } else {
+        setDetailIndex(null);
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [books]);
+
   const openDetail = useCallback(
     (book: Book) => {
       const idx = books.findIndex((b) => b.id === book.id);
-      if (idx >= 0) setDetailIndex(idx);
+      if (idx >= 0) {
+        setDetailIndex(idx);
+        setBookIdInUrl(book.id);
+      }
     },
     [books],
   );
 
-  const closeDetail = useCallback(() => setDetailIndex(null), []);
+  const closeDetail = useCallback(() => {
+    setDetailIndex(null);
+    setBookIdInUrl(null);
+  }, []);
 
   if (isLoading) {
     return (
@@ -154,7 +208,10 @@ export function LibraryTable() {
         books={books}
         index={detailIndex ?? 0}
         open={detailIndex !== null && books.length > 0}
-        onIndexChange={setDetailIndex}
+        onIndexChange={(idx) => {
+          setDetailIndex(idx);
+          if (books[idx]) setBookIdInUrl(books[idx].id, true);
+        }}
         onClose={closeDetail}
         onEdit={handleEdit}
       />

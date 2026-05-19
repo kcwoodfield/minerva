@@ -405,6 +405,23 @@ export function BookForm({
   };
 
   const finalizeSubmit = async (data: CreateBookForm, haiku?: string) => {
+    if (!isEditMode && data.isbn13) {
+      try {
+        const existing = await libraryApi.getBooks({ search: data.isbn13, pageSize: 5 });
+        const duplicate = existing.items.find(
+          (b) => normalizeIsbn(b.isbn13 ?? '') === data.isbn13,
+        );
+        if (duplicate) {
+          setHaikuModalOpen(false);
+          setPendingSubmit(null);
+          setGeneratedHaiku('');
+          toast.error('This book already exists in your library.');
+          return;
+        }
+      } catch {
+        // check failed — let the API handle it
+      }
+    }
     await onSubmit({
       ...data,
       ...(haiku ? { haiku } : {}),
