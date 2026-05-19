@@ -1,8 +1,8 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ImagePlus, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDeleteCover, useUploadCover } from '../hooks/useLibrary';
-import { hasCoverData, isLocalCoverUrl, resolveBookCoverEndpoint } from '../lib/resolveCoverSrc';
+import { isLocalCoverUrl, resolveCoverDisplaySrc } from '../lib/resolveCoverSrc';
 
 interface Props {
   bookId: string;
@@ -23,12 +23,18 @@ export function CoverImageUpload({
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [localPreview, setLocalPreview] = useState<string | null>(null);
+  const [coverVersion, setCoverVersion] = useState(cacheKey);
   const uploadMutation = useUploadCover();
   const deleteMutation = useDeleteCover();
 
+  useEffect(() => {
+    setCoverVersion(cacheKey);
+  }, [cacheKey]);
+
   const displaySrc =
     localPreview
-    ?? (hasCoverData(coverUrl, coverSourceUrl) ? resolveBookCoverEndpoint(bookId, cacheKey) : undefined);
+    ?? resolveCoverDisplaySrc(bookId, coverUrl, coverSourceUrl, coverVersion);
+
   const isUploaded = isLocalCoverUrl(coverUrl);
   const busy = uploadMutation.isPending || deleteMutation.isPending;
 
@@ -38,6 +44,9 @@ export function CoverImageUpload({
     try {
       const { url } = await uploadMutation.mutateAsync({ id: bookId, file });
       onCoverChange(url);
+      setCoverVersion(String(Date.now()));
+    } catch {
+      setLocalPreview(null);
     } finally {
       URL.revokeObjectURL(preview);
       setLocalPreview(null);
@@ -47,10 +56,12 @@ export function CoverImageUpload({
   const handleRemove = async () => {
     if (!isUploaded) {
       onCoverChange(undefined);
+      setCoverVersion(String(Date.now()));
       return;
     }
     await deleteMutation.mutateAsync(bookId);
     onCoverChange(coverSourceUrl);
+    setCoverVersion(String(Date.now()));
   };
 
   return (
@@ -63,6 +74,7 @@ export function CoverImageUpload({
         >
           {displaySrc ? (
             <img
+              key={displaySrc}
               src={displaySrc}
               alt=""
               referrerPolicy="no-referrer"

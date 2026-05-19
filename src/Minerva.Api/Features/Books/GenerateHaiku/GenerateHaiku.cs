@@ -26,9 +26,6 @@ public class GenerateHaikuModule : ICarterModule
     {
         app.MapPost("/api/books/generate-haiku", async (GenerateHaikuRequest request, ISender sender) =>
         {
-            if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.Author))
-                return Results.BadRequest(new { message = "Title and author are required to generate a haiku." });
-
             var result = await sender.Send(new GenerateHaikuCommand(
                 request.Title.Trim(),
                 request.Author.Trim(),

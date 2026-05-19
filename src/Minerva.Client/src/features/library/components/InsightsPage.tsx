@@ -9,13 +9,26 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function StatCard({ label, value }: { label: string; value: React.ReactNode }) {
+function StatCard({
+  label,
+  value,
+  detail,
+}: {
+  label: string;
+  value: React.ReactNode;
+  detail?: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-1 border border-rule bg-paper" style={{ borderRadius: 8, padding: '20px 24px' }}>
       <span className="t-eyebrow">{label}</span>
       <span className="font-display font-semibold text-ink" style={{ fontSize: 32, lineHeight: 1.1, letterSpacing: '-0.02em' }}>
         {value}
       </span>
+      {detail != null && detail !== '' && (
+        <span className="font-serif italic text-ink-mute tabular-nums" style={{ fontSize: 13, marginTop: 4 }}>
+          {detail}
+        </span>
+      )}
     </div>
   );
 }
@@ -116,6 +129,10 @@ export function InsightsPage() {
 
   const dash = '—';
   const pagesDisplay = isLoading ? dash : (data?.totalPagesRead ?? 0).toLocaleString();
+  const finishedPercentRead =
+    !isLoading && data && data.totalBooks > 0
+      ? `${Math.round((data.totalFinished / data.totalBooks) * 100)}% read`
+      : undefined;
 
   return (
     <main className="px-4 md:px-page-x" style={{ maxWidth: 900, margin: '0 auto', paddingBottom: 64 }}>
@@ -135,7 +152,11 @@ export function InsightsPage() {
       <Section title="At a glance">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           <StatCard label="Currently reading" value={isLoading ? dash : (data?.totalReading ?? 0)} />
-          <StatCard label="Volumes finished" value={isLoading ? dash : (data?.totalFinished ?? 0)} />
+          <StatCard
+            label="Volumes finished"
+            value={isLoading ? dash : (data?.totalFinished ?? 0)}
+            detail={finishedPercentRead}
+          />
           <StatCard label="Total in library" value={isLoading ? dash : (data?.totalBooks ?? 0)} />
           <StatCard label="Average rating" value={isLoading ? dash : data?.averageRating ? `${data.averageRating} / 5` : dash} />
           <StatCard label="Added this year" value={isLoading ? dash : (data?.booksThisYear ?? 0)} />

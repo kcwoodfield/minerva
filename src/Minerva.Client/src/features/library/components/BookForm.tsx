@@ -10,6 +10,7 @@ import { normalizeIsbn, isbn10ToIsbn13 } from '@/lib/isbn';
 import { createBookSchema, type CreateBookForm, type BookMetadata } from '../types/library.types';
 import { BookTitle } from './BookTitle';
 import { formatBookTitle } from '../lib/formatBookTitle';
+import { formatPublicationYear } from '../lib/formatPublicationYear';
 import { useLookupISBN } from '../hooks/useLibrary';
 import { libraryApi } from '../api/libraryApi';
 import { CoverImageUpload } from './CoverImageUpload';
@@ -280,10 +281,14 @@ function BookLookupCard({
                 <div className="font-serif italic text-ink-mute truncate" style={{ fontSize: 12 }}>
                   {result.author}
                 </div>
-                {(result.publisher || result.publicationDate) && (
-                  <div className="t-meta truncate" style={{ marginTop: 2 }}>
-                    {[result.publisher, result.publicationDate ? new Date(result.publicationDate).getFullYear() : null]
-                      .filter(Boolean).join(' · ')}
+                {formatPublicationYear(result.publicationDate) && (
+                  <div className="t-meta tabular-nums" style={{ marginTop: 2 }}>
+                    {formatPublicationYear(result.publicationDate)}
+                  </div>
+                )}
+                {(result.isbn13?.trim() || result.isbn10?.trim()) && (
+                  <div className="t-meta tabular-nums truncate" style={{ marginTop: 2 }}>
+                    {result.isbn13?.trim() || result.isbn10?.trim()}
                   </div>
                 )}
               </div>

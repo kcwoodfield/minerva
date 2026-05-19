@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Loader2, RefreshCw } from 'lucide-react';
 import {
   Dialog,
@@ -31,6 +32,21 @@ export function HaikuConfirmModal({
   onSaveWithoutHaiku,
 }: Props) {
   const lines = haiku.split('\n').filter(Boolean);
+  const canSave = !isSaving && !isGenerating && haiku.trim().length > 0;
+
+  useEffect(() => {
+    if (!open) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter' || e.repeat) return;
+      if (!canSave) return;
+      e.preventDefault();
+      onConfirm();
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [open, canSave, onConfirm]);
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && !isSaving && onCancel()}>
@@ -98,7 +114,7 @@ export function HaikuConfirmModal({
               Save without haiku
             </Button>
           )}
-          <Button type="button" onClick={onConfirm} disabled={isSaving || isGenerating || !haiku.trim()}>
+          <Button type="button" onClick={onConfirm} disabled={!canSave}>
             {isSaving ? 'Saving…' : mode === 'create' ? 'Save book' : 'Use this haiku'}
           </Button>
         </div>

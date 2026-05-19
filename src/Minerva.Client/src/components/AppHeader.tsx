@@ -1,4 +1,4 @@
-import { useState, type MouseEvent } from 'react';
+import { useCallback, useEffect, useState, type MouseEvent } from 'react';
 import { Menu, Plus } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -13,6 +13,20 @@ import { AddBookDrawer } from '@/features/library/components/AddBookDrawer';
 import { cn } from '@/lib/utils';
 
 export type AppPage = 'library' | 'insights';
+
+const ADD_BOOK_SHORTCUT_KEY = 'b';
+
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  const tag = target.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+  return target.isContentEditable;
+}
+
+function isAddBookShortcut(e: KeyboardEvent): boolean {
+  if (e.altKey || e.shiftKey || e.key.toLowerCase() !== ADD_BOOK_SHORTCUT_KEY) return false;
+  return e.metaKey || e.ctrlKey;
+}
 
 function NavLink({
   label,
@@ -72,10 +86,23 @@ export function AppHeader({
     setMenuOpen(false);
   };
 
-  const openAddBook = () => {
+  const openAddBook = useCallback(() => {
     setMenuOpen(false);
     setAddBookOpen(true);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (page !== 'library') return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!isAddBookShortcut(e) || isEditableTarget(e.target)) return;
+      e.preventDefault();
+      openAddBook();
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [page, openAddBook]);
 
   return (
     <header className="border-b border-rule-soft bg-cream">
@@ -115,7 +142,7 @@ export function AppHeader({
         <div className="hidden md:flex items-center gap-1 shrink-0">
           <ThemeToggle />
           {page === 'library' && (
-            <Button type="button" onClick={() => setAddBookOpen(true)}>
+            <Button type="button" onClick={openAddBook} aria-keyshortcuts="Meta+B">
               <Plus className="size-[15px]" />
               Add Book
             </Button>

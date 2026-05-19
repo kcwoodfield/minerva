@@ -51,6 +51,9 @@ public static class CoverImageUrlPolicy
 
     private static bool IsAllowedHost(string host)
     {
+        if (host.EndsWith(".googleusercontent.com", StringComparison.OrdinalIgnoreCase))
+            return true;
+
         foreach (var allowed in AllowedHosts)
         {
             if (host.Equals(allowed, StringComparison.OrdinalIgnoreCase)

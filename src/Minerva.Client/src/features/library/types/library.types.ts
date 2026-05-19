@@ -49,7 +49,7 @@ export const createNoteSchema = z.object({
 
 export const updateNoteSchema = z.object({
   content: z.string().min(1, 'Note cannot be empty').max(10_000),
-  pageNumber: z.number().int().positive().optional(),
+  pageNumber: z.number().int().positive().nullable().optional(),
 });
 
 export type CreateNoteForm = z.infer<typeof createNoteSchema>;

@@ -5,7 +5,13 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { libraryApi } from '../api/libraryApi';
-import { bookNoteTypes, type BookNote, type BookNoteType } from '../types/library.types';
+import {
+  bookNoteTypes,
+  createNoteSchema,
+  updateNoteSchema,
+  type BookNote,
+  type BookNoteType,
+} from '../types/library.types';
 
 interface Props {
   bookId: string;
@@ -68,8 +74,6 @@ export function BookNotesPanel({ bookId }: Props) {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = content.trim();
-    if (!trimmed) return;
 
     const { page, error } = parseOptionalPage(pageNumber);
     if (error) {
@@ -77,13 +81,19 @@ export function BookNotesPanel({ bookId }: Props) {
       return;
     }
 
+    const parsed = createNoteSchema.safeParse({
+      type,
+      content: content.trim(),
+      ...(page ? { pageNumber: page } : {}),
+    });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? 'Invalid note.');
+      return;
+    }
+
     setSaving(true);
     try {
-      const created = await libraryApi.createNote(bookId, {
-        type,
-        content: trimmed,
-        ...(page ? { pageNumber: page } : {}),
-      });
+      const created = await libraryApi.createNote(bookId, parsed.data);
       setNotes((prev) => [...prev, created]);
       setContent('');
       setPageNumber('');
@@ -95,24 +105,24 @@ export function BookNotesPanel({ bookId }: Props) {
   };
 
   const handleSaveEdit = async (noteId: string) => {
-    const trimmed = editContent.trim();
-    if (!trimmed) {
-      toast.error('Note cannot be empty.');
-      return;
-    }
-
     const { page, error } = parseOptionalPage(editPage);
     if (error) {
       toast.error(error);
       return;
     }
 
+    const parsed = updateNoteSchema.safeParse({
+      content: editContent.trim(),
+      pageNumber: page ?? null,
+    });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? 'Invalid note.');
+      return;
+    }
+
     setSaving(true);
     try {
-      const updated = await libraryApi.updateNote(bookId, noteId, {
-        content: trimmed,
-        pageNumber: page ?? null,
-      });
+      const updated = await libraryApi.updateNote(bookId, noteId, parsed.data);
       setNotes((prev) => prev.map((n) => (n.id === noteId ? updated : n)));
       cancelEdit();
     } catch {

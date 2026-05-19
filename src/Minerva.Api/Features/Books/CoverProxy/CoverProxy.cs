@@ -29,7 +29,7 @@ public class CoverProxyModule : ICarterModule
             if (File.Exists(path))
             {
                 var contentType = BookImageStorage.GetContentType(fileName) ?? "image/jpeg";
-                return Results.File(await File.ReadAllBytesAsync(path, ct), contentType);
+                return Results.File(path, contentType);
             }
         }
 

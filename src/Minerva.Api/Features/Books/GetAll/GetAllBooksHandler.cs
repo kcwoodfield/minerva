@@ -15,11 +15,12 @@ public class GetAllBooksHandler(MinervaDbContext db) : IRequestHandler<GetAllBoo
 
         if (!string.IsNullOrWhiteSpace(req.Search))
         {
-            var s = req.Search.ToLower();
+            var term = req.Search.Trim();
+            var pattern = $"%{term}%";
             q = q.Where(b =>
-                b.Title.ToLower().Contains(s) ||
-                b.Author.ToLower().Contains(s) ||
-                b.Isbn13.Contains(s));
+                EF.Functions.ILike(b.Title, pattern) ||
+                EF.Functions.ILike(b.Author, pattern) ||
+                b.Isbn13.Contains(term));
         }
 
         q = req.SortBy?.ToLower() switch
