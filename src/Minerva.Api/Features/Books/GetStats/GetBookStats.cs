@@ -5,13 +5,21 @@ using Minerva.Api.Infrastructure.Data;
 
 namespace Minerva.Api.Features.Books.GetStats;
 
+public record MonthlyCount(string Month, int Year, int Count);
+public record NamedCount(string Name, int Count);
+
 public record BookStatsDto(
     int TotalBooks,
     int TotalFinished,
     int TotalReading,
     int TotalPagesRead,
     double AverageRating,
-    int BooksThisYear);
+    int BooksThisYear,
+    IReadOnlyList<MonthlyCount> BooksByMonth,
+    IReadOnlyList<NamedCount> TopGenres,
+    IReadOnlyList<NamedCount> TopAuthors,
+    int FictionCount,
+    int NonFictionCount);
 
 public record GetBookStatsQuery : IRequest<BookStatsDto>;
 
@@ -20,10 +28,7 @@ public class GetBookStatsModule : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGet("/api/books/stats", async (ISender sender) =>
-        {
-            var result = await sender.Send(new GetBookStatsQuery());
-            return Results.Ok(result);
-        })
+            Results.Ok(await sender.Send(new GetBookStatsQuery())))
         .WithName("GetBookStats")
         .WithOpenApi();
     }
@@ -33,35 +38,72 @@ public class GetBookStatsHandler(MinervaDbContext db) : IRequestHandler<GetBookS
 {
     public async Task<BookStatsDto> Handle(GetBookStatsQuery _, CancellationToken ct)
     {
-        var thisYear = DateTime.UtcNow.Year;
-
-        var stats = await db.Books
-            .GroupBy(_ => 1)
-            .Select(g => new
+        var books = await db.Books
+            .Select(b => new
             {
-                TotalBooks      = g.Count(),
-                TotalFinished   = g.Count(b => b.Completed == 100),
-                TotalReading    = g.Count(b => b.Completed > 0 && b.Completed < 100),
-                TotalPagesRead  = g.Where(b => b.Completed == 100).Sum(b => (int?)b.Pages) ?? 0,
-                RatingSum       = g.Where(b => b.Rating > 0).Sum(b => (int?)b.Rating) ?? 0,
-                RatingCount     = g.Count(b => b.Rating > 0),
-                BooksThisYear   = g.Count(b => b.DateAdded.Year == thisYear),
+                b.DateAdded,
+                b.Completed,
+                b.Pages,
+                b.Rating,
+                b.Genre,
+                b.Author,
+                b.IsFiction,
             })
-            .FirstOrDefaultAsync(ct);
+            .ToListAsync(ct);
 
-        if (stats is null)
-            return new BookStatsDto(0, 0, 0, 0, 0, 0);
+        if (books.Count == 0)
+            return new BookStatsDto(0, 0, 0, 0, 0, 0, [], [], [], 0, 0);
 
-        var avg = stats.RatingCount > 0
-            ? Math.Round((double)stats.RatingSum / stats.RatingCount, 1)
-            : 0;
+        var now       = DateTime.UtcNow;
+        var thisYear  = now.Year;
+
+        var totalFinished  = books.Count(b => b.Completed == 100);
+        var totalReading   = books.Count(b => b.Completed > 0 && b.Completed < 100);
+        var totalPages     = books.Where(b => b.Completed == 100).Sum(b => b.Pages);
+        var ratedBooks     = books.Where(b => b.Rating > 0).ToList();
+        var avgRating      = ratedBooks.Count > 0 ? Math.Round(ratedBooks.Average(b => (double)b.Rating), 1) : 0;
+        var thisYearCount  = books.Count(b => b.DateAdded.Year == thisYear);
+
+        // Last 12 months — keyed by (year, month)
+        var byYearMonth = books
+            .GroupBy(b => (b.DateAdded.Year, b.DateAdded.Month))
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        var booksByMonth = Enumerable.Range(0, 12)
+            .Select(i => now.AddMonths(-11 + i))
+            .Select(d => new MonthlyCount(
+                d.ToString("MMM"),
+                d.Year,
+                byYearMonth.GetValueOrDefault((d.Year, d.Month))))
+            .ToList();
+
+        var topGenres = books
+            .Where(b => !string.IsNullOrWhiteSpace(b.Genre))
+            .GroupBy(b => b.Genre!)
+            .Select(g => new NamedCount(g.Key, g.Count()))
+            .OrderByDescending(g => g.Count)
+            .Take(6)
+            .ToList();
+
+        var topAuthors = books
+            .GroupBy(b => b.Author)
+            .Where(g => g.Count() >= 2)
+            .Select(g => new NamedCount(g.Key, g.Count()))
+            .OrderByDescending(g => g.Count)
+            .Take(5)
+            .ToList();
 
         return new BookStatsDto(
-            stats.TotalBooks,
-            stats.TotalFinished,
-            stats.TotalReading,
-            stats.TotalPagesRead,
-            avg,
-            stats.BooksThisYear);
+            books.Count,
+            totalFinished,
+            totalReading,
+            totalPages,
+            avgRating,
+            thisYearCount,
+            booksByMonth,
+            topGenres,
+            topAuthors,
+            books.Count(b => b.IsFiction == true),
+            books.Count(b => b.IsFiction == false));
     }
 }

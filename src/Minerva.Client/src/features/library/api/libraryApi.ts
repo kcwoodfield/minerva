@@ -63,6 +63,11 @@ export const libraryApi = {
     totalPagesRead: number;
     averageRating: number;
     booksThisYear: number;
+    booksByMonth: { month: string; year: number; count: number }[];
+    topGenres: { name: string; count: number }[];
+    topAuthors: { name: string; count: number }[];
+    fictionCount: number;
+    nonFictionCount: number;
   }> => {
     const { data } = await apiClient.get('/books/stats');
     return data;

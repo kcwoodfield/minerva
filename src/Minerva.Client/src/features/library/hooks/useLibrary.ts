@@ -144,16 +144,11 @@ export function useDeleteCover() {
   return { mutateAsync, isPending };
 }
 
+type StatsData = Awaited<ReturnType<typeof libraryApi.getStats>>;
+
 export function useStats() {
   const listVersion = useLibraryStore((s) => s.listVersion);
-  const [data, setData] = useState<{
-    totalBooks: number;
-    totalFinished: number;
-    totalReading: number;
-    totalPagesRead: number;
-    averageRating: number;
-    booksThisYear: number;
-  } | null>(null);
+  const [data, setData] = useState<StatsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
