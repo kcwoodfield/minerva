@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Barcode, Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -344,14 +344,20 @@ export function BookForm({
 
   const { onBlur: isbn13RhfBlur, ...isbn13Register } = register('isbn13');
 
+  const pendingReset = useRef<Partial<CreateBookForm> | null>(null);
+
   const handleFoundMetadata = (isbn: string, metadata: BookMetadata) => {
+    pendingReset.current = { ...getValues(), ...metadataToFormValues(isbn, metadata) };
     setShowForm(true);
-    reset({
-      ...getValues(),
-      ...metadataToFormValues(isbn, metadata),
-    });
-    setTimeout(() => clearErrors('pages'), 0);
   };
+
+  useEffect(() => {
+    if (showForm && pendingReset.current) {
+      reset(pendingReset.current);
+      pendingReset.current = null;
+      setTimeout(() => clearErrors('pages'), 0);
+    }
+  }, [showForm]);
 
   const requestHaiku = async (title: string, author: string, summary?: string) => {
     setIsGeneratingHaiku(true);
