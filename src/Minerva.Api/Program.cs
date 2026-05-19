@@ -8,6 +8,7 @@ using Minerva.Api.Features.Books.Services;
 using Minerva.Api.Features.Books.Services.Haiku;
 using Minerva.Api.Infrastructure.Data;
 using Minerva.Api.Infrastructure.Json;
+using Minerva.Api.Infrastructure.MediatR;
 using Minerva.Api.Infrastructure.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,9 +20,15 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new NullableDateTimeJsonConverter());
 });
 
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+});
 builder.Services.AddCarter();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddDbContext<MinervaDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -94,6 +101,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseExceptionHandler();
 app.UseCors();
 
 static void MapCoverStaticFiles(WebApplication app, string root, string requestPath)

@@ -74,8 +74,11 @@ Uploaded files are stored by `BookImageStorage` under the configured `BookImages
 | GET | `/api/books/lookup/{isbn}` | Metadata by ISBN (digits only in path) |
 | POST | `/api/books/{id}/cover` | Upload a cover image (multipart/form-data) |
 | DELETE | `/api/books/{id}/cover` | Remove uploaded cover; reverts to `CoverSourceUrl` |
-| GET | `/api/books/{id}/cover` | Serve or proxy the book's cover image |
-| GET | `/api/covers/proxy?url=` | Proxy an arbitrary allowlisted cover URL |
+| GET | `/api/books/{id}/cover` | Serve local cover or stream from allowlisted CDN hosts |
+| GET | `/api/books/{id}/notes` | List notes (404 if book missing) |
+| POST | `/api/books/{id}/notes` | Create note |
+| PUT | `/api/books/{id}/notes/{noteId}` | Update note |
+| DELETE | `/api/books/{id}/notes/{noteId}` | Delete note |
 
 JSON uses **camelCase**. Empty strings for optional dates are normalized to `null` via `NullableDateTimeJsonConverter`.
 
@@ -84,5 +87,7 @@ JSON uses **camelCase**. Empty strings for optional dates are normalized to `nul
 - No authentication enforced (single-user design; multi-user planned).
 - CORS restricted in development to the Vite origin.
 - Secrets via configuration / environment — not committed.
+- Server-side cover fetches are restricted to known book-metadata hosts (Open Library, Google Books CDNs).
+- Haiku generation sends title, author, and optional summary to the configured provider (Ollama or Anthropic); reading notes are not sent.
 
 See [roadmap](../roadmap.md) for auth and deployment plans.

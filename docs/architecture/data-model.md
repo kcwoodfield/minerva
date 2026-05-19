@@ -37,6 +37,19 @@ Not stored separately. Derived from `Completed`:
 | `1–99` | Reading |
 | `100` | Finished |
 
+## `BookNote`
+
+Defined in `src/Minerva.Api/Features/Notes/BookNote.cs`. Child of `Book` with cascade delete.
+
+| Field | Type | Notes |
+|-------|------|--------|
+| `Id` | `Guid` | Primary key |
+| `BookId` | `Guid` | FK → `Book` |
+| `Type` | string | `note`, `quote`, or `highlight` |
+| `Content` | string | Required, max 10 000 chars |
+| `PageNumber` | int? | Optional, &gt; 0 when set |
+| `CreatedAt` | DateTime | UTC, set on create |
+
 ## ISBN lookup metadata
 
 `BookMetadata` (lookup response only) maps to form fields on the client; `description` → `summary` after sanitization.

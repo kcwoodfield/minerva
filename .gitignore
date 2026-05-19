@@ -96,6 +96,9 @@ media_volume/
 static_volume/
 docker-data/
 
+# Claude Code local settings (may contain machine paths)
+.claude/
+
 # IDE and Editors
 .vscode/
 .idea/

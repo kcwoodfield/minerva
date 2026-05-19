@@ -69,7 +69,7 @@ Each feature folder contains a Carter module (`*Module.cs`) and, where needed, a
 #### Cover image pipeline
 
 - **Uploads**: `BookImageStorage` saves files under `BookImages:RootPath`; served as static files at `/uploads/covers/{file}`.
-- **Proxy**: `CoverProxyModule` proxies external covers from an allowlisted set of hosts (Open Library, Google Books) so the browser never hits third-party origins.
+- **Proxy**: `GET /api/books/{id}/cover` serves local uploads or streams from allowlisted CDN hosts (Open Library, Google Books). Server-side downloads use the same allowlist (`CoverImageUrlPolicy`).
 - When a file is uploaded, the original external URL is preserved in `CoverSourceUrl`; deleting the upload reverts `CoverImageUrl` to it.
 
 ### Frontend
@@ -96,8 +96,11 @@ Feature code lives in `src/Minerva.Client/src/features/library/`.
 | GET | `/api/books/lookup/{isbn}` | Metadata by ISBN (digits only in path) |
 | POST | `/api/books/{id}/cover` | Upload cover image (multipart/form-data) |
 | DELETE | `/api/books/{id}/cover` | Remove uploaded cover; reverts to `CoverSourceUrl` |
-| GET | `/api/books/{id}/cover` | Serve or proxy the book's cover |
-| GET | `/api/covers/proxy?url=` | Proxy an arbitrary allowlisted cover URL |
+| GET | `/api/books/{id}/cover` | Serve local cover or stream from allowlisted external URL |
+| GET | `/api/books/{id}/notes` | List notes for a book (404 if book missing) |
+| POST | `/api/books/{id}/notes` | Create note (`type`: note \| quote \| highlight) |
+| PUT | `/api/books/{id}/notes/{noteId}` | Update note content / page |
+| DELETE | `/api/books/{id}/notes/{noteId}` | Delete note |
 
 All JSON uses camelCase. Empty strings for optional date fields are normalized to `null` via `NullableDateTimeJsonConverter`.
 

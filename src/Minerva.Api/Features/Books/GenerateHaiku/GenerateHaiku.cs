@@ -50,7 +50,7 @@ public class GenerateHaikuModule : ICarterModule
     }
 }
 
-public class GenerateHaikuHandler(IHaikuGenerationService haikuService)
+public class GenerateHaikuHandler(IHaikuGenerationService haikuService, ILogger<GenerateHaikuHandler> logger)
     : IRequestHandler<GenerateHaikuCommand, GenerateHaikuResult>
 {
     public async Task<GenerateHaikuResult> Handle(GenerateHaikuCommand command, CancellationToken cancellationToken)
@@ -75,10 +75,11 @@ public class GenerateHaikuHandler(IHaikuGenerationService haikuService)
         }
         catch (Exception ex)
         {
+            logger.LogWarning(ex, "Haiku generation failed for {Title}", command.Title);
             return new GenerateHaikuResult(
                 GenerateHaikuOutcome.Failed,
                 null,
-                ex.Message);
+                "Failed to generate haiku. Check server logs for details.");
         }
     }
 }

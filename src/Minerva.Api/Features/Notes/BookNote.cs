@@ -1,10 +1,13 @@
+using Minerva.Api.Features.Books;
+
 namespace Minerva.Api.Features.Notes;
 
 public class BookNote
 {
     public Guid Id { get; set; }
     public Guid BookId { get; set; }
-    public string Type { get; set; } = "note"; // note | quote | highlight
+    public Book Book { get; set; } = null!;
+    public string Type { get; set; } = BookNoteTypes.Note;
     public string Content { get; set; } = string.Empty;
     public int? PageNumber { get; set; }
     public DateTime CreatedAt { get; set; }

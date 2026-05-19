@@ -43,9 +43,14 @@ public class MinervaDbContext(DbContextOptions<MinervaDbContext> options) : DbCo
         {
             entity.HasKey(n => n.Id);
             entity.Property(n => n.Type).IsRequired().HasMaxLength(20);
-            entity.Property(n => n.Content).IsRequired();
+            entity.Property(n => n.Content).IsRequired().HasMaxLength(NoteValidation.MaxContentLength);
             entity.Property(n => n.CreatedAt).HasDefaultValueSql("NOW()");
             entity.HasIndex(n => n.BookId);
+
+            entity.HasOne(n => n.Book)
+                .WithMany()
+                .HasForeignKey(n => n.BookId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Logo } from '@/components/logo';
 import { Toaster } from '@/components/ui/sonner';
@@ -19,6 +19,11 @@ const TAGLINES = [
   'Ink runs deep.',
   'One volume at a time.',
 ];
+
+function pickTagline(exclude?: string) {
+  const pool = exclude ? TAGLINES.filter((t) => t !== exclude) : TAGLINES;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 type Page = 'library' | 'insights';
 
@@ -48,7 +53,7 @@ function NavLink({ label, page, current, onClick }: { label: string; page: Page;
 
 function App() {
   const [page, setPage] = useState<Page>(getPage);
-  const [tagline] = useState(() => TAGLINES[Math.floor(Math.random() * TAGLINES.length)]);
+  const [tagline, setTagline] = useState(() => pickTagline());
 
   useEffect(() => {
     const onHash = () => setPage(getPage());
@@ -61,30 +66,42 @@ function App() {
     setPage(p);
   };
 
+  const goHome = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    window.location.hash = '';
+    setPage('library');
+    window.history.replaceState(null, '', '/');
+  };
+
   return (
     <div className="min-h-screen bg-cream">
       <header className="border-b border-rule-soft bg-cream">
         <div className="flex items-center justify-between px-page-x py-5">
           <div className="flex items-center gap-5">
-            <a
-              href="#"
-              className="flex items-center gap-2"
-              style={{ textDecoration: 'none' }}
-              onClick={(e) => { e.preventDefault(); navigate('library'); }}
-            >
-              <Logo size="lg" />
+            <div className="flex items-center gap-2">
+              <a href="/" onClick={goHome} className="shrink-0" style={{ textDecoration: 'none' }}>
+                <Logo size="lg" />
+              </a>
               <div>
-                <h1
-                  className="font-display font-semibold text-ink leading-none"
-                  style={{ fontSize: 22, letterSpacing: '-0.01em' }}
+                <a href="/" onClick={goHome} style={{ textDecoration: 'none' }}>
+                  <h1
+                    className="font-display font-semibold text-ink leading-none"
+                    style={{ fontSize: 22, letterSpacing: '-0.01em' }}
+                  >
+                    Minerva
+                  </h1>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setTagline((prev) => pickTagline(prev))}
+                  className="font-serif italic text-ink-mute cursor-pointer text-left transition-colors hover:text-ink"
+                  style={{ fontSize: 12, marginTop: 2, background: 'none', border: 'none', padding: 0 }}
+                  title="Another thought"
                 >
-                  Minerva
-                </h1>
-                <p className="font-serif italic text-ink-mute" style={{ fontSize: 12, marginTop: 2 }}>
                   {tagline}
-                </p>
+                </button>
               </div>
-            </a>
+            </div>
 
             <nav className="flex items-center gap-4" style={{ marginLeft: 8 }}>
               <NavLink label="Library" page="library" current={page} onClick={navigate} />

@@ -19,6 +19,7 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import type { Book } from '../types/library.types';
 import { formatBookTitle } from '../lib/formatBookTitle';
 import { BookCoverImage } from './BookCoverImage';
+import { BookNotesPanel } from './BookNotesPanel';
 
 interface Props {
   books: Book[];
@@ -195,6 +196,8 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
                   ))}
                 </div>
               )}
+
+              <BookNotesPanel bookId={book.id} />
             </div>
           </div>
         </div>

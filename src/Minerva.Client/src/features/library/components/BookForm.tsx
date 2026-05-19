@@ -93,7 +93,6 @@ function metadataToFormValues(isbn: string, metadata: BookMetadata): Partial<Cre
     ...(metadata.publisher ? { publisher: metadata.publisher } : {}),
     ...(publicationDate ? { publicationDate } : {}),
     ...(metadata.genre ? { genre: metadata.genre } : {}),
-    ...(metadata.language ? { language: metadata.language } : {}),
     ...(metadata.description ? { summary: metadata.description } : {}),
     ...(metadata.coverImageUrl ? { coverImageUrl: metadata.coverImageUrl } : {}),
     ...(metadata.series ? { series: metadata.series } : {}),

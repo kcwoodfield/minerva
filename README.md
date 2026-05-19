@@ -78,8 +78,9 @@ kcw_minerva/
 | GET | `/api/books/lookup/{isbn}` | Lookup metadata by ISBN |
 | POST | `/api/books/{id}/cover` | Upload cover image |
 | DELETE | `/api/books/{id}/cover` | Remove uploaded cover |
-| GET | `/api/books/{id}/cover` | Serve or proxy book cover |
-| GET | `/api/covers/proxy?url=` | Proxy allowlisted cover URL |
+| GET | `/api/books/{id}/cover` | Serve local cover or stream allowlisted external URL |
+| GET/POST | `/api/books/{id}/notes` | List / create reading notes |
+| PUT/DELETE | `/api/books/{id}/notes/{noteId}` | Update / delete a note |
 
 ## Tech stack
 

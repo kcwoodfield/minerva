@@ -29,14 +29,31 @@ export interface Book {
   timestamp: string;
 }
 
+export const bookNoteTypes = ['note', 'quote', 'highlight'] as const;
+export type BookNoteType = (typeof bookNoteTypes)[number];
+
 export interface BookNote {
   id: string;
   bookId: string;
-  type: string;
+  type: BookNoteType;
   content: string;
   pageNumber?: number;
   createdAt: string;
 }
+
+export const createNoteSchema = z.object({
+  type: z.enum(bookNoteTypes),
+  content: z.string().min(1, 'Note cannot be empty').max(10_000),
+  pageNumber: z.number().int().positive().optional(),
+});
+
+export const updateNoteSchema = z.object({
+  content: z.string().min(1, 'Note cannot be empty').max(10_000),
+  pageNumber: z.number().int().positive().optional(),
+});
+
+export type CreateNoteForm = z.infer<typeof createNoteSchema>;
+export type UpdateNoteForm = z.infer<typeof updateNoteSchema>;
 
 export interface CreateBookDto {
   title: string;

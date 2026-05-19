@@ -72,7 +72,7 @@ public class BookImageStorage(BookImageStorageOptions options)
     public async Task<string?> DownloadAndSaveAsync(Guid bookId, string? url, HttpClient httpClient, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(url)) return null;
-        if (!Uri.TryCreate(url.Trim(), UriKind.Absolute, out var uri) || uri.Scheme is not "http" and not "https")
+        if (!CoverImageUrlPolicy.TryValidate(url, out var uri, out _))
             return null;
 
         try
