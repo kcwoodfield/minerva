@@ -53,6 +53,11 @@ const STOP_WORDS = new Set([
   'of', 'with', 'by', 'from', 'is', 'was', 'are', 'were',
 ]);
 
+function apiErrorMessage(err: unknown, fallback = 'Failed to save book'): string {
+  const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+  return msg ?? fallback;
+}
+
 function isIsbnMode(value: string): boolean {
   return value.trim().length > 0 && /^[0-9\-\s X]+$/i.test(value);
 }
@@ -409,7 +414,11 @@ export function BookForm({
 
   const handleFormSubmit = async (data: CreateBookForm) => {
     if (isEditMode) {
-      await finalizeSubmit(data, data.haiku);
+      try {
+        await finalizeSubmit(data, data.haiku);
+      } catch (err) {
+        toast.error(apiErrorMessage(err));
+      }
       return;
     }
 
@@ -422,7 +431,11 @@ export function BookForm({
       setHaikuModalOpen(false);
       setPendingSubmit(null);
       toast.warning('Haiku generation failed — saving book without one.');
-      await finalizeSubmit(data);
+      try {
+        await finalizeSubmit(data);
+      } catch (saveErr) {
+        toast.error(apiErrorMessage(saveErr));
+      }
     }
   };
 
@@ -454,8 +467,8 @@ export function BookForm({
       setHaikuModalOpen(false);
       setGeneratedHaiku('');
       toast.success('Haiku added — save to keep it.');
-    } catch {
-      toast.error('Failed to save book');
+    } catch (err) {
+      toast.error(apiErrorMessage(err));
     }
   };
 

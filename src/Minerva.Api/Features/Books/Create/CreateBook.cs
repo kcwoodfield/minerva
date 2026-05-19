@@ -1,7 +1,9 @@
 using Carter;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Minerva.Api.Features.Books;
+using Npgsql;
 
 namespace Minerva.Api.Features.Books.Create;
 
@@ -34,9 +36,17 @@ public class CreateBookModule : ICarterModule
     {
         app.MapPost("/api/books", async (CreateBookRequest request, ISender sender) =>
         {
-            var command = new CreateBookCommand(request);
-            var result = await sender.Send(command);
-            return Results.Created($"/api/books/{result.Id}", result);
+            try
+            {
+                var command = new CreateBookCommand(request);
+                var result = await sender.Send(command);
+                return Results.Created($"/api/books/{result.Id}", result);
+            }
+            catch (DbUpdateException ex)
+                when (ex.InnerException is PostgresException { SqlState: "23505" })
+            {
+                return Results.Conflict(new { message = "A book with this ISBN-13 already exists in your library." });
+            }
         })
         .WithName("CreateBook")
         .WithOpenApi();

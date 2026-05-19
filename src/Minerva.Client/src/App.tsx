@@ -36,7 +36,7 @@ function LibraryContent() {
         <LibraryTable />
       </main>
 
-      <Toaster richColors />
+      <Toaster richColors position="top-center" />
     </div>
   );
 }
