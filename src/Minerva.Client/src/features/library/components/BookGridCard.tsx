@@ -63,7 +63,11 @@ export function BookGridCard({ book, onSelect, onEdit, onDelete }: Props) {
             </div>
           )}
         </div>
-        <div className="absolute top-2 right-2" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="absolute top-2 right-2"
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
@@ -77,8 +81,8 @@ export function BookGridCard({ book, onSelect, onEdit, onDelete }: Props) {
               <MoreVertical className="size-[15px]" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(book)}>Edit</DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onClick={() => onDelete(book)}>
+              <DropdownMenuItem onSelect={() => onEdit(book)}>Edit</DropdownMenuItem>
+              <DropdownMenuItem variant="destructive" onSelect={() => onDelete(book)}>
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>

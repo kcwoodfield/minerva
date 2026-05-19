@@ -87,11 +87,6 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
       <DialogContent
         className="max-h-[92vh] max-w-3xl overflow-hidden border-rule bg-cream p-0 gap-0 sm:rounded-lg"
         style={{ display: 'flex', flexDirection: 'column' }}
-        onPointerDownOutside={(e) => {
-          if ((e.target as Element).closest('[data-slot="dropdown-menu-content"]')) {
-            e.preventDefault();
-          }
-        }}
       >
         <DialogDescription className="sr-only">
           Book details for {formatBookTitle(book.title)}. Use previous and next to browse volumes.
@@ -205,15 +200,15 @@ export function BookDetailModal({ books, index, open, onIndexChange, onClose, on
         </div>
 
         <footer className="flex items-center justify-between gap-4 border-t border-rule-soft bg-paper px-6 py-4">
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger render={
               <Button type="button" variant="ghost" size="icon" className="h-9 w-9" aria-label="Book actions" />
             }>
               <MoreVertical className="size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              <DropdownMenuItem onClick={() => onEdit(book)}>Edit</DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onClick={() => { onClose(); onDelete(book); }}>
+              <DropdownMenuItem onSelect={() => { onClose(); onEdit(book); }}>Edit</DropdownMenuItem>
+              <DropdownMenuItem variant="destructive" onSelect={() => { onClose(); onDelete(book); }}>
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>

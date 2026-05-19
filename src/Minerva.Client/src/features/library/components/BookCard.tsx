@@ -85,8 +85,8 @@ export function BookCard({ book, onSelect, onEdit, onDelete }: Props) {
           <MoreVertical style={{ width: 15, height: 15 }} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => onEdit(book)}>Edit</DropdownMenuItem>
-          <DropdownMenuItem className="text-destructive" onClick={() => onDelete(book)}>Delete</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => onEdit(book)}>Edit</DropdownMenuItem>
+          <DropdownMenuItem variant="destructive" onSelect={() => onDelete(book)}>Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
