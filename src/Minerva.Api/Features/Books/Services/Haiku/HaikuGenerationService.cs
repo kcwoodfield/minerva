@@ -54,7 +54,9 @@ public class HaikuGenerationService(
             sb.AppendLine(excerpt);
         }
         sb.AppendLine();
-        sb.AppendLine("Return only the haiku as three short lines. No title, quotation marks, labels, explanation, dashes, or hyphens.");
+        sb.AppendLine("Return only the haiku as exactly three lines of plain text.");
+        sb.AppendLine("Rules: no title, no labels, no quotation marks, no explanation, no punctuation at the end of lines.");
+        sb.AppendLine("IMPORTANT: do not use any dash character of any kind — not a hyphen (-), not an en-dash (–), not an em-dash (—). These are strictly forbidden.");
         return sb.ToString();
     }
 
@@ -115,6 +117,9 @@ public class HaikuGenerationService(
             .Replace("\r\n", "\n", StringComparison.Ordinal)
             .Replace("—", "", StringComparison.Ordinal)
             .Replace("–", "", StringComparison.Ordinal)
+            .Replace("‒", "", StringComparison.Ordinal) // figure dash
+            .Replace("–", "", StringComparison.Ordinal) // en-dash (unicode)
+            .Replace("—", "", StringComparison.Ordinal) // em-dash (unicode)
             .Replace("-", "", StringComparison.Ordinal)
             .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
             .Take(3)

@@ -332,7 +332,7 @@ export function BookForm({
   const [isGeneratingHaiku, setIsGeneratingHaiku] = useState(false);
   const isEditMode = !!bookId || !!defaultValues?.title;
 
-  const { register, handleSubmit, reset, getValues, watch, setValue, formState: { errors } } = useForm<CreateBookForm>({
+  const { register, handleSubmit, reset, getValues, watch, setValue, clearErrors, formState: { errors } } = useForm<CreateBookForm>({
     resolver: zodResolver(createBookSchema),
     defaultValues: { title: '', author: '', isbn13: '', pages: 0, rating: 0, completed: 0, ...defaultValues },
   });
@@ -342,6 +342,8 @@ export function BookForm({
       ...getValues(),
       ...metadataToFormValues(isbn, metadata),
     });
+    // clearErrors must run after the resolver's async re-validation cycle
+    setTimeout(() => clearErrors('pages'), 0);
     setShowForm(true);
   };
 
@@ -502,7 +504,12 @@ export function BookForm({
 
           <div className="grid grid-cols-3 gap-3">
             <Field label="Pages *" error={errors.pages?.message}>
-              <Input type="number" {...register('pages', { valueAsNumber: true })} />
+              <Input
+                type="number"
+                placeholder="e.g. 312"
+                value={watch('pages') || ''}
+                onChange={(e) => setValue('pages', e.target.valueAsNumber || 0, { shouldDirty: true })}
+              />
             </Field>
             <Field label="Rating (0–5)">
               <Input type="number" min={0} max={5} {...register('rating', { valueAsNumber: true })} />
@@ -527,8 +534,55 @@ export function BookForm({
             </Field>
           </div>
 
-          <Field label="Genre">
-            <Input {...register('genre')} />
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Genre">
+              <Input {...register('genre')} />
+            </Field>
+            <Field label="Fiction">
+              <select
+                className="w-full rounded-md border border-rule bg-paper font-serif text-ink focus-visible:border-accent-blue focus-visible:outline-none transition-[border-color] duration-[140ms]"
+                style={{ height: 42, padding: '0 14px', fontSize: 15 }}
+                value={watch('isFiction') === true ? 'true' : watch('isFiction') === false ? 'false' : ''}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setValue('isFiction', v === 'true' ? true : v === 'false' ? false : undefined, { shouldDirty: true });
+                }}
+              >
+                <option value="">Unknown</option>
+                <option value="true">Fiction</option>
+                <option value="false">Non-Fiction</option>
+              </select>
+            </Field>
+          </div>
+
+          <Field label="Series">
+            <Input
+              placeholder="Penguin Classics, Oxford World's Classics…"
+              list="series-suggestions"
+              {...register('series')}
+            />
+            <datalist id="series-suggestions">
+              <option value="Penguin Classics" />
+              <option value="Penguin Modern Classics" />
+              <option value="Penguin Popular Classics" />
+              <option value="Penguin Great Ideas" />
+              <option value="Oxford World's Classics" />
+              <option value="Everyman's Library" />
+              <option value="Library of America" />
+              <option value="Modern Library" />
+              <option value="New York Review Books Classics" />
+              <option value="Vintage Classics" />
+              <option value="Signet Classics" />
+              <option value="Dover Thrift Editions" />
+              <option value="Wordsworth Classics" />
+              <option value="Barnes & Noble Classics" />
+              <option value="Canongate Classics" />
+              <option value="Folio Society" />
+              <option value="Pelican Books" />
+              <option value="Anchor Books" />
+              <option value="Picador" />
+              <option value="Harvill Secker" />
+            </datalist>
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
