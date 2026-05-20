@@ -1,30 +1,43 @@
 # Roadmap
 
-Current focus: stable personal library on the dotnet + React stack. Items below are **not** committed timelines.
+Planned work in rough priority order. Not committed timelines.
 
-## Near term
+## Near term (P1)
 
+- [ ] Started / finished dates on books
+- [ ] Goodreads / CSV import
+- [ ] Shelves / tags
+
+## Medium term (P2)
+
+- [ ] Annual reading goal tracker
+- [ ] Richer Insights page (more charts, streaks, longest books)
+- [ ] Barcode scan on mobile (ISBN via camera)
+- [ ] Empty state / first-run experience
+
+## Long term (P3)
+
+- [ ] Surface series grouping in library
 - [ ] Authentication (JWT or cookie session) and user-scoped data
-- [ ] Automated tests (API integration, client component tests)
-- [ ] Production deployment guide (hosting API + static client + managed Postgres)
-- [ ] Remove or archive leftover `backend/` / `frontend/` tree if still present on `main`
+- [ ] LangGraph-based recommendations and semantic search (see ADR 002)
+- [ ] Multi-user libraries with data isolation
 
-## Medium term
-
-- [ ] Bulk import/export (CSV / JSON)
-- [ ] Tag management UI
-- [ ] Reading statistics dashboard
-- [ ] PWA / offline-friendly mobile layout
-
-## Long term (see ADR 002)
-
-- [ ] LangGraph-based recommendations and semantic search
-- [ ] Multi-user libraries with isolation
-
-## Done (dotnet rebuild branch)
+## Done
 
 - [x] ASP.NET Core API + EF Core + PostgreSQL
-- [x] React/Vite client with Minerva design system
-- [x] ISBN lookup merge (Google + Open Library) + HTML sanitization
-- [x] Detail / edit modals, list & grid views, dark mode
-- [x] Zustand-based UI state (TanStack removed)
+- [x] React/Vite client with Minerva design system (cream/ink palette, dark mode)
+- [x] ISBN lookup merge (Google Books + Open Library) + HTML sanitization
+- [x] Cover image uploads with CDN proxy fallback
+- [x] List view (table) and grid view (cover cards)
+- [x] Book detail modal with prev/next navigation, keyboard shortcuts, deep-link URL
+- [x] Add / edit / delete with confirmation dialog
+- [x] AI-generated haiku per finished book (Ollama or Anthropic); hover overlay on grid cards
+- [x] Reading notes, quotes, and highlights (API + data model)
+- [x] Archived books (excluded from main library, available in filter)
+- [x] Bulk ISBN upload page
+- [x] Insights page (stats, monthly chart, genres, authors, fiction split)
+- [x] Settings menu (dark mode toggle + bulk upload link)
+- [x] ⌘K search shortcut; ⌘B add-book shortcut
+- [x] Mobile nav drawer with responsive layout
+- [x] Duplicate ISBN pre-check on add
+- [x] Zustand UI state with selector hooks; no TanStack Query/Table
