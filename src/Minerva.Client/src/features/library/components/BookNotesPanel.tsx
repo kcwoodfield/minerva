@@ -6,8 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { libraryApi } from '../api/libraryApi';
 import {
-  bookNoteTypes,
-  createNoteSchema,
   updateNoteSchema,
   type BookNote,
   type BookNoteType,
@@ -40,9 +38,6 @@ export function BookNotesPanel({ bookId }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
   const [editPage, setEditPage] = useState('');
-  const [type, setType] = useState<BookNoteType>('note');
-  const [content, setContent] = useState('');
-  const [pageNumber, setPageNumber] = useState('');
 
   const loadNotes = useCallback(async () => {
     setLoading(true);
@@ -70,38 +65,6 @@ export function BookNotesPanel({ bookId }: Props) {
     setEditingId(note.id);
     setEditContent(note.content);
     setEditPage(note.pageNumber ? String(note.pageNumber) : '');
-  };
-
-  const handleAdd = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const { page, error } = parseOptionalPage(pageNumber);
-    if (error) {
-      toast.error(error);
-      return;
-    }
-
-    const parsed = createNoteSchema.safeParse({
-      type,
-      content: content.trim(),
-      ...(page ? { pageNumber: page } : {}),
-    });
-    if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? 'Invalid note.');
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const created = await libraryApi.createNote(bookId, parsed.data);
-      setNotes((prev) => [...prev, created]);
-      setContent('');
-      setPageNumber('');
-    } catch {
-      toast.error('Could not save note.');
-    } finally {
-      setSaving(false);
-    }
   };
 
   const handleSaveEdit = async (noteId: string) => {
@@ -261,59 +224,6 @@ export function BookNotesPanel({ bookId }: Props) {
         </ul>
       )}
 
-      <form
-        onSubmit={(e) => void handleAdd(e)}
-        className="space-y-3 border-t border-rule-soft pt-4"
-      >
-        <div className="flex flex-wrap gap-2">
-          {bookNoteTypes.map((value) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setType(value)}
-              disabled={editingId !== null}
-              className={`rounded-sm border px-3 py-1 font-serif text-[13px] transition-colors disabled:opacity-50 ${
-                type === value
-                  ? 'border-ink bg-ink text-cream'
-                  : 'border-rule-soft text-ink-mute hover:border-rule'
-              }`}
-            >
-              {TYPE_LABELS[value]}
-            </button>
-          ))}
-        </div>
-
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Add a note, quote, or highlight…"
-          rows={3}
-          maxLength={10_000}
-          disabled={editingId !== null}
-          className={noteFieldClass}
-          style={{ fontSize: 14, lineHeight: 1.5 }}
-        />
-
-        <div className="flex flex-wrap items-end gap-3">
-          <div>
-            <label className="t-meta block mb-1" htmlFor={`note-page-${bookId}`}>
-              Page (optional)
-            </label>
-            <Input
-              id={`note-page-${bookId}`}
-              type="number"
-              min={1}
-              value={pageNumber}
-              onChange={(e) => setPageNumber(e.target.value)}
-              disabled={editingId !== null}
-              className="w-24"
-            />
-          </div>
-          <Button type="submit" disabled={saving || editingId !== null || !content.trim()}>
-            {saving && !editingId ? <Loader2 className="size-4 animate-spin" /> : 'Add note'}
-          </Button>
-        </div>
-      </form>
     </section>
   );
 }

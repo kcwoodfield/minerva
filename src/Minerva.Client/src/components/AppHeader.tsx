@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type MouseEvent } from 'react';
 import { Menu, Plus } from 'lucide-react';
 import { Logo } from '@/components/logo';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { SettingsMenu } from '@/components/SettingsMenu';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -137,13 +137,12 @@ export function AppHeader({
 
           <nav className="hidden md:flex items-center gap-4" style={{ marginLeft: 8 }}>
             <NavLink label="Library" page="library" current={page} onClick={navigate} />
-            <NavLink label="Upload" page="upload" current={page} onClick={navigate} />
             <NavLink label="Insights" page="insights" current={page} onClick={navigate} />
           </nav>
         </div>
 
         <div className="hidden md:flex items-center gap-1 shrink-0">
-          <ThemeToggle />
+          <SettingsMenu onNavigate={navigate} />
           {page === 'library' && (
             <Button type="button" onClick={openAddBook} aria-keyshortcuts="Meta+B">
               <Plus className="size-[15px]" />
@@ -188,7 +187,6 @@ export function AppHeader({
               {(
                 [
                   ['library', 'Library'],
-                  ['upload', 'Upload'],
                   ['insights', 'Insights'],
                 ] as const
               ).map(([p, label]) => {
@@ -213,8 +211,8 @@ export function AppHeader({
 
             <div className="mt-auto border-t border-rule-soft px-4 py-5 space-y-4">
               <div className="flex items-center justify-between px-1">
-                <span className="t-meta">Appearance</span>
-                <ThemeToggle />
+                <span className="t-meta">Settings</span>
+                <SettingsMenu onNavigate={navigate} />
               </div>
 
               {page === 'library' && (
