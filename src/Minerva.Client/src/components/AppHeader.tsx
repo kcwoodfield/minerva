@@ -12,7 +12,7 @@ import {
 import { AddBookDrawer } from '@/features/library/components/AddBookDrawer';
 import { cn } from '@/lib/utils';
 
-export type AppPage = 'library' | 'insights';
+export type AppPage = 'library' | 'insights' | 'upload';
 
 const ADD_BOOK_SHORTCUT_KEY = 'b';
 
@@ -42,9 +42,11 @@ function NavLink({
   className?: string;
 }) {
   const active = page === current;
+  const href =
+    page === 'upload' ? '/upload' : page === 'insights' ? '#insights' : '#';
   return (
     <a
-      href={page === 'insights' ? '#insights' : '#'}
+      href={href}
       onClick={(e) => {
         e.preventDefault();
         onClick(page);
@@ -135,6 +137,7 @@ export function AppHeader({
 
           <nav className="hidden md:flex items-center gap-4" style={{ marginLeft: 8 }}>
             <NavLink label="Library" page="library" current={page} onClick={navigate} />
+            <NavLink label="Upload" page="upload" current={page} onClick={navigate} />
             <NavLink label="Insights" page="insights" current={page} onClick={navigate} />
           </nav>
         </div>
@@ -182,7 +185,13 @@ export function AppHeader({
             </div>
 
             <nav className="flex flex-col gap-1 px-4 py-4" aria-label="Main">
-              {(['library', 'insights'] as const).map((p) => {
+              {(
+                [
+                  ['library', 'Library'],
+                  ['upload', 'Upload'],
+                  ['insights', 'Insights'],
+                ] as const
+              ).map(([p, label]) => {
                 const active = page === p;
                 return (
                   <button
@@ -196,7 +205,7 @@ export function AppHeader({
                         : 'text-ink-mute hover:bg-cream-warm hover:text-ink',
                     )}
                   >
-                    {p === 'library' ? 'Library' : 'Insights'}
+                    {label}
                   </button>
                 );
               })}

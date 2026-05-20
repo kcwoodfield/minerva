@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { normalizeIsbn, isbn10ToIsbn13 } from '@/lib/isbn';
 import { createBookSchema, type CreateBookForm, type BookMetadata } from '../types/library.types';
 import { BookTitle } from './BookTitle';
+import { metadataToFormValues } from '../lib/bookFormValues';
 import { formatBookTitle } from '../lib/formatBookTitle';
 import { formatPublicationYear } from '../lib/formatPublicationYear';
 import { useLookupISBN } from '../hooks/useLibrary';
@@ -23,8 +24,13 @@ interface Props {
   defaultValues?: Partial<CreateBookForm>;
   onSubmit: (data: CreateBookForm) => Promise<void>;
   onCancel?: () => void;
+  cancelLabel?: string;
   submitLabel?: string;
   isPending?: boolean;
+  /** Skip haiku generation when creating (bulk import). */
+  skipHaikuOnCreate?: boolean;
+  /** Hide ISBN lookup card (bulk import already looked up). */
+  hideLookup?: boolean;
 }
 
 function MLabel({ children }: { children: React.ReactNode }) {
@@ -68,36 +74,6 @@ function isIsbnMode(value: string): boolean {
 function hasMeaningfulWord(value: string): boolean {
   return value.trim().toLowerCase().split(/\s+/)
     .some(w => w.length >= 2 && !STOP_WORDS.has(w));
-}
-
-function metadataToFormValues(isbn: string, metadata: BookMetadata): Partial<CreateBookForm> {
-  const sourceIsbn = isbn || metadata.isbn13 || '';
-  const normalized = normalizeIsbn(sourceIsbn);
-  const pages = metadata.pageCount && metadata.pageCount > 0 ? metadata.pageCount : 0;
-
-  let publicationDate = '';
-  if (metadata.publicationDate) {
-    const parsed = new Date(metadata.publicationDate);
-    if (!Number.isNaN(parsed.getTime())) {
-      publicationDate = String(parsed.getFullYear());
-    }
-  }
-
-  return {
-    title: metadata.title ? formatBookTitle(metadata.title) : '',
-    author: metadata.author ?? '',
-    isbn13: normalized ?? sourceIsbn.replace(/[^0-9Xx]/g, ''),
-    pages,
-    rating: 0,
-    completed: 0,
-    ...(metadata.isbn10 ? { isbn10: metadata.isbn10 } : {}),
-    ...(metadata.publisher ? { publisher: metadata.publisher } : {}),
-    ...(publicationDate ? { publicationDate } : {}),
-    ...(metadata.genre ? { genre: metadata.genre } : {}),
-    ...(metadata.description ? { summary: metadata.description } : {}),
-    ...(metadata.coverImageUrl ? { coverImageUrl: metadata.coverImageUrl } : {}),
-    ...(metadata.series ? { series: metadata.series } : {}),
-  };
 }
 
 function Typewriter({ text, speed = 28 }: { text: string; speed?: number }) {
@@ -366,10 +342,13 @@ export function BookForm({
   defaultValues,
   onSubmit,
   onCancel,
+  cancelLabel = 'Cancel',
   submitLabel = 'Save Book',
   isPending,
+  skipHaikuOnCreate = false,
+  hideLookup = false,
 }: Props) {
-  const [showForm, setShowForm] = useState(!!defaultValues?.title);
+  const [showForm, setShowForm] = useState(!!defaultValues?.title || hideLookup);
   const [haikuModalOpen, setHaikuModalOpen] = useState(false);
   const [haikuModalMode, setHaikuModalMode] = useState<'create' | 'edit'>('create');
   const [generatedHaiku, setGeneratedHaiku] = useState('');
@@ -415,7 +394,7 @@ export function BookForm({
   const finalizeSubmit = async (data: CreateBookForm, haiku?: string) => {
     if (!isEditMode && data.isbn13) {
       try {
-        const existing = await libraryApi.getBooks({ search: data.isbn13, pageSize: 5 });
+        const existing = await libraryApi.getBooks({ page: 1, pageSize: 5, search: data.isbn13 });
         const duplicate = existing.items.find(
           (b) => normalizeIsbn(b.isbn13 ?? '') === data.isbn13,
         );
@@ -443,6 +422,15 @@ export function BookForm({
     if (isEditMode) {
       try {
         await finalizeSubmit(data, data.haiku);
+      } catch (err) {
+        toast.error(apiErrorMessage(err));
+      }
+      return;
+    }
+
+    if (skipHaikuOnCreate) {
+      try {
+        await finalizeSubmit(data);
       } catch (err) {
         toast.error(apiErrorMessage(err));
       }
@@ -524,7 +512,7 @@ export function BookForm({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
       {/* ISBN lookup — always shown so user can re-look while editing */}
-      {!defaultValues?.title && (
+      {!hideLookup && !defaultValues?.title && (
         <BookLookupCard
           onFound={handleFoundMetadata}
           defaultIsbn={defaultValues?.isbn13}
@@ -612,7 +600,7 @@ export function BookForm({
                 step={25}
                 value={watch('completed') ?? 0}
                 onChange={(e) => setValue('completed', Number(e.target.value), { shouldValidate: false })}
-                className="w-full accent-accent"
+                className="w-full accent-accent-terracotta"
                 style={{ height: 36 }}
               />
             </Field>
@@ -639,7 +627,7 @@ export function BookForm({
             </Field>
             <Field label="Fiction / Non-Fiction">
               <select
-                className="w-full rounded-md border border-rule bg-paper font-serif text-ink focus-visible:border-accent-blue focus-visible:outline-none transition-[border-color] duration-[140ms]"
+                className="w-full rounded-md border border-rule bg-paper font-serif text-ink focus-visible:border-accent-terracotta focus-visible:outline-none transition-[border-color] duration-[140ms]"
                 style={{ height: 42, padding: '0 14px', fontSize: 15 }}
                 value={watch('isFiction') === true ? 'true' : watch('isFiction') === false ? 'false' : ''}
                 onChange={(e) => {
@@ -698,7 +686,7 @@ export function BookForm({
 
           <Field label="Summary">
             <textarea
-              className="w-full rounded-md border border-rule bg-paper font-serif text-ink placeholder:italic placeholder:text-ink-faint focus-visible:border-accent-blue focus-visible:outline-none transition-[border-color] duration-[140ms]"
+              className="w-full rounded-md border border-rule bg-paper font-serif text-ink placeholder:italic placeholder:text-ink-faint focus-visible:border-accent-terracotta focus-visible:outline-none transition-[border-color] duration-[140ms]"
               style={{ minHeight: 160, padding: '11px 14px', fontSize: 15, resize: 'vertical' }}
               {...register('summary')}
             />
@@ -716,7 +704,7 @@ export function BookForm({
           <label className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"
-              className="mt-1 accent-accent"
+              className="mt-1 accent-accent-terracotta"
               checked={watch('archived') === true}
               onChange={(e) => setValue('archived', e.target.checked, { shouldDirty: true })}
             />
@@ -753,7 +741,7 @@ export function BookForm({
             <div className="flex justify-end gap-3">
               {onCancel && (
                 <Button type="button" variant="ghost" onClick={onCancel} disabled={isPending}>
-                  Cancel
+                  {cancelLabel}
                 </Button>
               )}
               {!defaultValues?.title && !onCancel && (

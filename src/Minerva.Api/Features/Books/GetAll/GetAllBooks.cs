@@ -1,5 +1,6 @@
 using Carter;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Minerva.Api.Features.Books.GetAll;
 
@@ -17,23 +18,16 @@ public class GetAllBooksModule : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/books", async (
-            int page,
-            int pageSize,
-            string? search,
-            string? sortBy,
-            bool ascending,
-            bool? archived,
-            ISender sender) =>
+        app.MapGet("/api/books", async ([AsParameters] GetAllBooksRequest request, ISender sender) =>
         {
-            var request = new GetAllBooksRequest(
-                page == 0 ? 1 : page,
-                pageSize == 0 ? 25 : pageSize,
-                search,
-                sortBy ?? "dateAdded",
-                ascending,
-                archived ?? false);
-            var result = await sender.Send(new GetAllBooksQuery(request));
+            var normalized = request with
+            {
+                Page = request.Page == 0 ? 1 : request.Page,
+                PageSize = request.PageSize == 0 ? 25 : request.PageSize,
+                SortBy = request.SortBy ?? "dateAdded",
+                Archived = request.Archived ?? false,
+            };
+            var result = await sender.Send(new GetAllBooksQuery(normalized));
             return Results.Ok(result);
         })
         .WithName("GetAllBooks")

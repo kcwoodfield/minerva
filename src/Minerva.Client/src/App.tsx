@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { FilterBar } from './features/library/components/FilterBar';
 import { LibraryTable } from './features/library/components/LibraryTable';
 import { InsightsPage } from './features/library/components/InsightsPage';
+import { BulkUploadPage } from './features/library/components/BulkUploadPage';
 
 const TAGLINES = [
   'Read like a god.',
@@ -24,7 +25,10 @@ function pickTagline(exclude?: string) {
 }
 
 function getPage(): AppPage {
-  return window.location.hash === '#insights' ? 'insights' : 'library';
+  const path = window.location.pathname.replace(/\/$/, '');
+  if (path === '/upload') return 'upload';
+  if (window.location.hash === '#insights') return 'insights';
+  return 'library';
 }
 
 function App() {
@@ -32,21 +36,37 @@ function App() {
   const [tagline, setTagline] = useState(() => pickTagline());
 
   useEffect(() => {
-    const onHash = () => setPage(getPage());
-    window.addEventListener('hashchange', onHash);
-    return () => window.removeEventListener('hashchange', onHash);
+    const syncPage = () => setPage(getPage());
+    window.addEventListener('hashchange', syncPage);
+    window.addEventListener('popstate', syncPage);
+    return () => {
+      window.removeEventListener('hashchange', syncPage);
+      window.removeEventListener('popstate', syncPage);
+    };
   }, []);
 
   const navigate = (p: AppPage) => {
-    window.location.hash = p === 'insights' ? 'insights' : '';
-    setPage(p);
+    if (p === 'upload') {
+      window.history.pushState(null, '', '/upload');
+      setPage('upload');
+      return;
+    }
+    if (p === 'insights') {
+      window.history.pushState(null, '', '/#insights');
+      window.location.hash = 'insights';
+      setPage('insights');
+      return;
+    }
+    window.history.pushState(null, '', '/');
+    window.location.hash = '';
+    setPage('library');
   };
 
   const goHome = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
+    window.history.pushState(null, '', '/');
     window.location.hash = '';
     setPage('library');
-    window.history.replaceState(null, '', '/');
   };
 
   return (
@@ -59,14 +79,14 @@ function App() {
         onTaglineClick={() => setTagline((prev) => pickTagline(prev))}
       />
 
-      {page === 'library' ? (
+      {page === 'library' && (
         <main className="px-4 py-5 md:px-page-x md:py-6">
           <FilterBar />
           <LibraryTable />
         </main>
-      ) : (
-        <InsightsPage />
       )}
+      {page === 'insights' && <InsightsPage />}
+      {page === 'upload' && <BulkUploadPage />}
 
       <Toaster richColors position="top-center" />
     </div>

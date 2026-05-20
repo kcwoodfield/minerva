@@ -9,7 +9,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-accent-blue text-white hover:bg-accent-blue-deep",
+          "bg-accent-terracotta text-white hover:bg-accent-terracotta-deep",
         outline:
           "border-ink bg-transparent text-ink hover:bg-ink hover:text-cream",
         secondary:
@@ -17,8 +17,8 @@ const buttonVariants = cva(
         ghost:
           "bg-transparent text-ink hover:bg-cream-warm",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/85",
-        link: "text-accent-blue underline-offset-4 hover:underline",
+          "bg-accent-terracotta text-white hover:bg-accent-terracotta-deep",
+        link: "text-accent-terracotta underline-offset-4 hover:text-accent-terracotta-deep",
       },
       size: {
         default: "h-9 px-[18px] py-[10px]",
