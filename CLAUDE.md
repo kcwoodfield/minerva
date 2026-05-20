@@ -211,3 +211,22 @@ kcw_minerva/
 - Single-user; no authentication enforced.
 - CORS reads from `Cors:Origins` config (falls back to `http://localhost:5174` if unset).
 - Deployment: configure `VITE_API_URL` (build-time) and `Cors__Origins` (runtime) for your domains.
+
+## Backlog
+
+### P1
+
+- [ ] Started / finished dates
+- [ ] Goodreads / CSV import
+- [ ] Shelves / tags
+
+### P2
+
+- [ ] Annual reading goal
+- [ ] Richer Insights page
+- [ ] Barcode scan (mobile)
+- [ ] Empty state (first-run experience)
+
+### P3
+
+- [ ] Surface series in library
