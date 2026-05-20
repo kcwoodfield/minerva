@@ -214,6 +214,18 @@ kcw_minerva/
 
 ## Backlog
 
+### Deployment (immediate)
+
+- [ ] Write Dockerfiles for API and client (`src/Minerva.Api/Dockerfile`, `src/Minerva.Client/Dockerfile`)
+- [ ] Provision RDS PostgreSQL on AWS and run migrations
+- [ ] Create ECR repositories and push Docker images
+- [ ] Create ECS Fargate cluster, task definitions, and services
+- [ ] Create ALB with path-based routing (`/api/*` → API, `/*` → client)
+- [ ] Configure Cloudflare DNS CNAME → ALB; enable proxy for free SSL
+- [ ] Smoke test production at minerva.kevinwoodfield.com
+
+See `docs/development/deployment.md` for the full step-by-step guide.
+
 ### P1
 
 - [ ] Started / finished dates

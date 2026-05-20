@@ -8,6 +8,7 @@ Documentation for the **ASP.NET Core + React (Vite)** stack. For a quick local r
 |-----|-------------|
 | [Development setup](development/setup.md) | Prerequisites, database, API, client |
 | [Configuration](development/configuration.md) | Ports, secrets, environment variables |
+| [Deployment](development/deployment.md) | AWS ECS Fargate + RDS + Cloudflare (production) |
 
 ## Architecture
 
